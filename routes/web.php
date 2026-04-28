@@ -79,6 +79,13 @@ Route::middleware('auth')->group(function () {
         Route::post('parties/bulk-action', [\App\Http\Controllers\ERP\PartyController::class, 'bulkAction'])->name('parties.bulk-action');
         Route::resource('parties', \App\Http\Controllers\ERP\PartyController::class);
 
+        // Customer Profile & Ordering
+        Route::get('parties/{party}/profile', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'show'])->name('parties.profile');
+        Route::post('parties/{party}/cart', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'addToCart'])->name('parties.cart.add');
+        Route::delete('parties/{party}/cart-clear', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'clearCart'])->name('parties.cart.clear');
+        Route::delete('parties/{party}/cart/{product}', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'removeFromCart'])->name('parties.cart.remove');
+        Route::post('parties/{party}/place-order', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'placeOrder'])->name('parties.place-order');
+
         // Products
         Route::get('products/get-subcategories', [\App\Http\Controllers\ERP\ProductController::class, 'getSubCategories'])->name('products.get-subcategories');
         Route::patch('products/{product}/restore', [\App\Http\Controllers\ERP\ProductController::class, 'restore'])->name('products.restore');

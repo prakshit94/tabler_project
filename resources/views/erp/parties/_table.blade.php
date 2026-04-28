@@ -31,6 +31,7 @@
         <td>{{ $party->created_at->format('d M Y') }}</td>
         <td class="text-end">
           @if($view === 'active')
+            <a href="{{ route('erp.parties.profile', $party->id) }}" class="btn btn-sm btn-info">Profile</a>
             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal-edit-party-{{ $party->id }}">Edit</button>
             <form action="{{ route('erp.parties.destroy', $party->id) }}" method="POST" class="d-inline">
               @csrf @method('DELETE')
