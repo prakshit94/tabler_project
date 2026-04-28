@@ -34,7 +34,7 @@
     <!-- END CUSTOM FONT -->
     @stack('styles')
   </head>
-  <body>
+  <body class="layout-fluid">
     <a href="#content" class="visually-hidden skip-link">Skip to main content</a>
     <!-- BEGIN GLOBAL THEME SCRIPT -->
     <script src="/tabler/dist/js/tabler-theme.min.js?1777289128"></script>
@@ -45,8 +45,9 @@
     <!-- END GLOBAL THEME SCRIPT -->
     <div class="page">
       <!-- BEGIN NAVBAR  -->
-      <header class="navbar navbar-expand-md d-print-none">
-        <div class="container-xl">
+      <div class="sticky-top">
+        <header class="navbar navbar-expand-md sticky-top d-print-none">
+          <div class="container-xl">
           <!-- BEGIN NAVBAR TOGGLER -->
           <button
             class="navbar-toggler"
@@ -359,14 +360,7 @@
                         </div>
                       </li>
                       @endrole
-                      <li class="nav-item">
-                        <a class="nav-link" href="#">
-                          <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 13m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
-                          </span>
-                          <span class="nav-link-title"> Farmers </span>
-                        </a>
-                      </li>
+                
                       <li class="nav-item">
                         <a class="nav-link" href="#">
                           <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -434,6 +428,7 @@
             </div>
           </div>
         </div>
+      </div>
       </div>
       <!-- END NAVBAR  -->
       <div class="page-wrapper">
