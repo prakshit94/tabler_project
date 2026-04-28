@@ -25,9 +25,19 @@
                     <span class="badge bg-blue-lt">{{ $product->category->name ?? 'N/A' }}</span>
                 </td>
                 <td class="text-center">
-                    @php $totalStock = $product->stocks->sum('quantity'); @endphp
+                    @php 
+                        $cart = session()->get("cart.{$party->id}", []);
+                        $inCartQty = isset($cart[$product->id]) ? $cart[$product->id]['quantity'] : 0;
+                        $totalStock = $product->stocks->sum('quantity') - $inCartQty; 
+                    @endphp
                     <div class="font-weight-bold {{ $totalStock <= $product->min_stock_level ? 'text-danger' : 'text-success' }}">
-                        {{ number_format($totalStock) }} {{ $product->unit }}
+                        <span class="stock-display" 
+                              data-product-id="{{ $product->id }}" 
+                              data-current-stock="{{ $totalStock }}" 
+                              data-min-stock="{{ $product->min_stock_level }}">
+                            {{ number_format($totalStock) }}
+                        </span>
+                        {{ $product->unit }}
                     </div>
                     <div class="text-secondary x-small">Min: {{ $product->min_stock_level }}</div>
                 </td>
@@ -43,9 +53,9 @@
                             <button type="button" class="btn btn-icon btn-sm btn-light border-end-0 qty-minus">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /></svg>
                             </button>
-                            <input type="number" name="quantity" class="form-control form-control-sm text-center px-0 border-start-0 border-end-0 product-qty" value="1" min="1" style="width: 40px;">
+                            <input type="number" name="quantity" class="form-control form-control-sm text-center px-0 border-start-0 border-end-0 product-qty" value="0" min="0" style="width: 40px;">
                             <button type="button" class="btn btn-icon btn-sm btn-light border-start-0 qty-plus">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                             </button>
                             <button type="submit" class="btn btn-primary btn-sm ms-2" title="Add to Cart">
                                 Add

@@ -121,7 +121,7 @@
             <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label">Phone</label>
-                <input type="text" name="phone" class="form-control" placeholder="Optional">
+                <input type="text" name="phone" class="form-control" placeholder="10 digit mobile" value="{{ session('searched_mobile') }}" maxlength="10">
               </div>
             </div>
             <div class="col-lg-6">
@@ -286,6 +286,12 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
+    // Handle Search Modal trigger (Global Search)
+    @if(session('open_create_modal'))
+        var myModal = new bootstrap.Modal(document.getElementById('modal-create-party'));
+        myModal.show();
+    @endif
 });
 </script>
 @endpush

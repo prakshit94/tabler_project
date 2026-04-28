@@ -77,6 +77,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('parties/{party}/restore', [\App\Http\Controllers\ERP\PartyController::class, 'restore'])->name('parties.restore');
         Route::delete('parties/{party}/force-delete', [\App\Http\Controllers\ERP\PartyController::class, 'forceDelete'])->name('parties.force-delete');
         Route::post('parties/bulk-action', [\App\Http\Controllers\ERP\PartyController::class, 'bulkAction'])->name('parties.bulk-action');
+        Route::get('parties/search-by-mobile', [\App\Http\Controllers\ERP\PartyController::class, 'searchByMobile'])->name('parties.search-by-mobile');
         Route::resource('parties', \App\Http\Controllers\ERP\PartyController::class);
 
         // Customer Profile & Ordering

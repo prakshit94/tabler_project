@@ -14,8 +14,8 @@
                     <!-- Cart Summary in Header -->
                     <div class="d-none d-md-flex align-items-center me-3 border-end pe-3">
                         <div class="text-end me-2">
-                            <div class="font-weight-bold">{{ count($cart) }} Items</div>
-                            <div class="text-secondary small">₹ {{ number_format($cartTotal, 2) }}</div>
+                            <div class="font-weight-bold" id="header-cart-count">{{ count($cart) }} Items</div>
+                            <div class="text-secondary small" id="header-cart-total">₹ {{ number_format($cartTotal, 2) }}</div>
                         </div>
                         <a class="btn btn-primary btn-icon" data-bs-toggle="offcanvas" href="#offcanvasCart">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17h-11v-14h-2" /><path d="M6 5l14 1l-1 7h-13" /></svg>
@@ -398,12 +398,12 @@
             </span>
             <div>
                 <h2 class="offcanvas-title h3 mb-0" id="offcanvasCartLabel">Active Cart</h2>
-                <div class="small text-muted-active">{{ count($cart) }} Items for {{ Str::limit($party->name, 20) }}</div>
+                <div class="small text-muted-active" id="offcanvas-cart-summary">{{ count($cart) }} Items for {{ Str::limit($party->name, 20) }}</div>
             </div>
         </div>
         <div class="ms-auto d-flex align-items-center">
             @if(count($cart) > 0)
-            <form action="{{ route('erp.parties.cart.clear', $party->id) }}" method="POST" onsubmit="return confirm('Clear entire cart?');">
+            <form action="{{ route('erp.parties.cart.clear', $party->id) }}" method="POST" id="clear-cart-form" onsubmit="return confirm('Clear entire cart?');">
                 @csrf @method('DELETE')
                 <button type="submit" class="btn btn-ghost-light btn-sm btn-icon" title="Clear Cart">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
@@ -413,86 +413,8 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
     </div>
-    <div class="offcanvas-body p-0 d-flex flex-column">
-        @if(count($cart) > 0)
-        <div class="flex-fill scroll-y p-3">
-            <div class="list-group list-group-flush list-group-hoverable">
-                @foreach($cart as $id => $item)
-                <div class="list-group-item py-3 px-0 border-0 border-bottom">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="avatar avatar-md rounded" style="background-image: url(/tabler/static/photos/product-{{ ($item['id'] % 5) + 1 }}.jpg)"></span>
-                        </div>
-                        <div class="col text-truncate">
-                            <a href="#" class="text-reset d-block font-weight-bold">{{ $item['name'] }}</a>
-                            <div class="d-block text-secondary text-truncate mt-n1 small">
-                                SKU: {{ $item['sku'] }} | Qty: {{ $item['quantity'] }}
-                            </div>
-                        </div>
-                        <div class="col-auto text-end">
-                            <div class="font-weight-bold text-primary">₹ {{ number_format($item['price'] * $item['quantity'], 2) }}</div>
-                            <form action="{{ route('erp.parties.cart.remove', [$party->id, $id]) }}" method="POST">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-ghost-danger btn-sm border-0 p-0 mt-1">Remove</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- Sticky Bottom Summary -->
-        <div class="mt-auto p-4 bg-primary-lt border-top shadow-sm">
-            @php 
-                $subTotal = array_reduce($cart, function($carry, $item) { return $carry + ($item['price'] * $item['quantity']); }, 0);
-                $taxTotal = array_reduce($cart, function($carry, $item) { return $carry + (($item['tax'] ?? 0) * $item['quantity']); }, 0);
-                $discountTotal = array_reduce($cart, function($carry, $item) { return $carry + (($item['discount'] ?? 0) * $item['quantity']); }, 0);
-            @endphp
-            
-            <div class="card mb-3 border-0 shadow-none bg-transparent">
-                <div class="card-body p-0">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-secondary">Subtotal</span>
-                        <span class="h4 m-0">₹ {{ number_format($subTotal, 2) }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-secondary">GST (Estimated)</span>
-                        <span class="text-success h4 m-0">+ ₹ {{ number_format($taxTotal, 2) }}</span>
-                    </div>
-                    @if($discountTotal > 0)
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-secondary">Total Savings</span>
-                        <span class="text-danger h4 m-0">- ₹ {{ number_format($discountTotal, 2) }}</span>
-                    </div>
-                    @endif
-                    <hr class="my-3 opacity-20">
-                    <div class="d-flex justify-content-between align-items-center mb-0">
-                        <span class="h3 m-0">Grand Total</span>
-                        <span class="h2 m-0 text-primary font-weight-bold">₹ {{ number_format($subTotal + $taxTotal - $discountTotal, 2) }}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row g-2">
-                <div class="col">
-                    <button class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#modal-checkout" onclick="bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasCart')).hide();">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17h-11v-14h-2" /><path d="M6 5l14 1l-1 7h-13" /></svg>
-                        Place Order
-                    </button>
-                </div>
-            </div>
-        </div>
-        @else
-        <div class="flex-fill d-flex flex-column align-items-center justify-content-center text-center p-5">
-            <div class="avatar avatar-xl bg-light text-secondary mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17h-11v-14h-2" /><path d="M6 5l14 1l-1 7h-13" /></svg>
-            </div>
-            <h2 class="h3">Cart is Empty</h2>
-            <p class="text-secondary max-w-250">Browse the catalog and add products to start a new order for this customer.</p>
-            <button class="btn btn-primary mt-4" data-bs-dismiss="offcanvas">Start Browsing</button>
-        </div>
-        @endif
+    <div class="offcanvas-body p-0 d-flex flex-column" id="cart-content-container">
+        @include('erp.parties._cart_content')
     </div>
 </div>
 
@@ -594,6 +516,173 @@
         }
 
         bindQuantityButtons();
+
+        // AJAX Add to Cart
+        document.addEventListener('submit', function(e) {
+            const form = e.target.closest('.cart-add-form');
+            if (form) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                const productId = formData.get('product_id');
+                const quantity = parseInt(formData.get('quantity'));
+                
+                if (quantity <= 0) {
+                    alert('Please select a quantity greater than 0');
+                    return;
+                }
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update Header
+                        document.getElementById('header-cart-count').innerText = data.cartCount + ' Items';
+                        document.getElementById('header-cart-total').innerText = '₹ ' + data.cartTotal;
+                        
+                        // Update Offcanvas
+                        document.getElementById('cart-content-container').innerHTML = data.cartHtml;
+                        document.getElementById('offcanvas-cart-summary').innerText = data.cartCount + ' Items for {{ Str::limit($party->name, 20) }}';
+                        
+                        // Update Inventory Quantity in table
+                        const stockDisplay = document.querySelector(`.stock-display[data-product-id="${productId}"]`);
+                        if (stockDisplay) {
+                            let currentStock = parseInt(stockDisplay.getAttribute('data-current-stock'));
+                            let newStock = currentStock - quantity;
+                            stockDisplay.innerText = newStock.toLocaleString();
+                            stockDisplay.setAttribute('data-current-stock', newStock);
+                            
+                            // Update color if low
+                            const minStock = parseInt(stockDisplay.getAttribute('data-min-stock'));
+                            if (newStock <= minStock) {
+                                stockDisplay.classList.remove('text-success');
+                                stockDisplay.classList.add('text-danger');
+                            }
+                        }
+
+                        // Reset quantity input to 0
+                        form.querySelector('.product-qty').value = 0;
+
+                        // Reset button
+                        submitBtn.classList.replace('btn-primary', 'btn-success');
+                        submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>';
+                        
+                        setTimeout(() => {
+                            submitBtn.classList.replace('btn-success', 'btn-primary');
+                            submitBtn.innerHTML = originalBtnText;
+                            submitBtn.disabled = false;
+                        }, 1500);
+                    } else {
+                        alert(data.message || 'Error adding to cart');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                });
+            }
+        });
+
+        // AJAX Remove from Cart
+        document.addEventListener('submit', function(e) {
+            const form = e.target.closest('.cart-remove-form');
+            if (form) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const productId = formData.get('product_id');
+                const quantity = parseInt(formData.get('quantity'));
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update Header
+                        document.getElementById('header-cart-count').innerText = data.cartCount + ' Items';
+                        document.getElementById('header-cart-total').innerText = '₹ ' + data.cartTotal;
+                        
+                        // Update Offcanvas
+                        document.getElementById('cart-content-container').innerHTML = data.cartHtml;
+                        document.getElementById('offcanvas-cart-summary').innerText = data.cartCount + ' Items for {{ Str::limit($party->name, 20) }}';
+                        
+                        // Restore Inventory Quantity in table
+                        const stockDisplay = document.querySelector(`.stock-display[data-product-id="${productId}"]`);
+                        if (stockDisplay) {
+                            let currentStock = parseInt(stockDisplay.getAttribute('data-current-stock'));
+                            let newStock = currentStock + quantity;
+                            stockDisplay.innerText = newStock.toLocaleString();
+                            stockDisplay.setAttribute('data-current-stock', newStock);
+                            
+                            // Update color if not low anymore
+                            const minStock = parseInt(stockDisplay.getAttribute('data-min-stock'));
+                            if (newStock > minStock) {
+                                stockDisplay.classList.add('text-success');
+                                stockDisplay.classList.remove('text-danger');
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // AJAX Clear Cart
+        document.addEventListener('submit', function(e) {
+            const form = e.target.closest('#clear-cart-form');
+            if (form) {
+                e.preventDefault();
+                if (!confirm('Clear entire cart?')) return;
+
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Instead of complex logic to restore all stocks, we can just fetch the catalog again
+                        // or better: reload the page or just clear header and offcanvas
+                        // For a precise UX, we reload the catalog table to reset all stock displays
+                        fetchCatalog();
+                        
+                        // Update Header
+                        document.getElementById('header-cart-count').innerText = '0 Items';
+                        document.getElementById('header-cart-total').innerText = '₹ 0.00';
+                        
+                        // Update Offcanvas
+                        document.getElementById('cart-content-container').innerHTML = data.cartHtml;
+                        document.getElementById('offcanvas-cart-summary').innerText = '0 Items for {{ Str::limit($party->name, 20) }}';
+                    }
+                });
+            }
+        });
     });
 </script>
 @endpush

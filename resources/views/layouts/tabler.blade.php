@@ -12,6 +12,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Blank page - Tabler - Premium and Open Source dashboard template with responsive and high quality UI.</title>
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
     <link href="/tabler/dist/css/tabler.css?1777289127" rel="stylesheet" />
@@ -80,30 +81,7 @@
           </div>
           <!-- END NAVBAR LOGO -->
           <div class="navbar-nav flex-row order-md-last">
-            <div class="nav-item d-none d-md-flex me-3">
-              <div class="btn-list">
-                <a href="https://github.com/sponsors/codecalm" class="btn btn-6" target="_blank" rel="noreferrer">
-                  <!-- Download SVG icon from http://tabler.io/icons/icon/heart -->
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                    focusable="false"
-                    class="icon text-pink icon-2"
-                  >
-                    <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
-                  </svg>
-                  Sponsor
-                </a>
-              </div>
-            </div>
+            @include('erp.parties._header_mobile_search')
             <div class="d-none d-md-flex me-3">
               <!-- BEGIN THEME TOGGLE -->
               <div class="nav-item">
@@ -416,7 +394,6 @@
                   <ul class="navbar-nav">
                     <li class="nav-item">
                       <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-settings">
-                        <span class="badge badge-sm bg-red text-red-fg">New</span>
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                           <!-- Download SVG icon from http://tabler.io/icons/icon/settings -->
                           <svg
@@ -439,7 +416,6 @@
                             <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
                           </svg>
                         </span>
-                        <span class="nav-link-title"> Theme Settings </span>
                       </a>
                     </li>
                   </ul>

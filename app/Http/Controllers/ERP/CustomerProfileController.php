@@ -67,6 +67,13 @@ class CustomerProfileController extends Controller
     {
         $productId = $request->product_id;
         $quantity = (int) ($request->quantity ?? 1);
+
+        if ($quantity <= 0) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Quantity must be at least 1']);
+            }
+            return redirect()->back()->with('error', 'Quantity must be at least 1');
+        }
         
         $product = Product::with('taxRate')->findOrFail($productId);
         $cart = session()->get("cart.{$party->id}", []);
@@ -91,6 +98,23 @@ class CustomerProfileController extends Controller
         }
         
         session()->put("cart.{$party->id}", $cart);
+
+        if ($request->ajax()) {
+            $cartTotal = array_reduce($cart, function($carry, $item) {
+                return $carry + ($item['price'] * $item['quantity']);
+            }, 0);
+            
+            $cartHtml = view('erp.parties._cart_content', compact('party', 'cart'))->render();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product added to cart',
+                'cartCount' => count($cart),
+                'cartTotal' => number_format($cartTotal, 2),
+                'cartHtml' => $cartHtml
+            ]);
+        }
+
         return redirect()->to(route('erp.parties.profile', $party->id) . '#v-pills-products')->with('success', 'Product added to cart');
     }
 
@@ -101,12 +125,43 @@ class CustomerProfileController extends Controller
             unset($cart[$productId]);
             session()->put("cart.{$party->id}", $cart);
         }
+
+        if ($request->ajax()) {
+            $cartTotal = array_reduce($cart, function($carry, $item) {
+                return $carry + ($item['price'] * $item['quantity']);
+            }, 0);
+            
+            $cartHtml = view('erp.parties._cart_content', compact('party', 'cart'))->render();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product removed from cart',
+                'cartCount' => count($cart),
+                'cartTotal' => number_format($cartTotal, 2),
+                'cartHtml' => $cartHtml
+            ]);
+        }
+
         return redirect()->back()->with(['success' => 'Product removed from cart', 'cart_open' => true]);
     }
 
-    public function clearCart(Party $party)
+    public function clearCart(Request $request, Party $party)
     {
         session()->forget("cart.{$party->id}");
+
+        if ($request->ajax()) {
+            $cart = [];
+            $cartHtml = view('erp.parties._cart_content', compact('party', 'cart'))->render();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart cleared',
+                'cartCount' => 0,
+                'cartTotal' => '0.00',
+                'cartHtml' => $cartHtml
+            ]);
+        }
+
         return redirect()->back()->with(['success' => 'Cart cleared', 'cart_open' => true]);
     }
 

@@ -65,7 +65,7 @@ class PartyController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Party created successfully');
+        return redirect()->route('erp.parties.profile', $party->id)->with('success', 'Party created successfully');
     }
 
     public function update(Request $request, Party $party)
@@ -134,5 +134,29 @@ class PartyController extends Controller
         }
 
         return redirect()->back()->with('success', $msg);
+    }
+
+    public function show(Party $party)
+    {
+        return redirect()->route('erp.parties.profile', $party->id);
+    }
+
+    public function searchByMobile(Request $request)
+    {
+        $request->validate([
+            'mobile' => 'required|digits:10',
+        ]);
+
+        $party = Party::where('phone', $request->mobile)->first();
+
+        if ($party) {
+            return redirect()->route('erp.parties.profile', $party->id);
+        }
+
+        return redirect()->route('erp.parties.index')->with([
+            'open_create_modal' => true,
+            'searched_mobile' => $request->mobile,
+            'info' => 'Party not found with mobile: ' . $request->mobile . '. You can create a new one below.'
+        ]);
     }
 }
