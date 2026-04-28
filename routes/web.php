@@ -35,6 +35,89 @@ Route::middleware('auth')->group(function () {
         Route::resource('permissions', \App\Http\Controllers\Web\PermissionWebController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 
+    // ERP Management
+    Route::prefix('erp')->name('erp.')->group(function () {
+        // Brands
+        Route::patch('brands/{brand}/restore', [\App\Http\Controllers\ERP\BrandController::class, 'restore'])->name('brands.restore');
+        Route::delete('brands/{brand}/force-delete', [\App\Http\Controllers\ERP\BrandController::class, 'forceDelete'])->name('brands.force-delete');
+        Route::post('brands/bulk-action', [\App\Http\Controllers\ERP\BrandController::class, 'bulkAction'])->name('brands.bulk-action');
+        Route::resource('brands', \App\Http\Controllers\ERP\BrandController::class);
+
+        // Categories
+        Route::patch('categories/{category}/restore', [\App\Http\Controllers\ERP\CategoryController::class, 'restore'])->name('categories.restore');
+        Route::delete('categories/{category}/force-delete', [\App\Http\Controllers\ERP\CategoryController::class, 'forceDelete'])->name('categories.force-delete');
+        Route::post('categories/bulk-action', [\App\Http\Controllers\ERP\CategoryController::class, 'bulkAction'])->name('categories.bulk-action');
+        Route::resource('categories', \App\Http\Controllers\ERP\CategoryController::class);
+
+        // Sub-Categories
+        Route::patch('sub-categories/{sub_category}/restore', [\App\Http\Controllers\ERP\SubCategoryController::class, 'restore'])->name('sub-categories.restore');
+        Route::delete('sub-categories/{sub_category}/force-delete', [\App\Http\Controllers\ERP\SubCategoryController::class, 'forceDelete'])->name('sub-categories.force-delete');
+        Route::post('sub-categories/bulk-action', [\App\Http\Controllers\ERP\SubCategoryController::class, 'bulkAction'])->name('sub-categories.bulk-action');
+        Route::resource('sub-categories', \App\Http\Controllers\ERP\SubCategoryController::class);
+
+        // Tax Rates
+        Route::patch('tax-rates/{tax_rate}/restore', [\App\Http\Controllers\ERP\TaxRateController::class, 'restore'])->name('tax-rates.restore');
+        Route::delete('tax-rates/{tax_rate}/force-delete', [\App\Http\Controllers\ERP\TaxRateController::class, 'forceDelete'])->name('tax-rates.force-delete');
+        Route::post('tax-rates/bulk-action', [\App\Http\Controllers\ERP\TaxRateController::class, 'bulkAction'])->name('tax-rates.bulk-action');
+        Route::resource('tax-rates', \App\Http\Controllers\ERP\TaxRateController::class);
+
+        // HSN Codes
+        Route::patch('hsn-codes/{hsn_code}/restore', [\App\Http\Controllers\ERP\HsnCodeController::class, 'restore'])->name('hsn-codes.restore');
+        Route::delete('hsn-codes/{hsn_code}/force-delete', [\App\Http\Controllers\ERP\HsnCodeController::class, 'forceDelete'])->name('hsn-codes.force-delete');
+        Route::post('hsn-codes/bulk-action', [\App\Http\Controllers\ERP\HsnCodeController::class, 'bulkAction'])->name('hsn-codes.bulk-action');
+        Route::resource('hsn-codes', \App\Http\Controllers\ERP\HsnCodeController::class);
+
+        // Warehouses
+        Route::patch('warehouses/{warehouse}/restore', [\App\Http\Controllers\ERP\WarehouseController::class, 'restore'])->name('warehouses.restore');
+        Route::delete('warehouses/{warehouse}/force-delete', [\App\Http\Controllers\ERP\WarehouseController::class, 'forceDelete'])->name('warehouses.force-delete');
+        Route::post('warehouses/bulk-action', [\App\Http\Controllers\ERP\WarehouseController::class, 'bulkAction'])->name('warehouses.bulk-action');
+        Route::resource('warehouses', \App\Http\Controllers\ERP\WarehouseController::class);
+
+        // Parties
+        Route::patch('parties/{party}/restore', [\App\Http\Controllers\ERP\PartyController::class, 'restore'])->name('parties.restore');
+        Route::delete('parties/{party}/force-delete', [\App\Http\Controllers\ERP\PartyController::class, 'forceDelete'])->name('parties.force-delete');
+        Route::post('parties/bulk-action', [\App\Http\Controllers\ERP\PartyController::class, 'bulkAction'])->name('parties.bulk-action');
+        Route::resource('parties', \App\Http\Controllers\ERP\PartyController::class);
+
+        // Products
+        Route::get('products/get-subcategories', [\App\Http\Controllers\ERP\ProductController::class, 'getSubCategories'])->name('products.get-subcategories');
+        Route::patch('products/{product}/restore', [\App\Http\Controllers\ERP\ProductController::class, 'restore'])->name('products.restore');
+        Route::delete('products/{product}/force-delete', [\App\Http\Controllers\ERP\ProductController::class, 'forceDelete'])->name('products.force-delete');
+        Route::post('products/bulk-action', [\App\Http\Controllers\ERP\ProductController::class, 'bulkAction'])->name('products.bulk-action');
+        Route::resource('products', \App\Http\Controllers\ERP\ProductController::class);
+
+        // Inventory
+        Route::get('inventory', [\App\Http\Controllers\ERP\InventoryController::class, 'index'])->name('inventory.index');
+        Route::get('inventory/movements', [\App\Http\Controllers\ERP\InventoryController::class, 'movements'])->name('inventory.movements');
+        Route::post('inventory/adjust', [\App\Http\Controllers\ERP\InventoryController::class, 'adjustStock'])->name('inventory.adjust');
+
+        // Orders
+        Route::patch('orders/{order}/status', [\App\Http\Controllers\ERP\OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::resource('orders', \App\Http\Controllers\ERP\OrderController::class);
+
+        // Invoices
+        Route::resource('invoices', \App\Http\Controllers\ERP\InvoiceController::class);
+
+        // Payments
+        Route::resource('payments', \App\Http\Controllers\ERP\PaymentController::class);
+
+        // Stock Transfers
+        Route::resource('stock-transfers', \App\Http\Controllers\ERP\StockTransferController::class);
+
+        // Returns
+        Route::resource('returns', \App\Http\Controllers\ERP\ReturnController::class);
+
+        // Ledgers
+        Route::get('ledgers', [\App\Http\Controllers\ERP\LedgerController::class, 'index'])->name('ledgers.index');
+
+        // Sync Logs
+        Route::get('sync-logs', [\App\Http\Controllers\ERP\SyncLogController::class, 'index'])->name('sync-logs.index');
+
+        // Product Prices
+        Route::get('product-prices', [\App\Http\Controllers\ERP\ProductPriceController::class, 'index'])->name('product-prices.index');
+        Route::post('product-prices', [\App\Http\Controllers\ERP\ProductPriceController::class, 'store'])->name('product-prices.store');
+    });
+
     // Tabler Template Pages Routes
 Route::get('/2-step-verification-code', function () { return view('pages.2-step-verification-code'); });
 Route::get('/2-step-verification', function () { return view('pages.2-step-verification'); });

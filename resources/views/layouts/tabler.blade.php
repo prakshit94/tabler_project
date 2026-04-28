@@ -253,43 +253,6 @@
               </div>
               <!-- END ACTIVITY HISTORY -->
 
-              <!-- BEGIN LANGUAGE SELECTOR -->
-              <div class="nav-item dropdown d-none d-md-flex">
-                <a
-                  href="#"
-                  class="nav-link px-0"
-                  data-bs-toggle="dropdown"
-                  tabindex="-1"
-                  aria-label="Select language"
-                  data-bs-auto-close="outside"
-                  aria-expanded="false"
-                >
-                  EN
-                </a>
-                <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end">
-                  <a class="dropdown-item" href="#" data-lang="cs"> Čeština </a>
-                  <a class="dropdown-item" href="#" data-lang="de"> Deutsch </a>
-                  <a class="dropdown-item" href="#" data-lang="el"> Ελληνικά </a>
-                  <a class="dropdown-item" href="#" data-lang="en"> English </a>
-                  <a class="dropdown-item" href="#" data-lang="es"> Español </a>
-                  <a class="dropdown-item" href="#" data-lang="fr"> Français </a>
-                  <a class="dropdown-item" href="#" data-lang="hi"> हिंदी </a>
-                  <a class="dropdown-item" href="#" data-lang="hu"> Magyar </a>
-                  <a class="dropdown-item" href="#" data-lang="id"> Bahasa Indonesia </a>
-                  <a class="dropdown-item" href="#" data-lang="it"> Italiano </a>
-                  <a class="dropdown-item" href="#" data-lang="ja"> 日本語 </a>
-                  <a class="dropdown-item" href="#" data-lang="ko"> 한국어 </a>
-                  <a class="dropdown-item" href="#" data-lang="nl"> Nederlands (Nederland) </a>
-                  <a class="dropdown-item" href="#" data-lang="pl"> Polski </a>
-                  <a class="dropdown-item" href="#" data-lang="pt"> Português </a>
-                  <a class="dropdown-item" href="#" data-lang="ro"> Română </a>
-                  <a class="dropdown-item" href="#" data-lang="ru"> Русский </a>
-                  <a class="dropdown-item" href="#" data-lang="th"> ภาษาไทย </a>
-                  <a class="dropdown-item" href="#" data-lang="tr"> Türkçe </a>
-                  <a class="dropdown-item" href="#" data-lang="uk"> Українською </a>
-                  <a class="dropdown-item" href="#" data-lang="vi"> Tiếng Việt </a>
-                  <a class="dropdown-item" href="#" data-lang="zh"> 中文 </a>
-                </div>
                  <!-- BEGIN USER MENU -->
             @auth
             <div class="nav-item dropdown">
@@ -360,29 +323,87 @@
                         </div>
                       </li>
                       @endrole
-                
-                      <li class="nav-item">
-                        <a class="nav-link" href="#">
-                          <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M12 7v5l3 3" /></svg>
-                          </span>
-                          <span class="nav-link-title"> Customers </span>
-                        </a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" href="#">
+
+                      <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                           <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
                           </span>
-                          <span class="nav-link-title"> Products </span>
+                          <span class="nav-link-title"> Inventory </span>
                         </a>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{{ route('erp.products.index') }}"> Products </a>
+                          <a class="dropdown-item" href="{{ route('erp.product-prices.index') }}"> Pricing Rules </a>
+                          <a class="dropdown-item" href="{{ route('erp.inventory.index') }}"> Stock Levels </a>
+                          <a class="dropdown-item" href="{{ route('erp.inventory.movements') }}"> Movements Log </a>
+                          <a class="dropdown-item" href="{{ route('erp.stock-transfers.index') }}"> Stock Transfers </a>
+                          <a class="dropdown-item" href="{{ route('erp.warehouses.index') }}"> Warehouses </a>
+                        </div>
                       </li>
+
+                      <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                          <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                          </span>
+                          <span class="nav-link-title"> Transactions </span>
+                        </a>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{{ route('erp.orders.index', ['type' => 'sale']) }}"> Sales Orders </a>
+                          <a class="dropdown-item" href="{{ route('erp.orders.index', ['type' => 'purchase']) }}"> Purchase Orders </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{{ route('erp.invoices.index') }}"> Invoices </a>
+                          <a class="dropdown-item" href="{{ route('erp.payments.index') }}"> Payments </a>
+                          <a class="dropdown-item" href="{{ route('erp.returns.index') }}"> Returns </a>
+                        </div>
+                      </li>
+
+                      <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                          <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                          </span>
+                          <span class="nav-link-title"> Parties </span>
+                        </a>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{{ route('erp.parties.index', ['type' => 'customer']) }}"> Customers </a>
+                          <a class="dropdown-item" href="{{ route('erp.parties.index', ['type' => 'vendor']) }}"> Vendors </a>
+                          <a class="dropdown-item" href="{{ route('erp.parties.index') }}"> All Parties </a>
+                        </div>
+                      </li>
+
+                      <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                          <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4h16v16h-16z" /><path d="M9 12l2 2l4 -4" /></svg>
+                          </span>
+                          <span class="nav-link-title"> Master Data </span>
+                        </a>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{{ route('erp.brands.index') }}"> Brands </a>
+                          <a class="dropdown-item" href="{{ route('erp.categories.index') }}"> Categories </a>
+                          <a class="dropdown-item" href="{{ route('erp.sub-categories.index') }}"> Sub-Categories </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{{ route('erp.tax-rates.index') }}"> Tax Rates </a>
+                          <a class="dropdown-item" href="{{ route('erp.hsn-codes.index') }}"> HSN Codes </a>
+                        </div>
+                      </li>
+
                       <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ route('erp.ledgers.index') }}">
                           <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h5.697" /><path d="M18 14v4h4" /><path d="M18 11v-4a2 2 0 0 0 -2 -2h-2" /><path d="M8 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" /><path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M8 11h4" /><path d="M8 15h3" /></svg>
                           </span>
-                          <span class="nav-link-title"> Reports </span>
+                          <span class="nav-link-title"> Accounting </span>
+                        </a>
+                      </li>
+
+                      <li class="nav-item">
+                        <a class="nav-link" href="{{ route('erp.sync-logs.index') }}">
+                          <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12h4l3 8l4 -16l3 8h4" /></svg>
+                          </span>
+                          <span class="nav-link-title"> System Logs </span>
                         </a>
                       </li>
                     </ul>
