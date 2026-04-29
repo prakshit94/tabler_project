@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('color_class')->default('bg-blue-lt');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

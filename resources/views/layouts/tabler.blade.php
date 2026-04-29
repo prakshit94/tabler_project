@@ -364,6 +364,11 @@
                           <div class="dropdown-divider"></div>
                           <a class="dropdown-item" href="{{ route('erp.tax-rates.index') }}"> Tax Rates </a>
                           <a class="dropdown-item" href="{{ route('erp.hsn-codes.index') }}"> HSN Codes </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{{ route('erp.crops.index') }}"> Crops </a>
+                          <a class="dropdown-item" href="{{ route('erp.irrigation-types.index') }}"> Irrigation Types </a>
+                          <a class="dropdown-item" href="{{ route('erp.land-units.index') }}"> Land Units </a>
+                          <a class="dropdown-item" href="{{ route('erp.account-types.index') }}"> Account Types </a>
                         </div>
                       </li>
 

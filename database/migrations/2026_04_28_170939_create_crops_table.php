@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('category')->nullable(); // e.g., Cereal, Fruit, Vegetable
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
         });
 
         // Pivot table for Party and Crop

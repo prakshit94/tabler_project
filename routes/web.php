@@ -73,6 +73,30 @@ Route::middleware('auth')->group(function () {
         Route::post('warehouses/bulk-action', [\App\Http\Controllers\ERP\WarehouseController::class, 'bulkAction'])->name('warehouses.bulk-action');
         Route::resource('warehouses', \App\Http\Controllers\ERP\WarehouseController::class);
 
+        // Crops
+        Route::patch('crops/{crop}/restore', [\App\Http\Controllers\ERP\CropController::class, 'restore'])->name('crops.restore');
+        Route::delete('crops/{crop}/force-delete', [\App\Http\Controllers\ERP\CropController::class, 'forceDelete'])->name('crops.force-delete');
+        Route::post('crops/bulk-action', [\App\Http\Controllers\ERP\CropController::class, 'bulkAction'])->name('crops.bulk-action');
+        Route::resource('crops', \App\Http\Controllers\ERP\CropController::class);
+
+        // Irrigation Types
+        Route::patch('irrigation-types/{irrigation_type}/restore', [\App\Http\Controllers\ERP\IrrigationTypeController::class, 'restore'])->name('irrigation-types.restore');
+        Route::delete('irrigation-types/{irrigation_type}/force-delete', [\App\Http\Controllers\ERP\IrrigationTypeController::class, 'forceDelete'])->name('irrigation-types.force-delete');
+        Route::post('irrigation-types/bulk-action', [\App\Http\Controllers\ERP\IrrigationTypeController::class, 'bulkAction'])->name('irrigation-types.bulk-action');
+        Route::resource('irrigation-types', \App\Http\Controllers\ERP\IrrigationTypeController::class);
+
+        // Land Units
+        Route::patch('land-units/{land_unit}/restore', [\App\Http\Controllers\ERP\LandUnitController::class, 'restore'])->name('land-units.restore');
+        Route::delete('land-units/{land_unit}/force-delete', [\App\Http\Controllers\ERP\LandUnitController::class, 'forceDelete'])->name('land-units.force-delete');
+        Route::post('land-units/bulk-action', [\App\Http\Controllers\ERP\LandUnitController::class, 'bulkAction'])->name('land-units.bulk-action');
+        Route::resource('land-units', \App\Http\Controllers\ERP\LandUnitController::class);
+
+        // Account Types
+        Route::patch('account-types/{account_type}/restore', [\App\Http\Controllers\ERP\AccountTypeController::class, 'restore'])->name('account-types.restore');
+        Route::delete('account-types/{account_type}/force-delete', [\App\Http\Controllers\ERP\AccountTypeController::class, 'forceDelete'])->name('account-types.force-delete');
+        Route::post('account-types/bulk-action', [\App\Http\Controllers\ERP\AccountTypeController::class, 'bulkAction'])->name('account-types.bulk-action');
+        Route::resource('account-types', \App\Http\Controllers\ERP\AccountTypeController::class);
+
         // Parties
         Route::patch('parties/{party}/restore', [\App\Http\Controllers\ERP\PartyController::class, 'restore'])->name('parties.restore');
         Route::delete('parties/{party}/force-delete', [\App\Http\Controllers\ERP\PartyController::class, 'forceDelete'])->name('parties.force-delete');

@@ -147,11 +147,9 @@
                   <div class="col-md-6">
                     <label class="form-label required">Account Type</label>
                     <select name="type" class="form-select" required>
-                      <option value="farmer">Farmer (Producer)</option>
-                      <option value="customer">Retail Customer</option>
-                      <option value="vendor">Material Vendor</option>
-                      <option value="dealer">Wholesale Dealer</option>
-                      <option value="buyer">Bulk Buyer</option>
+                      @foreach($account_types as $at)
+                        <option value="{{ $at->slug }}">{{ $at->name }}</option>
+                      @endforeach
                     </select>
                   </div>
                   <div class="col-md-6">
@@ -305,9 +303,9 @@
                     <div class="input-group">
                       <input type="number" name="land_area" class="form-control" step="0.01">
                       <select name="land_unit" class="form-select w-auto">
-                        <option value="acre">Acre</option>
-                        <option value="bigha">Bigha</option>
-                        <option value="hectare">Hec</option>
+                        @foreach($land_units as $lu)
+                          <option value="{{ $lu->code }}">{{ $lu->name }}</option>
+                        @endforeach
                       </select>
                     </div>
                   </div>
@@ -315,9 +313,9 @@
                     <label class="form-label">Irrigation</label>
                     <select name="irrigation_type" class="form-select">
                       <option value="">Select...</option>
-                      <option value="borewell">Borewell</option>
-                      <option value="canal">Canal</option>
-                      <option value="rainfed">Rainfed</option>
+                      @foreach($irrigation_types as $it)
+                        <option value="{{ $it->name }}">{{ $it->name }}</option>
+                      @endforeach
                     </select>
                   </div>
                   <div class="col-12">
@@ -396,9 +394,9 @@
             <div class="col-md-6">
                 <label class="form-label">Account Type</label>
                 <select name="type" class="form-select">
-                  <option value="customer" @selected($party->type == 'customer')>Customer</option>
-                  <option value="farmer" @selected($party->type == 'farmer')>Farmer</option>
-                  <option value="vendor" @selected($party->type == 'vendor')>Vendor</option>
+                  @foreach($account_types as $at)
+                    <option value="{{ $at->slug }}" @selected($party->type == $at->slug)>{{ $at->name }}</option>
+                  @endforeach
                 </select>
             </div>
           </div>

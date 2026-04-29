@@ -4,6 +4,9 @@ namespace App\Http\Controllers\ERP;
 
 use App\Http\Controllers\Controller;
 use App\Models\Crop;
+use App\Models\IrrigationType;
+use App\Models\LandUnit;
+use App\Models\AccountType;
 use App\Models\Party;
 use App\Models\PartyAddress;
 use Illuminate\Http\Request;
@@ -39,12 +42,15 @@ class PartyController extends Controller
         $parties = $query->latest()->paginate($request->input('per_page', 10))->withQueryString();
 
         $crops_master = Crop::where('is_active', true)->orderBy('name')->get();
+        $account_types = AccountType::where('is_active', true)->orderBy('name')->get();
+        $land_units = LandUnit::where('is_active', true)->orderBy('name')->get();
+        $irrigation_types = IrrigationType::where('is_active', true)->orderBy('name')->get();
 
         if ($request->ajax()) {
             return view('erp.parties._table', compact('parties', 'view'))->render();
         }
 
-        return view('erp.parties.index', compact('parties', 'view', 'crops_master'));
+        return view('erp.parties.index', compact('parties', 'view', 'crops_master', 'account_types', 'land_units', 'irrigation_types'));
     }
 
     public function store(Request $request)
