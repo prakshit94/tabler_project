@@ -341,12 +341,12 @@
                           <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
                           </span>
-                          <span class="nav-link-title"> Parties </span>
+                          <span class="nav-link-title"> Farmers </span>
                         </a>
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ route('erp.parties.index', ['type' => 'customer']) }}"> Customers </a>
+                          <a class="dropdown-item" href="{{ route('erp.parties.index', ['type' => 'farmer']) }}"> Farmer Directory </a>
                           <a class="dropdown-item" href="{{ route('erp.parties.index', ['type' => 'vendor']) }}"> Vendors </a>
-                          <a class="dropdown-item" href="{{ route('erp.parties.index') }}"> All Parties </a>
+                          <a class="dropdown-item" href="{{ route('erp.parties.index') }}"> All Contacts </a>
                         </div>
                       </li>
 

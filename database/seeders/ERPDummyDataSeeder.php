@@ -55,18 +55,31 @@ class ERPDummyDataSeeder extends Seeder
             $retailWh = Warehouse::firstOrCreate(['code' => 'WH002'], ['name' => 'Retail Outlet', 'state' => 'Maharashtra']);
 
             // 6. Parties
-            $cust1 = Party::firstOrCreate(['email' => 'john@example.com'], [
-                'name' => 'John Doe',
-                'type' => 'customer',
-                'phone' => '9876543210',
-                'gstin' => '07AAAAA0000A1Z5'
-            ]);
-            $vend1 = Party::firstOrCreate(['email' => 'sales@techsupplies.com'], [
-                'name' => 'Tech Supplies Inc',
-                'type' => 'vendor',
-                'phone' => '1122334455',
-                'gstin' => '08BBBBB1111B2Z6'
-            ]);
+            $cust1 = Party::where('email', 'john@example.com')->first();
+            if (!$cust1) {
+                $cust1 = Party::create([
+                    'uuid' => \Illuminate\Support\Str::uuid(),
+                    'party_code' => 'CUST-000001',
+                    'name' => 'John Doe',
+                    'first_name' => 'John',
+                    'last_name' => 'Doe',
+                    'type' => 'customer',
+                    'mobile' => '9876543210',
+                    'gstin' => '07AAAAA0000A1Z5'
+                ]);
+            }
+
+            $vend1 = Party::where('email', 'sales@techsupplies.com')->first();
+            if (!$vend1) {
+                $vend1 = Party::create([
+                    'uuid' => \Illuminate\Support\Str::uuid(),
+                    'party_code' => 'VEND-000001',
+                    'name' => 'Tech Supplies Inc',
+                    'type' => 'vendor',
+                    'mobile' => '1122334455',
+                    'gstin' => '08BBBBB1111B2Z6'
+                ]);
+            }
 
             // 7. Products
             $macbook = Product::firstOrCreate(['sku' => 'MBP14-001'], [
