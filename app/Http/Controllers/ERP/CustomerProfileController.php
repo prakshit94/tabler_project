@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ERP;
 
 use App\Http\Controllers\Controller;
 use App\Models\Party;
+use App\Models\PartyAddress;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Warehouse;
@@ -145,6 +146,38 @@ class CustomerProfileController extends Controller
         return redirect()->back()->with(['success' => 'Product removed from cart', 'cart_open' => true]);
     }
 
+    public function updateCart(Request $request, Party $party, $productId)
+    {
+        $quantity = (int) $request->quantity;
+        if ($quantity <= 0) {
+            return response()->json(['success' => false, 'message' => 'Quantity must be at least 1']);
+        }
+
+        $cart = session()->get("cart.{$party->id}", []);
+        if(isset($cart[$productId])) {
+            $cart[$productId]['quantity'] = $quantity;
+            session()->put("cart.{$party->id}", $cart);
+        }
+
+        if ($request->ajax()) {
+            $cartTotal = array_reduce($cart, function($carry, $item) {
+                return $carry + ($item['price'] * $item['quantity']);
+            }, 0);
+            
+            $cartHtml = view('erp.parties._cart_content', compact('party', 'cart'))->render();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart updated',
+                'cartCount' => count($cart),
+                'cartTotal' => number_format($cartTotal, 2),
+                'cartHtml' => $cartHtml
+            ]);
+        }
+
+        return redirect()->back()->with(['success' => 'Cart updated', 'cart_open' => true]);
+    }
+
     public function clearCart(Request $request, Party $party)
     {
         session()->forget("cart.{$party->id}");
@@ -224,5 +257,88 @@ class CustomerProfileController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to place order: ' . $e->getMessage());
         }
+    }
+
+    public function storeAddress(Request $request, Party $party)
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:billing,shipping,both',
+            'label' => 'nullable|string|max:255',
+            'contact_name' => 'nullable|string|max:255',
+            'contact_phone' => 'nullable|string|max:20',
+            'address_line1' => 'required|string',
+            'address_line2' => 'nullable|string',
+            'village' => 'nullable|string',
+            'taluka' => 'nullable|string',
+            'district' => 'nullable|string',
+            'state' => 'nullable|string',
+            'country' => 'nullable|string',
+            'pincode' => 'nullable|string|max:10',
+            'post_office' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'is_default' => 'boolean',
+        ]);
+
+        if ($request->has('is_default') && $request->is_default) {
+            $party->addresses()->update(['is_default' => false]);
+        }
+
+        // Populate the mandatory 'address' field for compatibility
+        $validated['address'] = implode(', ', array_filter([
+            $validated['address_line1'],
+            $validated['address_line2'],
+            $validated['village'],
+            $validated['taluka'],
+            $validated['district'],
+            $validated['state'],
+            $validated['pincode']
+        ]));
+
+        $party->addresses()->create($validated);
+
+        return redirect()->back()->with('success', 'Address added successfully.');
+    }
+
+    public function updateAddress(Request $request, Party $party, PartyAddress $address)
+    {
+        $validated = $request->validate([
+            'type' => 'required|in:billing,shipping,both',
+            'label' => 'nullable|string|max:255',
+            'contact_name' => 'nullable|string|max:255',
+            'contact_phone' => 'nullable|string|max:20',
+            'address_line1' => 'required|string',
+            'address_line2' => 'nullable|string',
+            'village' => 'nullable|string',
+            'taluka' => 'nullable|string',
+            'district' => 'nullable|string',
+            'state' => 'nullable|string',
+            'country' => 'nullable|string',
+            'pincode' => 'nullable|string|max:10',
+            'post_office' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'is_default' => 'boolean',
+        ]);
+
+        if ($request->has('is_default') && $request->is_default) {
+            $party->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+        } else {
+            $validated['is_default'] = false;
+        }
+
+        $validated['address'] = implode(', ', array_filter([
+            $validated['address_line1'],
+            $validated['address_line2'],
+            $validated['village'],
+            $validated['taluka'],
+            $validated['district'],
+            $validated['state'],
+            $validated['pincode']
+        ]));
+
+        $address->update($validated);
+
+        return redirect()->back()->with('success', 'Address updated successfully.');
     }
 }

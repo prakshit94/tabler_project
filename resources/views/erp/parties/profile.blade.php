@@ -40,7 +40,7 @@
                     <div class="nav flex-column nav-pills nav-tabs-vertical" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                         <button class="nav-link active text-start py-3 px-4 border-0" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
-                            Account Dossier
+                            Profile
                         </button>
                         <button class="nav-link text-start py-3 px-4 border-0" id="v-pills-orders-tab" data-bs-toggle="pill" data-bs-target="#v-pills-orders" type="button" role="tab">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M12 11l0 8" /><path d="M12 11l4.5 -4.5" /><path d="M12 11l-4.5 -4.5" /><path d="M4.5 14.5l15 0" /></svg>
@@ -73,191 +73,183 @@
         <div class="col-md-9">
             <div class="tab-content" id="v-pills-tabContent">
                 <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel">
-                    <div class="row row-cards">
-                        <!-- Identity Section -->
-                        <div class="col-md-12">
-                            <div class="card shadow-sm border-0">
-                                <div class="card-header bg-light"><h3 class="card-title">Identity & Contacts</h3></div>
-                                <div class="card-body">
-                                    <div class="datagrid">
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Full Name</div>
-                                            <div class="datagrid-content fw-bold text-primary">{{ $party->name }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Secondary Phone</div>
-                                            <div class="datagrid-content">{{ $party->phone_number_2 ?? '---' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Relative Contact</div>
-                                            <div class="datagrid-content">{{ $party->relative_phone ?? '---' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Email</div>
-                                            <div class="datagrid-content">{{ $party->email ?? '---' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Aadhaar (L4)</div>
-                                            <div class="datagrid-content">{{ $party->aadhaar_last4 ?? '---' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">KYC Status</div>
-                                            <div class="datagrid-content">
-                                                @if($party->kyc_completed)
-                                                    <span class="badge bg-success-lt">Verified</span>
-                                                @else
-                                                    <span class="badge bg-warning-lt">Pending</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Source</div>
-                                            <div class="datagrid-content">{{ $party->source ?? '---' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Referred By</div>
-                                            <div class="datagrid-content">{{ $party->referred_by ?? '---' }}</div>
-                                        </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Profile Overview</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="datagrid">
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Full Name</div>
+                                    <div class="datagrid-content">{{ $party->name }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Company / Farm</div>
+                                    <div class="datagrid-content">{{ $party->company_name ?? ucfirst($party->type) }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Primary Mobile</div>
+                                    <div class="datagrid-content">{{ $party->mobile }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Email</div>
+                                    <div class="datagrid-content">{{ $party->email ?? 'N/A' }}</div>
+                                </div>
+                                
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Secondary Contact</div>
+                                    <div class="datagrid-content">{{ $party->phone_number_2 ?? 'N/A' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Aadhaar (Last 4)</div>
+                                    <div class="datagrid-content">{{ $party->aadhaar_last4 ?? 'N/A' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">GSTIN</div>
+                                    <div class="datagrid-content font-monospace">{{ $party->gstin ?? 'N/A' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">PAN Number</div>
+                                    <div class="datagrid-content font-monospace">{{ $party->pan_number ?? 'N/A' }}</div>
+                                </div>
+
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Credit Limit</div>
+                                    <div class="datagrid-content">₹ {{ number_format($party->credit_limit, 2) }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Credit Valid Till</div>
+                                    <div class="datagrid-content">{{ $party->credit_valid_till ? $party->credit_valid_till->format('d M Y') : 'Life-time' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Payment Terms</div>
+                                    <div class="datagrid-content">{{ $party->payment_terms ?? 'Standard' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Ledger Group</div>
+                                    <div class="datagrid-content">{{ $party->ledger_group ?? 'Sundry Debtors' }}</div>
+                                </div>
+
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Bank Name</div>
+                                    <div class="datagrid-content">{{ $party->bank_name ?? 'N/A' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Account Number</div>
+                                    <div class="datagrid-content">{{ $party->account_number ?? 'N/A' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">IFSC Code</div>
+                                    <div class="datagrid-content font-monospace">{{ $party->ifsc_code ?? 'N/A' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">KYC Status</div>
+                                    <div class="datagrid-content">
+                                        @if($party->kyc_completed)
+                                            <span class="status status-green">Verified</span>
+                                        @else
+                                            <span class="status status-yellow">Pending</span>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Business Section -->
-                        <div class="col-md-12">
-                            <div class="card shadow-sm border-0">
-                                <div class="card-header bg-light"><h3 class="card-title">Business & Financial Info</h3></div>
-                                <div class="card-body">
-                                    <div class="datagrid">
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Farm / Company</div>
-                                            <div class="datagrid-content">{{ $party->company_name ?? 'N/A' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">GSTIN / PAN</div>
-                                            <div class="datagrid-content"><code>{{ $party->gstin ?? '---' }}</code> / {{ $party->pan_number ?? '---' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Credit Limit</div>
-                                            <div class="datagrid-content">₹ {{ number_format($party->credit_limit, 2) }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Credit Valid Till</div>
-                                            <div class="datagrid-content text-danger">{{ $party->credit_valid_till ? $party->credit_valid_till->format('d M Y') : 'Life-time' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Payment Terms</div>
-                                            <div class="datagrid-content">{{ $party->payment_terms ?? 'Standard' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Ledger Group</div>
-                                            <div class="datagrid-content">{{ $party->ledger_group ?? 'Sundry Debtors' }}</div>
-                                        </div>
-                                    </div>
+                            @if($party->type == 'farmer')
+                            <h4 class="mt-4 mb-3 text-green">Agriculture Profile</h4>
+                            <div class="datagrid">
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Land Area</div>
+                                    <div class="datagrid-content">{{ $party->land_area }} {{ ucfirst($party->land_unit) }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Irrigation Type</div>
+                                    <div class="datagrid-content">{{ ucfirst($party->irrigation_type) ?? 'Rainfed' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Primary Crops</div>
+                                    <div class="datagrid-content">{{ $party->crops ? implode(', ', $party->crops) : 'N/A' }}</div>
                                 </div>
                             </div>
-                        </div>
+                            @endif
 
-                        <!-- Banking Section -->
-                        <div class="col-md-6">
-                            <div class="card shadow-sm border-0 h-100">
-                                <div class="card-header bg-light"><h3 class="card-title">Banking Details</h3></div>
-                                <div class="card-body">
-                                    <div class="datagrid">
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Bank Name</div>
-                                            <div class="datagrid-content fw-bold">{{ $party->bank_name ?? 'N/A' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Account No</div>
-                                            <div class="datagrid-content">{{ $party->account_number ?? 'N/A' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">IFSC / Branch</div>
-                                            <div class="datagrid-content text-secondary">{{ $party->ifsc_code ?? '---' }} / {{ $party->branch_name ?? '---' }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <h4 class="mt-4 mb-2">Internal Notes</h4>
+                            <p class="text-secondary mb-0">{{ $party->internal_notes ?? 'No internal notes registered for this account.' }}</p>
                         </div>
+                    </div>
 
-                        <!-- Agriculture Profile -->
-                        @if($party->type == 'farmer')
-                        <div class="col-md-6">
-                            <div class="card bg-green-lt border-0 shadow-sm h-100">
-                                <div class="card-header"><h3 class="card-title text-green">Agriculture Profile</h3></div>
-                                <div class="card-body">
-                                    <div class="datagrid">
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Land Area</div>
-                                            <div class="datagrid-content fw-bold">{{ $party->land_area }} {{ ucfirst($party->land_unit) }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Irrigation</div>
-                                            <div class="datagrid-content">{{ ucfirst($party->irrigation_type) ?? 'Rainfed' }}</div>
-                                        </div>
-                                        <div class="datagrid-item">
-                                            <div class="datagrid-title">Crops</div>
-                                            <div class="datagrid-content">
-                                                @if($party->crops)
-                                                    @foreach($party->crops as $crop)
-                                                        <span class="badge bg-white text-green border border-green">{{ $crop }}</span>
-                                                    @endforeach
-                                                @else
-                                                    ---
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="card mt-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="card-title">Saved Addresses</h3>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-add-address">Add New Address</button>
                         </div>
-                        @endif
-
-                        <!-- Addresses -->
-                        <div class="col-12">
-                            <div class="card shadow-sm border-0">
-                                <div class="card-header">
-                                    <h3 class="card-title">Verified Addresses</h3>
-                                    <div class="card-actions">
-                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal-add-address">Add New</button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row row-cards">
-                                        @forelse($party->addresses as $address)
-                                        <div class="col-md-6">
-                                            <div class="card card-sm border shadow-none bg-light">
-                                                <div class="card-body">
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <div class="subheader text-primary">{{ ucfirst($address->label ?? $address->type) }}</div>
+                        <div class="card-body bg-light">
+                            <div class="row g-3">
+                                @forelse($party->addresses as $address)
+                                <div class="col-md-6">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        @if($address->is_default)
+                                        <div class="card-status-start bg-primary"></div>
+                                        @endif
+                                        <div class="card-body p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h4 class="card-title m-0">
+                                                        {{ ucfirst($address->label ?? $address->type) }}
                                                         @if($address->is_default)
-                                                            <span class="badge bg-blue-lt ms-2">Default</span>
+                                                            <span class="badge bg-primary ms-1">Default</span>
                                                         @endif
+                                                    </h4>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge bg-blue-lt mb-1">{{ ucfirst($address->type) }}</span>
+                                                    <div>
+                                                        <button onclick='editAddress(@json($address))' class="btn btn-sm btn-ghost-primary border-0 p-1">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
+                                                        </button>
                                                     </div>
-                                                    <address class="m-0 text-secondary">
-                                                        {{ $address->address_line1 }}<br>
-                                                        {{ $address->village ? $address->village.', ' : '' }}{{ $address->taluka ? $address->taluka.', ' : '' }}{{ $address->district }}<br>
-                                                        {{ $address->state }} - {{ $address->pincode }}
-                                                    </address>
                                                 </div>
                                             </div>
+                                            
+                                            @if($address->contact_name || $address->contact_phone)
+                                            <div class="mb-2 text-secondary d-flex align-items-center small">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                                                <strong>{{ $address->contact_name ?? 'N/A' }}</strong>
+                                                @if($address->contact_phone)
+                                                    <span class="ms-2"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" /></svg>{{ $address->contact_phone }}</span>
+                                                @endif
+                                            </div>
+                                            @endif
+
+                                            <address class="mb-0 text-muted small">
+                                                @if($address->address_line1){{ $address->address_line1 }}<br>@endif
+                                                @if($address->address_line2){{ $address->address_line2 }}<br>@endif
+                                                {{ collect([$address->village, $address->taluka, $address->district])->filter()->join(', ') }}<br>
+                                                {{ collect([$address->state, $address->country, $address->pincode])->filter()->join(', ') }}
+                                                @if($address->post_office)<br>PO: {{ $address->post_office }}@endif
+                                            </address>
+
+                                            @if($address->latitude && $address->longitude)
+                                            <div class="mt-2 text-secondary small d-flex align-items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
+                                                Geo: {{ $address->latitude }}, {{ $address->longitude }}
+                                            </div>
+                                            @endif
                                         </div>
-                                        @empty
-                                        <div class="col-12 text-center py-4 text-muted">No saved addresses found.</div>
-                                        @endforelse
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Internal Notes -->
-                        <div class="col-12">
-                            <div class="card shadow-sm border-0">
-                                <div class="card-header bg-light"><h3 class="card-title">Internal Notes</h3></div>
-                                <div class="card-body text-secondary">
-                                    {{ $party->internal_notes ?? 'No internal notes registered for this account.' }}
+                                @empty
+                                <div class="col-12">
+                                    <div class="empty bg-white rounded shadow-sm border-0">
+                                        <div class="empty-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
+                                        </div>
+                                        <p class="empty-title">No addresses found</p>
+                                        <p class="empty-subtitle text-secondary">
+                                            Try adding a new address for this account.
+                                        </p>
+                                    </div>
                                 </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>
@@ -336,6 +328,8 @@
     </div>
 </div>
 
+@include('erp.parties._address_modal')
+@include('erp.parties._edit_address_modal')
 @include('erp.parties._checkout_modal')
 
 <div class="offcanvas offcanvas-end shadow-lg" tabindex="-1" id="offcanvasCart" style="width: 400px;">
@@ -343,9 +337,253 @@
         <h2 class="offcanvas-title h3 m-0">Active Cart</h2>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
-    <div class="offcanvas-body p-0" id="cart-content-container">
+    <div class="offcanvas-body p-0 d-flex flex-column" id="cart-content-container">
         @include('erp.parties._cart_content')
     </div>
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const profileContainer = document.getElementById('v-pills-products');
+    
+    // Persist Tab State
+    const triggerTabList = [].slice.call(document.querySelectorAll('#v-pills-tab button[data-bs-toggle="pill"]'));
+    triggerTabList.forEach(function (triggerEl) {
+        triggerEl.addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeProfileTab_' + window.location.pathname, event.target.id);
+        });
+    });
+    
+    const activeTabId = localStorage.getItem('activeProfileTab_' + window.location.pathname);
+    if (activeTabId) {
+        const activeTab = document.getElementById(activeTabId);
+        if (activeTab) {
+            const tab = new bootstrap.Tab(activeTab);
+            tab.show();
+        }
+    }
+    
+    // Quantity Plus/Minus Buttons (for Catalog and Cart)
+    document.body.addEventListener('click', function (e) {
+        if (e.target.closest('.qty-plus') || e.target.closest('.cart-qty-plus')) {
+            const btn = e.target.closest('.qty-plus') || e.target.closest('.cart-qty-plus');
+            const input = btn.previousElementSibling;
+            input.value = parseInt(input.value || 0) + 1;
+            
+            // If in cart, auto-submit the form
+            if (btn.classList.contains('cart-qty-plus')) {
+                btn.closest('form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
+        } else if (e.target.closest('.qty-minus') || e.target.closest('.cart-qty-minus')) {
+            const btn = e.target.closest('.qty-minus') || e.target.closest('.cart-qty-minus');
+            const input = btn.nextElementSibling;
+            if (parseInt(input.value || 0) > 1) {
+                input.value = parseInt(input.value) - 1;
+                
+                // If in cart, auto-submit the form
+                if (btn.classList.contains('cart-qty-minus')) {
+                    btn.closest('form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                }
+            }
+        }
+    });
+
+    // Add to Cart AJAX
+    document.body.addEventListener('submit', function (e) {
+        if (e.target.classList.contains('cart-add-form')) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const actionUrl = form.getAttribute('action');
+            
+            fetch(actionUrl, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('cart-content-container').innerHTML = data.cartHtml;
+                    document.getElementById('header-cart-count').innerText = data.cartCount + ' Items';
+                    document.getElementById('header-cart-total').innerText = '₹ ' + data.cartTotal;
+                    
+                    // Reduce catalog quantity dynamically
+                    const productId = form.querySelector('input[name="product_id"]').value;
+                    const addedQty = parseInt(formData.get('quantity'));
+                    const stockDisplay = document.querySelector(`.stock-display[data-product-id="${productId}"]`);
+                    
+                    if (stockDisplay) {
+                        let currentStock = parseInt(stockDisplay.getAttribute('data-current-stock')) || 0;
+                        currentStock -= addedQty;
+                        stockDisplay.setAttribute('data-current-stock', currentStock);
+                        stockDisplay.innerText = currentStock.toLocaleString();
+                        
+                        const minStock = parseInt(stockDisplay.getAttribute('data-min-stock')) || 0;
+                        const stockContainer = stockDisplay.closest('.font-weight-bold');
+                        if (currentStock <= minStock) {
+                            stockContainer.classList.remove('text-success');
+                            stockContainer.classList.add('text-danger');
+                        } else {
+                            stockContainer.classList.remove('text-danger');
+                            stockContainer.classList.add('text-success');
+                        }
+                    }
+                    
+                    // Reset quantity input
+                    form.querySelector('.product-qty').value = 1;
+                } else {
+                    alert(data.message || 'Error adding to cart');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        // Remove from Cart AJAX
+        if (e.target.classList.contains('cart-remove-form')) {
+            e.preventDefault();
+            const form = e.target;
+            const actionUrl = form.getAttribute('action');
+            
+            fetch(actionUrl, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: new FormData(form)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('cart-content-container').innerHTML = data.cartHtml;
+                    document.getElementById('header-cart-count').innerText = data.cartCount + ' Items';
+                    document.getElementById('header-cart-total').innerText = '₹ ' + data.cartTotal;
+                    
+                    // Restore catalog quantity dynamically
+                    const formData = new FormData(form);
+                    const productId = formData.get('product_id');
+                    const removedQty = parseInt(formData.get('quantity'));
+                    const stockDisplay = document.querySelector(`.stock-display[data-product-id="${productId}"]`);
+                    
+                    if (stockDisplay) {
+                        let currentStock = parseInt(stockDisplay.getAttribute('data-current-stock')) || 0;
+                        currentStock += removedQty;
+                        stockDisplay.setAttribute('data-current-stock', currentStock);
+                        stockDisplay.innerText = currentStock.toLocaleString();
+                        
+                        const minStock = parseInt(stockDisplay.getAttribute('data-min-stock')) || 0;
+                        const stockContainer = stockDisplay.closest('.font-weight-bold');
+                        if (currentStock <= minStock) {
+                            stockContainer.classList.remove('text-success');
+                            stockContainer.classList.add('text-danger');
+                        } else {
+                            stockContainer.classList.remove('text-danger');
+                            stockContainer.classList.add('text-success');
+                        }
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Update Cart AJAX
+        if (e.target.classList.contains('cart-update-form')) {
+            e.preventDefault();
+            const form = e.target;
+            const actionUrl = form.getAttribute('action');
+            
+            fetch(actionUrl, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: new FormData(form)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('cart-content-container').innerHTML = data.cartHtml;
+                    document.getElementById('header-cart-count').innerText = data.cartCount + ' Items';
+                    document.getElementById('header-cart-total').innerText = '₹ ' + data.cartTotal;
+                    // Trigger catalog refresh for accuracy since we don't know the delta easily here
+                    if(typeof updateCatalog === 'function') updateCatalog();
+                } else {
+                    alert(data.message || 'Error updating cart');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    });
+
+    // Catalog AJAX Filtering
+    const searchInput = document.getElementById('catalog-search');
+    const categorySelect = document.getElementById('catalog-category');
+    const resetBtn = document.getElementById('reset-catalog-filters');
+    const catalogContainer = document.getElementById('catalog-table-container');
+
+    function fetchCatalog(url) {
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            catalogContainer.innerHTML = html;
+        })
+        .catch(error => console.error('Error fetching catalog:', error));
+    }
+
+    function updateCatalog() {
+        const search = searchInput ? searchInput.value : '';
+        const category = categorySelect ? categorySelect.value : '';
+        
+        const url = new URL(window.location.href);
+        if(search) url.searchParams.set('search', search);
+        else url.searchParams.delete('search');
+        
+        if(category) url.searchParams.set('category', category);
+        else url.searchParams.delete('category');
+        
+        fetchCatalog(url.toString());
+    }
+
+    if (searchInput) {
+        let debounceTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(updateCatalog, 400);
+        });
+    }
+
+    if (categorySelect) {
+        categorySelect.addEventListener('change', updateCatalog);
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            categorySelect.value = '';
+            updateCatalog();
+        });
+    }
+
+    // Catalog Pagination AJAX
+    document.body.addEventListener('click', function(e) {
+        const target = e.target.closest('#catalog-pagination a');
+        if (target) {
+            e.preventDefault();
+            fetchCatalog(target.href);
+        }
+    });
+});
+</script>
+@endpush

@@ -109,7 +109,13 @@ Route::middleware('auth')->group(function () {
         Route::post('parties/{party}/cart', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'addToCart'])->name('parties.cart.add');
         Route::delete('parties/{party}/cart-clear', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'clearCart'])->name('parties.cart.clear');
         Route::delete('parties/{party}/cart/{product}', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'removeFromCart'])->name('parties.cart.remove');
+        Route::patch('parties/{party}/cart/{product}', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'updateCart'])->name('parties.cart.update');
         Route::post('parties/{party}/place-order', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'placeOrder'])->name('parties.place-order');
+        Route::post('parties/{party}/addresses', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'storeAddress'])->name('parties.addresses.store');
+        Route::put('parties/{party}/addresses/{address}', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'updateAddress'])->name('parties.addresses.update');
+
+        // Villages
+        Route::get('villages/search', [\App\Http\Controllers\ERP\VillageController::class, 'search'])->name('villages.search');
 
         // Products
         Route::get('products/get-subcategories', [\App\Http\Controllers\ERP\ProductController::class, 'getSubCategories'])->name('products.get-subcategories');

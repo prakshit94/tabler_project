@@ -53,7 +53,7 @@
                             <button type="button" class="btn btn-icon btn-sm btn-light border-end-0 qty-minus">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /></svg>
                             </button>
-                            <input type="number" name="quantity" class="form-control form-control-sm text-center px-0 border-start-0 border-end-0 product-qty" value="0" min="0" style="width: 40px;">
+                            <input type="number" name="quantity" class="form-control form-control-sm text-center px-0 border-start-0 border-end-0 product-qty" value="1" min="1" style="width: 40px;">
                             <button type="button" class="btn btn-icon btn-sm btn-light border-start-0 qty-plus">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                             </button>

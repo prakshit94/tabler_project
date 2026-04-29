@@ -10,8 +10,20 @@
                 <div class="col text-truncate">
                     <a href="#" class="text-reset d-block font-weight-bold">{{ $item['name'] }}</a>
                     <div class="d-block text-secondary text-truncate mt-n1 small">
-                        SKU: {{ $item['sku'] }} | Qty: {{ $item['quantity'] }}
+                        SKU: {{ $item['sku'] }}
                     </div>
+                    <form action="{{ route('erp.parties.cart.update', [$party->id, $id]) }}" method="POST" class="cart-update-form mt-2">
+                        @csrf @method('PATCH')
+                        <div class="input-group input-group-sm input-group-flat" style="max-width: 110px;">
+                            <button class="btn btn-icon btn-sm btn-light border-end-0 cart-qty-minus" type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /></svg>
+                            </button>
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" name="quantity" class="form-control form-control-sm text-center px-0 border-start-0 border-end-0 cart-qty-input" value="{{ $item['quantity'] }}" min="1">
+                            <button class="btn btn-icon btn-sm btn-light border-start-0 cart-qty-plus" type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                            </button>
+                        </div>
+                    </form>
                 </div>
                 <div class="col-auto text-end">
                     <div class="font-weight-bold text-primary">₹ {{ number_format($item['price'] * $item['quantity'], 2) }}</div>
