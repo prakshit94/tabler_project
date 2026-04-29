@@ -61,7 +61,16 @@ class CustomerProfileController extends Controller
         $warehouses = Warehouse::all();
         $categories = \App\Models\Category::all();
 
-        return view('erp.parties.profile', compact('party', 'orders', 'products', 'cart', 'cartTotal', 'warehouses', 'categories'));
+        // Master data for Edit Profile modal
+        $account_types = \App\Models\AccountType::where('is_active', true)->orderBy('name')->get();
+        $land_units = \App\Models\LandUnit::all();
+        $irrigation_types = \App\Models\IrrigationType::all();
+        $crops_master = \App\Models\Crop::orderBy('name')->get();
+
+        return view('erp.parties.profile', compact(
+            'party', 'orders', 'products', 'cart', 'cartTotal', 'warehouses', 'categories',
+            'account_types', 'land_units', 'irrigation_types', 'crops_master'
+        ));
     }
 
     public function addToCart(Request $request, Party $party)
@@ -251,8 +260,16 @@ class CustomerProfileController extends Controller
             DB::commit();
             session()->forget("cart.{$party->id}");
 
-            return redirect()->to(route('erp.parties.profile', $party->id) . '#v-pills-orders')->with('success', 'Order #' . $order->order_number . ' placed successfully!');
+            // Manual activity log
+            activity()
+                ->performedOn($order)
+                ->causedBy(auth()->user())
+                ->withProperties(['total_amount' => $order->total_amount])
+                ->log('Order placed for customer ' . $party->name);
 
+            return redirect()->route('erp.parties.profile', $party->id)
+                ->with('success', 'Order #' . $order->order_number . ' placed successfully!')
+                ->with('active_tab', 'v-pills-orders-tab');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to place order: ' . $e->getMessage());
@@ -340,5 +357,16 @@ class CustomerProfileController extends Controller
         $address->update($validated);
 
         return redirect()->back()->with('success', 'Address updated successfully.');
+    }
+
+    public function destroyAddress(Party $party, PartyAddress $address)
+    {
+        if ($address->party_id !== $party->id) {
+            return redirect()->back()->with('error', 'Unauthorized action.');
+        }
+
+        $address->delete();
+
+        return redirect()->back()->with('success', 'Address deleted successfully.');
     }
 }

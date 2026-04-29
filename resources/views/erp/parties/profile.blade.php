@@ -37,6 +37,23 @@
         <div class="col-md-3">
             <div class="card mb-3 shadow-sm border-0">
                 <div class="card-body p-0">
+                    <style>
+                        #v-pills-tab .nav-link {
+                            transition: all 0.2s ease;
+                            border-radius: 0;
+                            border-left: 3px solid transparent !important;
+                        }
+                        #v-pills-tab .nav-link.active {
+                            background-color: var(--tblr-primary-lt) !important;
+                            color: var(--tblr-primary) !important;
+                            border-left-color: var(--tblr-primary) !important;
+                            font-weight: 600;
+                        }
+                        #v-pills-tab .nav-link:hover:not(.active) {
+                            background-color: var(--tblr-bg-surface-secondary);
+                            border-left-color: var(--tblr-border-color);
+                        }
+                    </style>
                     <div class="nav flex-column nav-pills nav-tabs-vertical" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                         <button class="nav-link active text-start py-3 px-4 border-0" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
@@ -49,6 +66,10 @@
                         <button class="nav-link text-start py-3 px-4 border-0" id="v-pills-products-tab" data-bs-toggle="pill" data-bs-target="#v-pills-products" type="button" role="tab">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
                             Product Catalog
+                        </button>
+                        <button class="nav-link text-start py-3 px-4 border-0 d-none" id="v-pills-checkout-tab" data-bs-toggle="pill" data-bs-target="#v-pills-checkout" type="button" role="tab">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17h-11v-14h-2" /><path d="M6 5l14 1l-1 7h-13" /></svg>
+                            Review Order
                         </button>
                         <a href="{{ route('erp.parties.index') }}" class="nav-link text-start py-3 px-4 border-0 text-danger">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2 text-danger" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 14l2 -2l2 2" /><path d="M12 12l0 -9" /><path d="M12 12l-2 2" /><path d="M5 12a7 7 0 1 0 14 0a7 7 0 0 0 -14 0" /></svg>
@@ -73,107 +94,222 @@
         <div class="col-md-9">
             <div class="tab-content" id="v-pills-tabContent">
                 <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Profile Overview</h3>
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-md bg-primary-lt text-primary me-3">
+                                    {{ strtoupper(substr($party->first_name ?? 'P', 0, 1)) }}
+                                </div>
+                                <div>
+                                    <h3 class="card-title mb-0">Primary Identity & Contact</h3>
+                                    <div class="text-secondary small">Basic information and contact details</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modal-edit-profile">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
+                                Edit Profile
+                            </button>
                         </div>
                         <div class="card-body">
                             <div class="datagrid">
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">Full Name</div>
-                                    <div class="datagrid-content">{{ $party->name }}</div>
+                                    <div class="datagrid-content fw-bold">{{ $party->name }}</div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">Company / Farm</div>
-                                    <div class="datagrid-content">{{ $party->company_name ?? ucfirst($party->type) }}</div>
+                                    <div class="datagrid-title">Party Code</div>
+                                    <div class="datagrid-content"><code>{{ $party->party_code }}</code></div>
                                 </div>
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">Primary Mobile</div>
-                                    <div class="datagrid-content">{{ $party->mobile }}</div>
+                                    <div class="datagrid-content text-primary fw-bold">{{ $party->mobile }}</div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">Email</div>
-                                    <div class="datagrid-content">{{ $party->email ?? 'N/A' }}</div>
+                                    <div class="datagrid-title">Email Address</div>
+                                    <div class="datagrid-content">{{ $party->email ?? 'Not Provided' }}</div>
                                 </div>
-                                
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">Secondary Contact</div>
-                                    <div class="datagrid-content">{{ $party->phone_number_2 ?? 'N/A' }}</div>
+                                    <div class="datagrid-title">Account Type</div>
+                                    <div class="datagrid-content">
+                                        <span class="badge bg-blue-lt">{{ ucfirst($party->type) }}</span>
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Category</div>
+                                    <div class="datagrid-content">
+                                        <span class="badge bg-purple-lt">{{ ucfirst($party->category) }}</span>
+                                    </div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Secondary Phone</div>
+                                    <div class="datagrid-content">{{ $party->phone_number_2 ?? '—' }}</div>
+                                </div>
+                                <div class="datagrid-item">
+                                    <div class="datagrid-title">Relative Phone</div>
+                                    <div class="datagrid-content">{{ $party->relative_phone ?? '—' }}</div>
                                 </div>
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">Aadhaar (Last 4)</div>
-                                    <div class="datagrid-content">{{ $party->aadhaar_last4 ?? 'N/A' }}</div>
+                                    <div class="datagrid-content">{{ $party->aadhaar_last4 ?? '—' }}</div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">GSTIN</div>
-                                    <div class="datagrid-content font-monospace">{{ $party->gstin ?? 'N/A' }}</div>
+                                    <div class="datagrid-title">Source / Referred By</div>
+                                    <div class="datagrid-content small text-muted">{{ $party->source ?? 'Direct' }} {{ $party->referred_by ? '('.$party->referred_by.')' : '' }}</div>
                                 </div>
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">PAN Number</div>
-                                    <div class="datagrid-content font-monospace">{{ $party->pan_number ?? 'N/A' }}</div>
-                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">Credit Limit</div>
-                                    <div class="datagrid-content">₹ {{ number_format($party->credit_limit, 2) }}</div>
+                    <div class="row g-4 mb-4">
+                        <!-- Agriculture Portfolio -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-green-lt py-2">
+                                    <h4 class="card-title text-green"><svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 12l2 2l4 -4" /></svg>Agriculture Portfolio</h4>
                                 </div>
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">Credit Valid Till</div>
-                                    <div class="datagrid-content">{{ $party->credit_valid_till ? $party->credit_valid_till->format('d M Y') : 'Life-time' }}</div>
-                                </div>
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">Payment Terms</div>
-                                    <div class="datagrid-content">{{ $party->payment_terms ?? 'Standard' }}</div>
-                                </div>
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">Ledger Group</div>
-                                    <div class="datagrid-content">{{ $party->ledger_group ?? 'Sundry Debtors' }}</div>
-                                </div>
-
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">Bank Name</div>
-                                    <div class="datagrid-content">{{ $party->bank_name ?? 'N/A' }}</div>
-                                </div>
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">Account Number</div>
-                                    <div class="datagrid-content">{{ $party->account_number ?? 'N/A' }}</div>
-                                </div>
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">IFSC Code</div>
-                                    <div class="datagrid-content font-monospace">{{ $party->ifsc_code ?? 'N/A' }}</div>
-                                </div>
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">KYC Status</div>
-                                    <div class="datagrid-content">
-                                        @if($party->kyc_completed)
-                                            <span class="status status-green">Verified</span>
-                                        @else
-                                            <span class="status status-yellow">Pending</span>
-                                        @endif
+                                <div class="card-body">
+                                    <div class="datagrid">
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Land Area</div>
+                                            <div class="datagrid-content fw-bold">{{ $party->land_area ?? '0' }} {{ ucfirst($party->land_unit ?? 'Acre') }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Irrigation</div>
+                                            <div class="datagrid-content">{{ ucfirst($party->irrigation_type) ?? 'Rainfed' }}</div>
+                                        </div>
+                                        <div class="datagrid-item col-12">
+                                            <div class="datagrid-title">Crops Portfolio</div>
+                                            <div class="datagrid-content">
+                                                @if($party->crops)
+                                                    @foreach($party->crops as $crop)
+                                                        <span class="badge bg-green-lt me-1">{{ $crop }}</span>
+                                                    @endforeach
+                                                @else
+                                                    <span class="text-muted small">No crops registered</span>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            @if($party->type == 'farmer')
-                            <h4 class="mt-4 mb-3 text-green">Agriculture Profile</h4>
-                            <div class="datagrid">
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">Land Area</div>
-                                    <div class="datagrid-content">{{ $party->land_area }} {{ ucfirst($party->land_unit) }}</div>
+                        <!-- Financial & Status -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-yellow-lt py-2">
+                                    <h4 class="card-title text-yellow"><svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" /><path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" /></svg>Credit & Status</h4>
                                 </div>
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">Irrigation Type</div>
-                                    <div class="datagrid-content">{{ ucfirst($party->irrigation_type) ?? 'Rainfed' }}</div>
-                                </div>
-                                <div class="datagrid-item">
-                                    <div class="datagrid-title">Primary Crops</div>
-                                    <div class="datagrid-content">{{ $party->crops ? implode(', ', $party->crops) : 'N/A' }}</div>
+                                <div class="card-body">
+                                    <div class="datagrid">
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Credit Limit</div>
+                                            <div class="datagrid-content">₹ {{ number_format($party->credit_limit, 2) }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Opening Balance</div>
+                                            <div class="datagrid-content">₹ {{ number_format($party->opening_balance, 2) }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Credit Valid Till</div>
+                                            <div class="datagrid-content">{{ $party->credit_valid_till ? $party->credit_valid_till->format('d M Y') : 'Life-time' }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">KYC Status</div>
+                                            <div class="datagrid-content">
+                                                @if($party->kyc_completed)
+                                                    <span class="status status-green"><span class="status-dot status-dot-animated"></span> Verified</span>
+                                                @else
+                                                    <span class="status status-yellow">Pending Review</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            @endif
+                        </div>
+                    </div>
 
-                            <h4 class="mt-4 mb-2">Internal Notes</h4>
-                            <p class="text-secondary mb-0">{{ $party->internal_notes ?? 'No internal notes registered for this account.' }}</p>
+                    @if($party->category == 'business' || $party->gstin || $party->company_name)
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-azure-lt py-3">
+                            <h3 class="card-title text-azure">Business & Banking Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-7 border-end">
+                                    <div class="datagrid">
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Company / Farm Name</div>
+                                            <div class="datagrid-content fw-bold">{{ $party->company_name ?? '—' }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">GSTIN</div>
+                                            <div class="datagrid-content font-monospace text-uppercase">{{ $party->gstin ?? '—' }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">PAN Number</div>
+                                            <div class="datagrid-content font-monospace text-uppercase">{{ $party->pan_number ?? '—' }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Ledger Group</div>
+                                            <div class="datagrid-content">{{ $party->ledger_group ?? 'Sundry Debtors' }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Payment Terms</div>
+                                            <div class="datagrid-content">{{ $party->payment_terms ?? 'Standard' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 ps-md-4">
+                                    <div class="datagrid">
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Bank Name</div>
+                                            <div class="datagrid-content">{{ $party->bank_name ?? '—' }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Account Number</div>
+                                            <div class="datagrid-content font-monospace">{{ $party->account_number ?? '—' }}</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">IFSC / Branch</div>
+                                            <div class="datagrid-content font-monospace small">
+                                                {{ $party->ifsc_code ?? '—' }} <br>
+                                                <span class="text-muted">{{ $party->branch_name ?? '' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h3 class="card-title">Registration Activity & Notes</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-8 border-end">
+                                    <div class="subheader mb-2">Internal Notes</div>
+                                    <div class="p-3 bg-light rounded text-secondary italic">
+                                        {{ $party->internal_notes ?? 'No internal registration notes found for this account.' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="datagrid">
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Orders Count</div>
+                                            <div class="datagrid-content"><span class="badge bg-blue text-blue-fg">{{ $party->orders_count }}</span></div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Last Activity</div>
+                                            <div class="datagrid-content small">{{ $party->last_purchase_at ? $party->last_purchase_at->format('d M Y') : 'No Transactions' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -203,9 +339,16 @@
                                                 <div class="text-end">
                                                     <span class="badge bg-blue-lt mb-1">{{ ucfirst($address->type) }}</span>
                                                     <div>
-                                                        <button onclick='editAddress(@json($address))' class="btn btn-sm btn-ghost-primary border-0 p-1">
+                                                        <button onclick='editAddress(@json($address))' class="btn btn-sm btn-ghost-primary border-0 p-1" title="Edit Address">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
                                                         </button>
+                                                        <form action="{{ route('erp.parties.addresses.destroy', [$party->id, $address->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this address?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-ghost-danger border-0 p-1" title="Delete Address">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                                            </button>
+                                                        </form>
                                                     </div>
                                                 </div>
                                             </div>
@@ -221,11 +364,14 @@
                                             @endif
 
                                             <address class="mb-0 text-muted small">
-                                                @if($address->address_line1){{ $address->address_line1 }}<br>@endif
-                                                @if($address->address_line2){{ $address->address_line2 }}<br>@endif
-                                                {{ collect([$address->village, $address->taluka, $address->district])->filter()->join(', ') }}<br>
-                                                {{ collect([$address->state, $address->country, $address->pincode])->filter()->join(', ') }}
-                                                @if($address->post_office)<br>PO: {{ $address->post_office }}@endif
+                                                @if($address->address_line1)<strong>Line 1:</strong> {{ $address->address_line1 }}<br>@endif
+                                                @if($address->address_line2)<strong>Line 2:</strong> {{ $address->address_line2 }}<br>@endif
+                                                @if($address->village)<strong>Village:</strong> {{ $address->village }}<br>@endif
+                                                @if($address->taluka)<strong>Taluka:</strong> {{ $address->taluka }}<br>@endif
+                                                @if($address->district)<strong>District:</strong> {{ $address->district }}<br>@endif
+                                                @if($address->state)<strong>State:</strong> {{ $address->state }}<br>@endif
+                                                @if($address->pincode)<strong>Pincode:</strong> {{ $address->pincode }}<br>@endif
+                                                @if($address->post_office)<strong>PO:</strong> {{ $address->post_office }}@endif
                                             </address>
 
                                             @if($address->latitude && $address->longitude)
@@ -323,6 +469,11 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Checkout Section -->
+                <div class="tab-pane fade" id="v-pills-checkout" role="tabpanel">
+                    @include('erp.parties._checkout_tab')
+                </div>
             </div>
         </div>
     </div>
@@ -331,6 +482,7 @@
 @include('erp.parties._address_modal')
 @include('erp.parties._edit_address_modal')
 @include('erp.parties._checkout_modal')
+@include('erp.parties._edit_profile_modal')
 
 <div class="offcanvas offcanvas-end shadow-lg" tabindex="-1" id="offcanvasCart" style="width: 400px;">
     <div class="offcanvas-header bg-dark text-white">
@@ -349,18 +501,33 @@
 document.addEventListener('DOMContentLoaded', function () {
     const profileContainer = document.getElementById('v-pills-products');
     
-    // Persist Tab State
+    // Persist Tab State via URL Hash for refresh persistence
     const triggerTabList = [].slice.call(document.querySelectorAll('#v-pills-tab button[data-bs-toggle="pill"]'));
     triggerTabList.forEach(function (triggerEl) {
         triggerEl.addEventListener('shown.bs.tab', function (event) {
-            localStorage.setItem('activeProfileTab_' + window.location.pathname, event.target.id);
+            const hash = event.target.getAttribute('data-bs-target');
+            if (hash) {
+                history.replaceState(null, null, hash);
+            }
         });
     });
     
-    const activeTabId = localStorage.getItem('activeProfileTab_' + window.location.pathname);
+    // Priority: Session active_tab > URL Hash > Default (Profile)
+    let activeTabId = @if(session('active_tab')) "{{ session('active_tab') }}" @else null @endif;
+    
+    if (!activeTabId && window.location.hash) {
+        const hash = window.location.hash; // includes #
+        const tabByHash = document.querySelector(`button[data-bs-target="${hash}"]`);
+        if (tabByHash) activeTabId = tabByHash.id;
+    }
+
     if (activeTabId) {
         const activeTab = document.getElementById(activeTabId);
         if (activeTab) {
+            // Unhide checkout tab if it's the active one (e.g. after review click)
+            if (activeTabId === 'v-pills-checkout-tab') {
+                activeTab.classList.remove('d-none');
+            }
             const tab = new bootstrap.Tab(activeTab);
             tab.show();
         }
@@ -552,6 +719,9 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if(category) url.searchParams.set('category', category);
         else url.searchParams.delete('category');
+
+        // Reset to first page when filtering
+        url.searchParams.delete('products_page');
         
         fetchCatalog(url.toString());
     }
@@ -584,6 +754,61 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchCatalog(target.href);
         }
     });
+
+    // Custom trigger for Checkout Tab from Sidebar
+    window.switchToCheckoutTab = function() {
+        const checkoutTabBtn = document.getElementById('v-pills-checkout-tab');
+        if (checkoutTabBtn) {
+            // Reveal the tab if hidden
+            checkoutTabBtn.classList.remove('d-none');
+            
+            // Persist the intent to open checkout after reload
+            localStorage.setItem('activeProfileTab_' + window.location.pathname, checkoutTabBtn.id);
+            
+            // Close Offcanvas
+            const offcanvasEl = document.getElementById('offcanvasCart');
+            const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
+            if (offcanvas) offcanvas.hide();
+
+            // Refresh the page to ensure fresh cart data in the checkout tab
+            window.location.reload();
+        }
+    };
+
+    // Listen for cart changes and refresh checkout tab if active
+    const observer = new MutationObserver(function(mutations) {
+        const checkoutTab = document.getElementById('v-pills-checkout');
+        if (checkoutTab && checkoutTab.classList.contains('active')) {
+            // If the cart content in sidebar changed, and we are on checkout tab, 
+            // we should probably refresh the page to keep totals in sync.
+            // To avoid infinite loops, we only do this on specific actions.
+        }
+    });
+    
+    const cartContainer = document.getElementById('cart-content-container');
+    if (cartContainer) observer.observe(cartContainer, { childList: true });
+
+    // Handle AJAX form success globally for checkout tab sync
+    const originalFetch = window.fetch;
+    window.fetch = function() {
+        const args = arguments;
+        return originalFetch.apply(this, args).then(response => {
+            // Check if it's a mutation-like request that might require a sync
+            const options = args[1] || {};
+            const method = (options.method || 'GET').toUpperCase();
+            
+            if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+                const checkoutTab = document.getElementById('v-pills-checkout');
+                if (checkoutTab && checkoutTab.classList.contains('active')) {
+                    // Only reload if we are on the checkout tab to keep it in sync
+                    setTimeout(() => window.location.reload(), 500);
+                }
+            }
+            return response;
+        });
+    };
 });
 </script>
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 @endpush

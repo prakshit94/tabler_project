@@ -101,14 +101,13 @@
         <div class="modal-body" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
           <div class="row g-4 pb-4">
             <!-- Left Column: Personal & Identity -->
+            <!-- Left Column: Primary Identity -->
             <div class="col-md-7">
-              <fieldset class="form-fieldset">
-                <legend class="fw-bold text-uppercase text-primary small mb-3">Identity & KYC</legend>
-                
+              <fieldset class="form-fieldset bg-primary-lt border-primary">
                 <div class="row g-3">
                   <div class="col-md-4">
                     <label class="form-label required">First Name</label>
-                    <input type="text" name="first_name" class="form-control" placeholder="Required" required>
+                    <input type="text" name="first_name" class="form-control border-primary" placeholder="Required" required autofocus>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Middle Name</label>
@@ -118,186 +117,60 @@
                     <label class="form-label">Last Name</label>
                     <input type="text" name="last_name" class="form-control" placeholder="Optional">
                   </div>
-                  
+
                   <div class="col-md-6">
                     <label class="form-label required">Mobile Number</label>
                     <div class="input-group">
-                      <span class="input-group-text bg-light">+91</span>
-                      <input type="text" name="mobile" class="form-control" placeholder="10 Digits" required value="{{ session('searched_mobile') }}" maxlength="10">
+                      <span class="input-group-text bg-white border-primary">+91</span>
+                      <input type="text" name="mobile" class="form-control border-primary" placeholder="10 Digit Mobile" required value="{{ session('searched_mobile') }}" maxlength="10">
                     </div>
                   </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" name="email" class="form-control" placeholder="Optional">
-                  </div>
-
-                  <div class="col-md-4">
-                    <label class="form-label">Secondary Phone</label>
-                    <input type="text" name="phone_number_2" class="form-control">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Relative Phone</label>
-                    <input type="text" name="relative_phone" class="form-control">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Aadhaar (Last 4)</label>
-                    <input type="text" name="aadhaar_last4" class="form-control" maxlength="4">
-                  </div>
-
+                  
                   <div class="col-md-6">
                     <label class="form-label required">Account Type</label>
-                    <select name="type" class="form-select" required>
+                    <select name="type" class="form-select border-primary" required>
                       @foreach($account_types as $at)
                         <option value="{{ $at->slug }}">{{ $at->name }}</option>
                       @endforeach
                     </select>
                   </div>
-                  <div class="col-md-6">
+
+                  <div class="col-md-12">
                     <label class="form-label required">Category</label>
                     <div class="form-selectgroup w-100">
                       <label class="form-selectgroup-item flex-fill">
                         <input type="radio" name="category" value="individual" class="form-selectgroup-input" checked>
-                        <span class="form-selectgroup-label py-2">Individual</span>
+                        <span class="form-selectgroup-label py-2 border-primary">Individual</span>
                       </label>
                       <label class="form-selectgroup-item flex-fill">
                         <input type="radio" name="category" value="business" class="form-selectgroup-input">
-                        <span class="form-selectgroup-label py-2">Business</span>
+                        <span class="form-selectgroup-label py-2 border-primary">Business</span>
                       </label>
                     </div>
-                  </div>
-                  
-                  <div class="col-md-6">
-                    <label class="form-label">Source / Referral</label>
-                    <input type="text" name="source" class="form-control" list="source-list" placeholder="Select or type source">
-                    <datalist id="source-list">
-                      <option value="Walk-in">
-                      <option value="Reference">
-                      <option value="WhatsApp">
-                      <option value="Facebook">
-                      <option value="Field Visit">
-                      <option value="Newspaper Ad">
-                    </datalist>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Referred By</label>
-                    <input type="text" name="referred_by" class="form-control">
                   </div>
                 </div>
               </fieldset>
 
               <fieldset class="form-fieldset mt-4">
-                <legend class="fw-bold text-uppercase text-primary small mb-3">Primary Address</legend>
+                <legend class="fw-bold text-uppercase text-secondary small mb-3">Optional Contact</legend>
                 <div class="row g-3">
-                  <div class="col-12">
-                    <label class="form-label">Address Line 1</label>
-                    <input type="text" name="address_line1" class="form-control">
+                  <div class="col-md-12">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-control" placeholder="Optional email">
+                  <div class="col-md-6">
+                    <label class="form-label">Secondary Phone</label>
+                    <input type="text" name="phone_number_2" class="form-control">
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">Village / Town</label>
-                    <input type="text" name="village" class="form-control">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Taluka</label>
-                    <input type="text" name="taluka" class="form-control" list="taluka-list">
-                    <datalist id="taluka-list">
-                      <option value="Rahata">
-                      <option value="Shrirampur">
-                      <option value="Sangamner">
-                      <option value="Kopargaon">
-                      <option value="Akole">
-                      <option value="Rahuri">
-                      <option value="Nevasa">
-                    </datalist>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">District</label>
-                    <input type="text" name="district" class="form-control" value="Ahmadnagar">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">State</label>
-                    <input type="text" name="state" class="form-control" value="Maharashtra">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Pincode</label>
-                    <input type="text" name="pincode" class="form-control" maxlength="6">
+                    <label class="form-label">Relative Phone</label>
+                    <input type="text" name="relative_phone" class="form-control">
                   </div>
                 </div>
               </fieldset>
-            </div>
 
-            <!-- Right Column -->
-            <div class="col-md-5">
-              <fieldset class="form-fieldset h-100">
-                <legend class="fw-bold text-uppercase text-primary small mb-3">Business & Finance</legend>
-                
+              <fieldset class="form-fieldset mt-4">
+                <legend class="fw-bold text-uppercase text-primary small mb-3">Agriculture & Crops Portfolio</legend>
                 <div class="row g-3">
-                  <div class="col-12">
-                    <label class="form-label">Farm / Company Name</label>
-                    <input type="text" name="company_name" class="form-control">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">GSTIN</label>
-                    <input type="text" name="gstin" class="form-control uppercase">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">PAN Number</label>
-                    <input type="text" name="pan_number" class="form-control uppercase">
-                  </div>
-                  
-                  <div class="col-md-6">
-                    <label class="form-label">Credit Limit</label>
-                    <input type="number" name="credit_limit" class="form-control" value="0">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Opening Balance</label>
-                    <input type="number" name="opening_balance" class="form-control" value="0">
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label">Credit Valid Till</label>
-                    <input type="date" name="credit_valid_till" class="form-control">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Payment Terms</label>
-                    <input type="text" name="payment_terms" class="form-control" list="payment-list" placeholder="e.g. 30 Days">
-                    <datalist id="payment-list">
-                      <option value="Cash Only">
-                      <option value="Immediate">
-                      <option value="7 Days">
-                      <option value="15 Days">
-                      <option value="30 Days">
-                      <option value="45 Days">
-                      <option value="End of Month">
-                    </datalist>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">Ledger Group</label>
-                    <input type="text" name="ledger_group" class="form-control">
-                  </div>
-
-                  <div class="col-12 mt-3 pt-2 border-top">
-                    <h4 class="subheader mb-2">Banking Information</h4>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">Bank Name</label>
-                    <input type="text" name="bank_name" class="form-control">
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">Account Number</label>
-                    <input type="text" name="account_number" class="form-control">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">IFSC Code</label>
-                    <input type="text" name="ifsc_code" class="form-control">
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Branch</label>
-                    <input type="text" name="branch_name" class="form-control">
-                  </div>
-
-                  <div class="col-12 mt-3 pt-2 border-top">
-                    <h4 class="subheader mb-2">Agriculture & Tags</h4>
-                  </div>
                   <div class="col-md-7">
                     <label class="form-label">Land Area</label>
                     <div class="input-group">
@@ -325,7 +198,6 @@
                         <option value="{{ $crop->id }}">{{ $crop->name }}</option>
                       @endforeach
                     </select>
-                    <div class="text-secondary small mt-1">Select all crops currently grown by the farmer</div>
                   </div>
                   <div class="col-12">
                     <label class="form-label">Search Tags (comma separated)</label>
@@ -337,8 +209,60 @@
                       <option value="New Lead">
                       <option value="Local">
                       <option value="Outstation">
-                      <option value="Defaulter">
                     </datalist>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- Right Column: Conditional Business Details -->
+            <div class="col-md-5" id="business-section">
+              <fieldset class="form-fieldset h-100">
+                <legend class="fw-bold text-uppercase text-primary small mb-3">Business & Finance</legend>
+                
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label">Farm / Company Name</label>
+                    <input type="text" name="company_name" class="form-control mb-3">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label">GSTIN</label>
+                            <input type="text" name="gstin" class="form-control uppercase">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">PAN Number</label>
+                            <input type="text" name="pan_number" class="form-control uppercase">
+                        </div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-md-6">
+                    <label class="form-label">Credit Limit</label>
+                    <input type="number" name="credit_limit" class="form-control" value="0">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Opening Balance</label>
+                    <input type="number" name="opening_balance" class="form-control" value="0">
+                  </div>
+
+                  <div class="col-12 mt-3 pt-2 border-top">
+                    <h4 class="subheader mb-2">Banking Information</h4>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Bank Name</label>
+                    <input type="text" name="bank_name" class="form-control">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Account Number</label>
+                    <input type="text" name="account_number" class="form-control">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">IFSC Code</label>
+                    <input type="text" name="ifsc_code" class="form-control">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Branch</label>
+                    <input type="text" name="branch_name" class="form-control">
                   </div>
                 </div>
               </fieldset>
@@ -519,6 +443,25 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    // Toggle Business Section
+    const categoryRadios = document.querySelectorAll('input[name="category"]');
+    const businessSection = document.getElementById('business-section');
+    
+    function toggleBusinessSection() {
+        const selected = document.querySelector('input[name="category"]:checked').value;
+        if (selected === 'business') {
+            businessSection.style.display = 'block';
+        } else {
+            businessSection.style.display = 'none';
+        }
+    }
+
+    categoryRadios.forEach(radio => {
+        radio.addEventListener('change', toggleBusinessSection);
+    });
+
+    // Run on load
+    toggleBusinessSection();
 });
 </script>
 @endpush

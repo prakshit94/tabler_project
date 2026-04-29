@@ -113,6 +113,7 @@ Route::middleware('auth')->group(function () {
         Route::post('parties/{party}/place-order', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'placeOrder'])->name('parties.place-order');
         Route::post('parties/{party}/addresses', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'storeAddress'])->name('parties.addresses.store');
         Route::put('parties/{party}/addresses/{address}', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'updateAddress'])->name('parties.addresses.update');
+        Route::delete('parties/{party}/addresses/{address}', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'destroyAddress'])->name('parties.addresses.destroy');
 
         // Villages
         Route::get('villages/search', [\App\Http\Controllers\ERP\VillageController::class, 'search'])->name('villages.search');

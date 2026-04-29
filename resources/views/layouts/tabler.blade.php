@@ -130,7 +130,7 @@
               <div class="nav-item dropdown d-none d-md-flex">
                 <a
                   href="#"
-                  class="nav-link px-0"
+                  class="nav-link px-0 position-relative"
                   data-bs-toggle="dropdown"
                   tabindex="-1"
                   aria-label="Show notifications"
@@ -159,7 +159,7 @@
                     $notifications = auth()->user()->unreadNotifications->take(5); 
                   @endphp
                   @if($unreadCount > 0)
-                    <span class="badge bg-red">{{ $unreadCount }}</span>
+                    <span class="badge badge-sm badge-pill bg-red text-white position-absolute top-0 start-100 translate-middle" style="font-size: 10px; padding: 2px 5px;">{{ $unreadCount }}</span>
                   @endif
                 </a>
                 <!-- BEGIN NAVBAR NOTIFICATIONS -->
@@ -193,11 +193,11 @@
               </div>
               <!-- END NOTIFICATIONS -->              <!-- BEGIN ACTIVITY HISTORY -->
               <div class="nav-item dropdown d-none d-md-flex">
-                <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show history">
+                <a href="#" class="nav-link px-0 position-relative" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show history">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" /></svg>
                   @php $activityCount = \Spatie\Activitylog\Models\Activity::count(); @endphp
                   @if($activityCount > 0)
-                    <span class="badge bg-blue">{{ $activityCount }}</span>
+                    <span class="badge badge-sm badge-pill bg-blue text-white position-absolute top-0 start-100 translate-middle" style="font-size: 10px; padding: 2px 5px;">{{ $activityCount }}</span>
                   @endif
                 </a>
                 <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">

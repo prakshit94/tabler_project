@@ -55,54 +55,34 @@ class PartyController extends Controller
 
     public function store(Request $request)
     {
+        // Only keep required information validations
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'type' => 'required|in:customer,vendor,farmer,buyer,dealer',
+            'type' => 'required|exists:account_types,slug',
             'category' => 'required|in:individual,business',
             'mobile' => 'required|string|max:20|unique:parties,mobile',
-            'email' => 'nullable|email|max:255',
-            'phone_number_2' => 'nullable|string|max:20',
-            'relative_phone' => 'nullable|string|max:20',
-            'aadhaar_last4' => 'nullable|string|max:4',
-            'gstin' => 'nullable|string|max:20',
-            'pan_number' => 'nullable|string|max:20',
-            'company_name' => 'nullable|string|max:255',
-            'credit_limit' => 'nullable|numeric|min:0',
-            'opening_balance' => 'nullable|numeric',
-            'credit_valid_till' => 'nullable|date',
-            'payment_terms' => 'nullable|string|max:255',
-            'ledger_group' => 'nullable|string|max:255',
-            'referred_by' => 'nullable|string|max:255',
-            'source' => 'nullable|string|max:255',
-            'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255',
-            'ifsc_code' => 'nullable|string|max:255',
-            'branch_name' => 'nullable|string|max:255',
-            'land_area' => 'nullable|numeric',
-            'land_unit' => 'nullable|string',
-            'irrigation_type' => 'nullable|string',
-            'internal_notes' => 'nullable|string',
         ]);
+
+        // Merge all other optional fields from the request
+        $data = array_merge($request->all(), $validated);
 
         // Handle crops from master list
         if ($request->filled('crops_master')) {
-            $validated['crops'] = Crop::whereIn('id', $request->crops_master)->pluck('name')->toArray();
+            $data['crops'] = Crop::whereIn('id', $request->crops_master)->pluck('name')->toArray();
         }
 
         if ($request->filled('tags_input')) {
-            $validated['tags'] = array_map('trim', explode(',', $request->tags_input));
+            $data['tags'] = array_map('trim', explode(',', $request->tags_input));
         }
 
-        DB::transaction(function() use ($request, $validated) {
-            $party = Party::create($validated);
+        DB::transaction(function() use ($request, $data) {
+            $party = Party::create($data);
 
             if ($request->filled('crops_master')) {
                 $party->crops_list()->sync($request->crops_master);
             }
 
-            // Add initial address
+            // Add initial address (Optional)
             if ($request->filled('address_line1') || $request->filled('village')) {
                 $party->addresses()->create([
                     'type' => 'both',
@@ -113,7 +93,7 @@ class PartyController extends Controller
                     'state' => $request->state,
                     'pincode' => $request->pincode,
                     'is_default' => true,
-                    'address' => $request->address_line1
+                    'address' => $request->address_line1 ?? $request->village
                 ]);
             }
         });
@@ -126,13 +106,26 @@ class PartyController extends Controller
     {
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'type' => 'required|in:customer,vendor,farmer,buyer,dealer',
+            'type' => 'required|exists:account_types,slug',
+            'category' => 'required|in:individual,business',
             'mobile' => 'required|string|max:20|unique:parties,mobile,' . $party->id,
         ]);
 
-        $party->update($validated);
-        return redirect()->back()->with('success', 'Farmer updated successfully');
+        $data = array_merge($request->all(), $validated);
+
+        // Handle crops from master list
+        if ($request->filled('crops_master')) {
+            $data['crops'] = \App\Models\Crop::whereIn('id', $request->crops_master)->pluck('name')->toArray();
+            $party->crops_list()->sync($request->crops_master);
+        }
+
+        if ($request->filled('tags_input')) {
+            $data['tags'] = array_map('trim', explode(',', $request->tags_input));
+        }
+
+        $party->update($data);
+
+        return redirect()->back()->with('success', 'Profile updated successfully');
     }
 
     public function destroy(Party $party)
