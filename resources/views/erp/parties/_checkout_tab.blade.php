@@ -37,7 +37,7 @@
     <div class="col-lg-8">
         <!-- Step 1: Customer Details -->
         <div class="card mb-3 shadow-sm border-0">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title"><span class="checkout-step-number">1</span> Customer Information</h3>
                 <button class="btn btn-ghost-primary btn-sm border-0" data-bs-toggle="modal" data-bs-target="#modal-edit-profile">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
@@ -76,7 +76,7 @@
 
         <!-- Step 2: Shipping & Billing -->
         <div class="card mb-3 shadow-sm border-0">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <div class="card-header d-flex justify-content-between align-items-center py-3">
                 <h3 class="card-title"><span class="checkout-step-number">2</span> Shipping & Billing Addresses</h3>
                 <button class="btn btn-primary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modal-add-address">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
@@ -107,6 +107,7 @@
                                     <div class="font-weight-bold mb-2 h4 text-dark">{{ $address->label ?? $address->contact_name ?? 'Address Details' }}</div>
                                     <div class="text-secondary small line-height-base">
                                         <div class="mb-1"><span class="text-muted subheader small">Village:</span> <span class="text-dark font-weight-bold">{{ $address->village ?? 'N/A' }}</span></div>
+                                        <div class="mb-1"><span class="text-muted subheader small">Post Office:</span> <span class="text-dark font-weight-bold">{{ $address->post_office ?? 'N/A' }}</span></div>
                                         <div class="mb-1"><span class="text-muted subheader small">Taluka:</span> <span class="text-dark font-weight-bold">{{ $address->taluka ?? 'N/A' }}</span></div>
                                         <div class="mb-1"><span class="text-muted subheader small">District:</span> <span class="text-dark font-weight-bold">{{ $address->district ?? 'N/A' }}</span></div>
                                         <div class="mb-1"><span class="text-muted subheader small">State:</span> <span class="text-dark font-weight-bold">{{ $address->state ?? 'N/A' }}</span> - {{ $address->pincode }}</div>
@@ -153,6 +154,7 @@
                                         <div class="font-weight-bold mb-2 h4 text-dark">{{ $address->label ?? $address->contact_name ?? 'Billing Details' }}</div>
                                         <div class="text-secondary small line-height-base">
                                             <div class="mb-1"><span class="text-muted subheader small">Village:</span> <span class="text-dark font-weight-bold">{{ $address->village ?? 'N/A' }}</span></div>
+                                            <div class="mb-1"><span class="text-muted subheader small">Post Office:</span> <span class="text-dark font-weight-bold">{{ $address->post_office ?? 'N/A' }}</span></div>
                                             <div class="mb-1"><span class="text-muted subheader small">Taluka:</span> <span class="text-dark font-weight-bold">{{ $address->taluka ?? 'N/A' }}</span></div>
                                             <div class="mb-1"><span class="text-muted subheader small">District:</span> <span class="text-dark font-weight-bold">{{ $address->district ?? 'N/A' }}</span></div>
                                             <div class="mb-1"><span class="text-muted subheader small">State:</span> <span class="text-dark font-weight-bold">{{ $address->state ?? 'N/A' }}</span> - {{ $address->pincode }}</div>
@@ -169,7 +171,7 @@
 
         <!-- Step 3: Order Items -->
         <div class="card mb-3 shadow-sm border-0">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <div class="card-header d-flex justify-content-between align-items-center py-3">
                 <h3 class="card-title"><span class="checkout-step-number">3</span> Review Items</h3>
                 <span class="badge bg-primary-lt h3 m-0 px-3">{{ count($cart) }} Items</span>
             </div>
@@ -233,7 +235,7 @@
             <!-- Step 4: Finalize -->
             <div class="card mb-3 shadow-sm border-0 overflow-hidden">
                 <div class="card-header bg-dark text-white py-3">
-                    <h3 class="card-title text-white"><span class="checkout-step-number bg-white text-dark">4</span> Finalize & Place Order</h3>
+                    <h3 class="card-title text-white"><span class="checkout-step-number bg-surface text-primary">4</span> Finalize & Place Order</h3>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">

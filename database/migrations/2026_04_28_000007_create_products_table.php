@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('sub_category_id')->nullable()->constrained()->nullOnDelete();
             $table->string('barcode')->nullable()->index();
-            $table->decimal('cost_price', 15, 2)->default(0);
+            $table->decimal('purchase_price', 15, 2)->default(0);
             $table->decimal('mrp', 15, 2)->default(0);
             $table->decimal('selling_price', 15, 2)->default(0);
             $table->text('description')->nullable();
@@ -30,6 +30,18 @@ return new class extends Migration {
 
             $table->index('sku');
         });
+
+        Schema::create('product_images', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+            $table->string('image_path');
+            $table->boolean('is_primary')->default(false);
+            $table->timestamps();
+        });
     }
-    public function down(): void { Schema::dropIfExists('products'); }
+
+    public function down(): void { 
+        Schema::dropIfExists('product_images');
+        Schema::dropIfExists('products'); 
+    }
 };

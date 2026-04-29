@@ -301,28 +301,54 @@
                     </div>
                 </div>
 
-                <div class="col-md-6 col-lg-4">
-                    <div class="card card-md">
+                <div class="col-md-12 col-lg-4">
+                    <div class="card card-md h-100">
                         <div class="card-header border-0">
-                            <h3 class="card-title">System Activity Timeline</h3>
+                            <h3 class="card-title">Activity History</h3>
+                            <div class="card-actions">
+                                <span class="badge bg-green-lt">Live</span>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <ul class="timeline">
-                                @forelse($recentSyncLogs as $log)
+                        <div class="card-body p-0" style="max-height: 380px; overflow-y: auto;">
+                            <ul class="timeline px-3 pt-2">
+                                @forelse($recentActivities as $activity)
+                                @php
+                                    $eventColor = match($activity->event) {
+                                        'created' => 'green',
+                                        'updated' => 'blue',
+                                        'deleted' => 'red',
+                                        default   => 'azure',
+                                    };
+                                    $eventIcon = match($activity->event) {
+                                        'created' => '<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" />',
+                                        'updated' => '<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" />',
+                                        'deleted' => '<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />',
+                                        default   => '<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />',
+                                    };
+                                @endphp
                                 <li class="timeline-event">
-                                    <div class="timeline-event-icon bg-blue-lt">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
+                                    <div class="timeline-event-icon bg-{{ $eventColor }}-lt">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon text-{{ $eventColor }}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">{!! $eventIcon !!}</svg>
                                     </div>
                                     <div class="card timeline-event-card border-0 shadow-none bg-transparent p-0">
-                                        <div class="card-body p-0">
-                                            <div class="text-secondary float-end small">{{ $log->created_at->diffForHumans() }}</div>
-                                            <h4 class="m-0">System Sync</h4>
-                                            <p class="text-secondary small">Status: <span class="badge bg-blue-lt">{{ $log->status }}</span></p>
+                                        <div class="card-body p-0 pb-2">
+                                            <div class="text-secondary float-end small text-nowrap">{{ $activity->created_at->diffForHumans() }}</div>
+                                            <h4 class="m-0 text-capitalize">{{ $activity->description }}</h4>
+                                            <p class="text-secondary small mb-0">
+                                                By: <strong>{{ $activity->causer?->name ?? 'System' }}</strong>
+                                                @if($activity->subject_type)
+                                                &middot; {{ class_basename($activity->subject_type) }} #{{ $activity->subject_id }}
+                                                @endif
+                                            </p>
                                         </div>
                                     </div>
                                 </li>
                                 @empty
-                                <div class="text-center text-muted py-4">No recent activity detected</div>
+                                <li class="text-center text-muted py-5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2 text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 8v4l3 3" /><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /></svg>
+                                    <div>No activity recorded yet.</div>
+                                    <div class="small">Activity will appear here as you use the system.</div>
+                                </li>
                                 @endforelse
                             </ul>
                         </div>

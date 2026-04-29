@@ -3,10 +3,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Order extends Model {
-    use SoftDeletes;
+    use SoftDeletes, LogsActivity;
     protected $guarded = [];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['order_number', 'status', 'total_amount', 'type'])
+            ->setDescriptionForEvent(fn(string $eventName) => "Order {$eventName}")
+            ->logOnlyDirty();
+    }
     protected $casts = [
         'order_date' => 'date',
     ];

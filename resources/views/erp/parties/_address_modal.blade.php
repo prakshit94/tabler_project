@@ -1,10 +1,10 @@
 <style>
     #village-results {
-        border: 1px solid #e6e7e9;
+        border: 1px solid var(--tblr-border-color);
         border-radius: 4px;
         margin-top: 2px;
-        background-color: #ffffff !important; /* Force white background */
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+        background-color: var(--tblr-bg-surface) !important;
+        box-shadow: var(--tblr-shadow-lg) !important;
         z-index: 1060;
     }
     #village-results .list-group-item {
@@ -12,14 +12,14 @@
         border-left: 3px solid transparent;
     }
     #village-results .list-group-item:hover {
-        background-color: #f8fafc !important;
-        border-left: 3px solid #206bc4 !important;
+        background-color: var(--tblr-bg-surface-secondary) !important;
+        border-left: 3px solid var(--tblr-primary) !important;
     }
     .modal-body-section {
-        background: #fcfcfd;
+        background: var(--tblr-bg-surface-secondary);
         padding: 1.5rem;
         border-radius: 8px;
-        border: 1px solid #f1f5f9;
+        border: 1px solid var(--tblr-border-color);
         margin-bottom: 1rem;
     }
     .form-section-title {
@@ -36,18 +36,18 @@
         content: "";
         flex: 1;
         height: 1px;
-        background: #e6e7e9;
+        background: var(--tblr-border-color);
         margin-left: 1rem;
     }
 </style>
 
 <div class="modal modal-blur fade" id="modal-add-address" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content shadow-lg border-0">
             <form action="{{ route('erp.parties.addresses.store', $party->id) }}" method="POST">
                 @csrf
-                <div class="modal-header border-bottom-0">
-                    <h5 class="modal-title h2 font-weight-bold">Add New Address</h5>
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-0">
@@ -138,10 +138,11 @@
                         </div>
                     </div>
 
-                    <div class="mb-0">
-                        <label class="form-check form-switch">
+                    <div class="modal-body-section bg-primary-lt border-primary mb-0">
+                        <label class="form-check form-switch mb-0">
                             <input class="form-check-input" type="checkbox" name="is_default" value="1">
-                            <span class="form-check-label font-weight-bold">Mark this as primary shipping address</span>
+                            <span class="form-check-label h4 mb-0">Set as Default Address</span>
+                            <small class="form-hint text-primary">This address will be selected by default for new orders and invoices.</small>
                         </label>
                     </div>
                 </div>
@@ -203,6 +204,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     document.getElementById('district').value = item.district_name;
                                     document.getElementById('state').value = item.state_name;
                                     document.getElementById('post_office').value = item.post_so_name || '';
+                                    
                                     resultsDiv.style.display = 'none';
                                     searchInput.value = item.village_name + ' (' + item.pincode + ')';
                                     

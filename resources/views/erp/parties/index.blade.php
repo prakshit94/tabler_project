@@ -63,12 +63,11 @@
             </form>
           </div>
           <div class="ms-auto text-secondary d-flex">
-            <select id="type-filter" class="form-select form-select-sm w-auto me-2">
-              <option value="">All Types</option>
-              <option value="customer">Customer</option>
-              <option value="vendor">Vendor</option>
-              <option value="farmer">Farmer</option>
-              <option value="dealer">Dealer</option>
+            <select id="type-filter" class="form-select form-select-sm w-auto me-2 shadow-sm border-primary-lt">
+              <option value="">All Account Types</option>
+              @foreach($account_types as $at)
+                <option value="{{ $at->slug }}">{{ $at->name }}</option>
+              @endforeach
             </select>
             <div class="input-icon">
               <span class="input-icon-addon">
@@ -93,9 +92,9 @@
     <div class="modal-content border-0 shadow-lg">
       <form action="{{ route('erp.parties.store') }}" method="POST">
         @csrf
-        <div class="modal-header bg-primary text-white">
+        <div class="modal-header">
           <h5 class="modal-title">Register New Farmer / Vendor</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
@@ -279,7 +278,7 @@
           </div>
         </div>
 
-        <div class="modal-footer bg-light py-3 px-4">
+        <div class="modal-footer bg-surface-secondary py-3 px-4">
           <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary ms-auto px-5 shadow-sm">
             Create & Open Profile

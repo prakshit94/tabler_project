@@ -123,6 +123,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('products/{product}/restore', [\App\Http\Controllers\ERP\ProductController::class, 'restore'])->name('products.restore');
         Route::delete('products/{product}/force-delete', [\App\Http\Controllers\ERP\ProductController::class, 'forceDelete'])->name('products.force-delete');
         Route::post('products/bulk-action', [\App\Http\Controllers\ERP\ProductController::class, 'bulkAction'])->name('products.bulk-action');
+        Route::delete('products/{product}/images/{image}', [\App\Http\Controllers\ERP\ProductController::class, 'deleteImage'])->name('products.images.delete');
+        Route::post('products/{product}/images/{image}/set-primary', [\App\Http\Controllers\ERP\ProductController::class, 'setPrimaryImage'])->name('products.images.set-primary');
         Route::resource('products', \App\Http\Controllers\ERP\ProductController::class);
 
         // Inventory
@@ -131,7 +133,10 @@ Route::middleware('auth')->group(function () {
         Route::post('inventory/adjust', [\App\Http\Controllers\ERP\InventoryController::class, 'adjustStock'])->name('inventory.adjust');
 
         // Orders
+        Route::post('orders/{id}/restore', [\App\Http\Controllers\ERP\OrderController::class, 'restore'])->name('orders.restore');
+        Route::delete('orders/{id}/force-delete', [\App\Http\Controllers\ERP\OrderController::class, 'forceDelete'])->name('orders.force-delete');
         Route::patch('orders/{order}/status', [\App\Http\Controllers\ERP\OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::post('orders/bulk-action', [\App\Http\Controllers\ERP\OrderController::class, 'bulkAction'])->name('orders.bulk-action');
         Route::resource('orders', \App\Http\Controllers\ERP\OrderController::class);
 
         // Invoices

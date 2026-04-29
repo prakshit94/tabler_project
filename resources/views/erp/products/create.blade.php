@@ -13,12 +13,19 @@
 
 <div class="page-body">
   <div class="container-xl">
-    <form action="{{ route('erp.products.store') }}" method="POST">
+    <form action="{{ route('erp.products.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
       <div class="row row-cards">
         <div class="col-lg-8">
           <div class="card">
             <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label text-primary fw-bold">Product Media</label>
+                <input type="file" name="images[]" id="image-upload" class="form-control" multiple accept="image/*">
+                <small class="form-hint">You can select multiple images. First image will be set as primary.</small>
+                <!-- Preview Container -->
+                <div id="image-preview-container" class="row g-2 mt-2" style="display:none;"></div>
+              </div>
               <div class="mb-3">
                 <label class="form-label">Product Name</label>
                 <input type="text" name="name" class="form-control" placeholder="Enter product name" required>
@@ -153,16 +160,15 @@
 
 @push('scripts')
 <script>
+// Sub-category loader
 document.getElementById('category_id').addEventListener('change', function() {
     const categoryId = this.value;
     const subCategorySelect = document.getElementById('sub_category_id');
     subCategorySelect.innerHTML = '<option value="">Loading...</option>';
-    
     if (!categoryId) {
         subCategorySelect.innerHTML = '<option value="">Select Category First</option>';
         return;
     }
-
     fetch(`{{ route('erp.products.get-subcategories') }}?category_id=${categoryId}`)
         .then(res => res.json())
         .then(data => {
@@ -171,6 +177,38 @@ document.getElementById('category_id').addEventListener('change', function() {
                 subCategorySelect.innerHTML += `<option value="${sub.id}">${sub.name}</option>`;
             });
         });
+});
+
+// Image preview
+document.getElementById('image-upload').addEventListener('change', function() {
+    const container = document.getElementById('image-preview-container');
+    container.innerHTML = '';
+    if (this.files.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+    Array.from(this.files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const col = document.createElement('div');
+            col.className = 'col-6 col-md-3';
+            col.innerHTML = `
+                <div class="card shadow-sm position-relative">
+                    ${ index === 0 ? '<span class="badge bg-primary position-absolute top-0 start-0 m-1">Primary</span>' : '' }
+                    <img src="${e.target.result}"
+                         class="card-img-top"
+                         style="height:120px;object-fit:cover;"
+                         alt="Preview">
+                    <div class="card-body p-1 text-center">
+                        <small class="text-secondary text-truncate d-block" style="max-width:100%;">${file.name}</small>
+                    </div>
+                </div>
+            `;
+            container.appendChild(col);
+        };
+        reader.readAsDataURL(file);
+    });
 });
 </script>
 @endpush

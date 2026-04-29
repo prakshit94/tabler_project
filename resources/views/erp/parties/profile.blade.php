@@ -95,7 +95,7 @@
             <div class="tab-content" id="v-pills-tabContent">
                 <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel">
                     <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
                                 <div class="avatar avatar-md bg-primary-lt text-primary me-3">
                                     {{ strtoupper(substr($party->first_name ?? 'P', 0, 1)) }}
@@ -286,14 +286,14 @@
                     @endif
 
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-light">
+                        <div class="card-header bg-surface-secondary">
                             <h3 class="card-title">Registration Activity & Notes</h3>
                         </div>
                         <div class="card-body">
                             <div class="row g-4">
                                 <div class="col-md-8 border-end">
                                     <div class="subheader mb-2">Internal Notes</div>
-                                    <div class="p-3 bg-light rounded text-secondary italic">
+                                    <div class="p-3 bg-surface-secondary rounded text-secondary italic">
                                         {{ $party->internal_notes ?? 'No internal registration notes found for this account.' }}
                                     </div>
                                 </div>
@@ -318,7 +318,7 @@
                             <h3 class="card-title">Saved Addresses</h3>
                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-add-address">Add New Address</button>
                         </div>
-                        <div class="card-body bg-light">
+                        <div class="card-body bg-surface-secondary">
                             <div class="row g-3">
                                 @forelse($party->addresses as $address)
                                 <div class="col-md-6">
@@ -370,8 +370,8 @@
                                                 @if($address->taluka)<strong>Taluka:</strong> {{ $address->taluka }}<br>@endif
                                                 @if($address->district)<strong>District:</strong> {{ $address->district }}<br>@endif
                                                 @if($address->state)<strong>State:</strong> {{ $address->state }}<br>@endif
+                                                @if($address->post_office)<strong>PO:</strong> {{ $address->post_office }}<br>@endif
                                                 @if($address->pincode)<strong>Pincode:</strong> {{ $address->pincode }}<br>@endif
-                                                @if($address->post_office)<strong>PO:</strong> {{ $address->post_office }}@endif
                                             </address>
 
                                             @if($address->latitude && $address->longitude)
@@ -385,7 +385,7 @@
                                 </div>
                                 @empty
                                 <div class="col-12">
-                                    <div class="empty bg-white rounded shadow-sm border-0">
+                                    <div class="empty bg-surface rounded shadow-sm border-0">
                                         <div class="empty-icon">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" /></svg>
                                         </div>

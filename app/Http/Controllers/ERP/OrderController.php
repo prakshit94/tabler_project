@@ -18,14 +18,47 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $type = $request->input('type', 'sale');
-        $query = Order::query()->where('type', $type)->with(['party', 'warehouse']);
+        $status = $request->input('status');
+        $search = $request->input('search');
+        $warehouseId = $request->input('warehouse_id');
+        $view = $request->input('view', 'active');
+        
+        $query = Order::query()
+            ->where('type', $type)
+            ->with(['party', 'warehouse']);
 
-        if ($request->filled('search')) {
-            $query->where('order_number', 'like', '%' . $request->search . '%');
+        if ($view === 'trash') {
+            $query->onlyTrashed();
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($warehouseId) {
+            $query->where('warehouse_id', $warehouseId);
+        }
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('order_number', 'like', '%' . $search . '%')
+                  ->orWhereHas('party', function($pq) use ($search) {
+                      $pq->where('name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('warehouse', function($wq) use ($search) {
+                      $wq->where('name', 'like', '%' . $search . '%');
+                  });
+            });
         }
 
         $orders = $query->latest()->paginate(10)->withQueryString();
-        return view('erp.orders.index', compact('orders', 'type'));
+        $warehouses = Warehouse::all();
+        
+        if ($request->ajax()) {
+            return view('erp.orders._table', compact('orders', 'type', 'view'))->render();
+        }
+
+        return view('erp.orders.index', compact('orders', 'type', 'status', 'view', 'warehouses'));
     }
 
     public function create(Request $request)
@@ -85,6 +118,11 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $order->load(['party', 'warehouse', 'items.product']);
+        
+        if (request()->ajax()) {
+            return view('erp.orders._show_modal_content', compact('order'))->render();
+        }
+
         return view('erp.orders.show', compact('order'));
     }
     
@@ -122,5 +160,48 @@ class OrderController extends Controller
         }
         
         return redirect()->back()->with('success', 'Order status updated');
+    }
+
+    public function restore($id)
+    {
+        $order = Order::onlyTrashed()->findOrFail($id);
+        $order->restore();
+        return redirect()->back()->with('success', 'Order restored successfully');
+    }
+
+    public function forceDelete($id)
+    {
+        $order = Order::onlyTrashed()->findOrFail($id);
+        $order->forceDelete();
+        return redirect()->back()->with('success', 'Order permanently deleted');
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        $action = $request->input('action');
+
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'No orders selected');
+        }
+
+        switch ($action) {
+            case 'delete':
+                Order::whereIn('id', $ids)->get()->each->delete();
+                $msg = 'Selected orders moved to trash';
+                break;
+            case 'restore':
+                Order::onlyTrashed()->whereIn('id', $ids)->get()->each->restore();
+                $msg = 'Selected orders restored';
+                break;
+            case 'force-delete':
+                Order::onlyTrashed()->whereIn('id', $ids)->get()->each->forceDelete();
+                $msg = 'Selected orders permanently deleted';
+                break;
+            default:
+                return redirect()->back()->with('error', 'Invalid action');
+        }
+
+        return redirect()->back()->with('success', $msg);
     }
 }

@@ -13,6 +13,7 @@ use App\Models\LoginLog;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
 {
@@ -50,12 +51,14 @@ class DashboardController extends Controller
         $recentSyncLogs = SyncLog::latest()->take(5)->get();
         $recentLogins = LoginLog::with('user')->latest()->take(5)->get();
 
+        // Activity History from Spatie Activity Log
+        $recentActivities = Activity::with('causer')
+            ->latest()
+            ->take(15)
+            ->get();
+
         // Low Stock Alerts
-        // Assuming products have a 'stock_quantity' or similar. 
-        // Based on Product model, it has 'stocks()' relationship. 
-        // For simplicity in this demo dashboard, we'll just mock low stock or check a column if it exists.
-        // Let's check Product columns via a quick query if possible, or just use a placeholder.
-        $lowStockProducts = Product::take(5)->get(); // Placeholder
+        $lowStockProducts = Product::take(5)->get();
 
         return view('dashboard', compact(
             'stats', 
@@ -65,7 +68,8 @@ class DashboardController extends Controller
             'recentPayments', 
             'recentSyncLogs', 
             'recentLogins',
-            'lowStockProducts'
+            'lowStockProducts',
+            'recentActivities'
         ));
     }
 }

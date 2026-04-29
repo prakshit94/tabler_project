@@ -13,10 +13,69 @@
 
 <div class="page-body">
   <div class="container-xl">
-    <form action="{{ route('erp.products.update', $product->id) }}" method="POST">
+    <form action="{{ route('erp.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
       @csrf @method('PUT')
       <div class="row row-cards">
         <div class="col-lg-8">
+
+          {{-- Product Images Card --}}
+          <div class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title">Product Images</h3>
+            </div>
+            <div class="card-body">
+              {{-- Existing images gallery --}}
+              @if($product->images->count())
+              <div class="row g-3 mb-3" id="image-gallery">
+                @foreach($product->images as $img)
+                <div class="col-6 col-md-3" id="img-card-{{ $img->id }}">
+                  <div class="card shadow-sm h-100 {{ $img->is_primary ? 'border border-primary' : '' }}">
+                    <img src="{{ asset('storage/' . $img->image_path) }}"
+                         class="card-img-top"
+                         style="height:120px;object-fit:cover;"
+                         alt="Product Image">
+                    <div class="card-body p-2 text-center">
+                      @if($img->is_primary)
+                        <span class="badge bg-primary mb-1">Primary</span>
+                      @else
+                        <button type="button"
+                                class="btn btn-sm btn-ghost-primary btn-set-primary w-100 mb-1"
+                                data-image-id="{{ $img->id }}"
+                                data-product-id="{{ $product->id }}">
+                          Set Primary
+                        </button>
+                      @endif
+                      <button type="button"
+                              class="btn btn-sm btn-ghost-danger btn-delete-image w-100"
+                              data-image-id="{{ $img->id }}"
+                              data-product-id="{{ $product->id }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                @endforeach
+              </div>
+              @else
+              <div class="text-center text-secondary py-3" id="no-images-msg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></svg>
+                <div>No images uploaded yet.</div>
+              </div>
+              @endif
+
+              {{-- Upload new images --}}
+              <div class="mt-3">
+                <label class="form-label text-primary fw-bold">Upload New Images</label>
+                <input type="file" name="images[]" id="new-image-upload" class="form-control" multiple accept="image/*">
+                <small class="form-hint">Selecting new images will add them to the existing ones.</small>
+                <!-- Preview Container -->
+                <div id="new-image-preview" class="row g-2 mt-2" style="display:none;"></div>
+              </div>
+            </div>
+          </div>
+
+          {{-- Basic Info Card --}}
           <div class="card">
             <div class="card-body">
               <div class="mb-3">
@@ -48,7 +107,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="card mt-3">
             <div class="card-header"><h3 class="card-title">Pricing & Tax</h3></div>
             <div class="card-body">
@@ -160,12 +219,10 @@ document.getElementById('category_id').addEventListener('change', function() {
     const categoryId = this.value;
     const subCategorySelect = document.getElementById('sub_category_id');
     subCategorySelect.innerHTML = '<option value="">Loading...</option>';
-    
     if (!categoryId) {
         subCategorySelect.innerHTML = '<option value="">No Sub-Category</option>';
         return;
     }
-
     fetch(`{{ route('erp.products.get-subcategories') }}?category_id=${categoryId}`)
         .then(res => res.json())
         .then(data => {
@@ -174,6 +231,84 @@ document.getElementById('category_id').addEventListener('change', function() {
                 subCategorySelect.innerHTML += `<option value="${sub.id}">${sub.name}</option>`;
             });
         });
+});
+
+// Delete image via AJAX
+document.querySelectorAll('.btn-delete-image').forEach(btn => {
+    btn.addEventListener('click', function() {
+        if (!confirm('Delete this image?')) return;
+        const imageId = this.dataset.imageId;
+        const productId = this.dataset.productId;
+        const card = document.getElementById('img-card-' + imageId);
+
+        fetch(`/erp/products/${productId}/images/${imageId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                card.remove();
+            }
+        });
+    });
+});
+
+// Set primary image via AJAX
+document.querySelectorAll('.btn-set-primary').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const imageId = this.dataset.imageId;
+        const productId = this.dataset.productId;
+
+        fetch(`/erp/products/${productId}/images/${imageId}/set-primary`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                // Reload page to reflect updated primary badge
+                window.location.reload();
+            }
+        });
+    });
+});
+// Image preview for new uploads
+document.getElementById('new-image-upload').addEventListener('change', function() {
+    const container = document.getElementById('new-image-preview');
+    container.innerHTML = '';
+    if (this.files.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    const hasPrimary = {{ $product->images->where('is_primary', true)->count() > 0 ? 'true' : 'false' }};
+    container.style.display = 'flex';
+    Array.from(this.files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const col = document.createElement('div');
+            col.className = 'col-6 col-md-3';
+            const isPrimary = !hasPrimary && index === 0;
+            col.innerHTML = `
+                <div class="card shadow-sm position-relative">
+                    ${ isPrimary ? '<span class="badge bg-primary position-absolute top-0 start-0 m-1">Will be Primary</span>' : '' }
+                    <img src="${e.target.result}"
+                         class="card-img-top"
+                         style="height:120px;object-fit:cover;"
+                         alt="Preview">
+                    <div class="card-body p-1 text-center">
+                        <small class="text-secondary text-truncate d-block" style="max-width:100%;">${file.name}</small>
+                    </div>
+                </div>
+            `;
+            container.appendChild(col);
+        };
+        reader.readAsDataURL(file);
+    });
 });
 </script>
 @endpush

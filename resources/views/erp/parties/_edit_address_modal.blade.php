@@ -4,8 +4,8 @@
             <form id="edit-address-form" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="modal-header border-bottom-0">
-                    <h5 class="modal-title h2 font-weight-bold">Edit Address</h5>
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body pt-0">
@@ -67,10 +67,11 @@
                         </div>
                     </div>
 
-                    <div class="mb-0">
-                        <label class="form-check form-switch">
+                    <div class="modal-body-section bg-primary-lt border-primary mb-0">
+                        <label class="form-check form-switch mb-0">
                             <input class="form-check-input" type="checkbox" name="is_default" id="edit_is_default" value="1">
-                            <span class="form-check-label font-weight-bold">Mark this as primary shipping address</span>
+                            <span class="form-check-label h4 mb-0">Set as Default Address</span>
+                            <small class="form-hint text-primary">This address will be selected by default for new orders and invoices.</small>
                         </label>
                     </div>
                 </div>

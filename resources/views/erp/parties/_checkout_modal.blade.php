@@ -4,9 +4,9 @@
         <div class="modal-content shadow-lg border-0">
             <form action="{{ route('erp.parties.place-order', $party->id) }}" method="POST">
                 @csrf
-                <div class="modal-header bg-primary text-white border-0">
-                    <h5 class="modal-title h2 m-0">Finalize Order Placement</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header">
+                    <h5 class="modal-title">Finalize Order Placement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="row g-4">
@@ -53,7 +53,7 @@
                         
                         <div class="col-md-5 border-start-md">
                             <h3 class="card-title mb-3">Order Summary</h3>
-                            <div class="card bg-light border-0">
+                            <div class="card bg-surface-secondary border-0">
                                 <div class="card-body p-3">
                                     @php 
                                         $subTotal = array_reduce($cart, function($carry, $item) { return $carry + ($item['price'] * $item['quantity']); }, 0);

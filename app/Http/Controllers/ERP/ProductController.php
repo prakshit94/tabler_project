@@ -7,16 +7,18 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\HsnCode;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\SubCategory;
 use App\Models\TaxRate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
         $view = $request->input('view', 'active');
-        $query = Product::query()->with(['brand', 'category', 'subCategory', 'taxRate']);
+        $query = Product::query()->with(['brand', 'category', 'subCategory', 'taxRate', 'images']);
 
         if ($view === 'trash') {
             $query->onlyTrashed();
@@ -72,13 +74,24 @@ class ProductController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        Product::create($validated);
+        $product = Product::create($validated);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('products', 'public');
+                $product->images()->create([
+                    'image_path' => $path,
+                    'is_primary' => $index === 0
+                ]);
+            }
+        }
 
         return redirect()->route('erp.products.index')->with('success', 'Product created successfully');
     }
 
     public function edit(Product $product)
     {
+        $product->load('images');
         $brands = Brand::all();
         $categories = Category::all();
         $subCategories = SubCategory::where('category_id', $product->category_id)->get();
@@ -107,7 +120,49 @@ class ProductController extends Controller
 
         $product->update($validated);
 
+        if ($request->hasFile('images')) {
+            $hasPrimary = $product->images()->where('is_primary', true)->exists();
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('products', 'public');
+                $product->images()->create([
+                    'image_path' => $path,
+                    'is_primary' => !$hasPrimary && $index === 0
+                ]);
+            }
+        }
+
         return redirect()->route('erp.products.index')->with('success', 'Product updated successfully');
+    }
+
+    public function show(Product $product)
+    {
+        $product->load(['brand', 'category', 'subCategory', 'taxRate', 'hsnCode', 'stocks.warehouse']);
+        
+        if (request()->ajax()) {
+            return view('erp.products._show_modal_content', compact('product'))->render();
+        }
+
+        return view('erp.products.show', compact('product'));
+    }
+
+    public function deleteImage(Product $product, ProductImage $image)
+    {
+        Storage::disk('public')->delete($image->image_path);
+        $wasPrimary = $image->is_primary;
+        $image->delete();
+        // If deleted was primary, promote next available image
+        if ($wasPrimary) {
+            $next = $product->images()->first();
+            if ($next) $next->update(['is_primary' => true]);
+        }
+        return response()->json(['success' => true]);
+    }
+
+    public function setPrimaryImage(Product $product, ProductImage $image)
+    {
+        $product->images()->update(['is_primary' => false]);
+        $image->update(['is_primary' => true]);
+        return response()->json(['success' => true]);
     }
 
     public function destroy(Product $product)

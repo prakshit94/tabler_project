@@ -75,6 +75,18 @@
     </div>
   </div>
 </div>
+
+<!-- Product Details Modal -->
+<div class="modal modal-blur fade" id="modal-product-details" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content shadow-lg border-0" id="product-details-content">
+        <div class="modal-body text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status"></div>
+            <div class="text-secondary">Loading product information...</div>
+        </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -152,6 +164,44 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
+    // Product Details Modal Loading
+    const productDetailsModal = document.getElementById('modal-product-details');
+    const productDetailsContent = document.getElementById('product-details-content');
+
+    tableContainer.addEventListener('click', function(e) {
+        const viewBtn = e.target.closest('.view-product-btn');
+        if (viewBtn) {
+            e.preventDefault();
+            const productId = viewBtn.dataset.productId;
+            const url = `/erp/products/${productId}`;
+
+            // Show loading state
+            productDetailsContent.innerHTML = `
+                <div class="modal-body text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <div class="text-secondary">Fetching product details...</div>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(productDetailsModal);
+            modal.show();
+
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(res => res.text())
+                .then(html => {
+                    productDetailsContent.innerHTML = html;
+                })
+                .catch(err => {
+                    productDetailsContent.innerHTML = `
+                        <div class="modal-body text-center py-5 text-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+                            <div>Failed to load product data. Please try again.</div>
+                        </div>
+                    `;
+                });
+        }
+    });
 });
 </script>
 @endpush

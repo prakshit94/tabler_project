@@ -19,6 +19,14 @@
         <td><span class="text-secondary">{{ $product->id }}</span></td>
         <td>
            <div class="d-flex align-items-center">
+              @php
+                $primaryImage = $product->images->where('is_primary', true)->first() ?? $product->images->first();
+              @endphp
+              @if($primaryImage)
+                <span class="avatar me-2" style="background-image: url({{ asset('storage/' . $primaryImage->image_path) }})"></span>
+              @else
+                <span class="avatar me-2"><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-8 4.5" /></svg></span>
+              @endif
               <div>
                 <div>{{ $product->name }}</div>
                 <div class="text-secondary small">{{ $product->brand->name ?? 'No Brand' }}</div>
@@ -42,11 +50,18 @@
         </td>
         <td class="text-end">
           @if($view === 'active')
-            <a href="{{ route('erp.products.edit', $product->id) }}" class="btn btn-sm btn-primary">Edit</a>
-            <form action="{{ route('erp.products.destroy', $product->id) }}" method="POST" class="d-inline">
-              @csrf @method('DELETE')
-              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Move to trash?')">Delete</button>
-            </form>
+            <div class="btn-list flex-nowrap justify-content-end">
+              <a href="#" class="btn btn-sm btn-white view-product-btn" data-product-id="{{ $product->id }}">
+                View
+              </a>
+              <a href="{{ route('erp.products.edit', $product->id) }}" class="btn btn-sm btn-primary">
+                Edit
+              </a>
+              <form action="{{ route('erp.products.destroy', $product->id) }}" method="POST" class="d-inline">
+                @csrf @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-ghost-danger" onclick="return confirm('Move to trash?')">Delete</button>
+              </form>
+            </div>
           @else
             <form action="{{ route('erp.products.restore', $product->id) }}" method="POST" class="d-inline">
               @csrf @method('PATCH')

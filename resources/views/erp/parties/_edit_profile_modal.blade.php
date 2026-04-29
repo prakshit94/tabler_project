@@ -3,9 +3,9 @@
     <div class="modal-content border-0 shadow-lg">
       <form action="{{ route('erp.parties.update', $party->id) }}" method="POST">
         @csrf @method('PUT')
-        <div class="modal-header bg-primary text-white">
+        <div class="modal-header">
           <h5 class="modal-title">Edit Profile: {{ $party->name }}</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body" style="max-height: 70vh; overflow-y: auto; overflow-x: hidden;">
@@ -179,7 +179,7 @@
           </div>
         </div>
 
-        <div class="modal-footer bg-light py-3 px-4">
+        <div class="modal-footer bg-surface-secondary py-3 px-4">
           <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary ms-auto px-5 shadow-sm">
             Save Changes
