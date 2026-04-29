@@ -55,31 +55,31 @@ class ERPDummyDataSeeder extends Seeder
             $retailWh = Warehouse::firstOrCreate(['code' => 'WH002'], ['name' => 'Retail Outlet', 'state' => 'Maharashtra']);
 
             // 6. Parties
-            $cust1 = Party::where('email', 'john@example.com')->first();
-            if (!$cust1) {
-                $cust1 = Party::create([
+            $cust1 = Party::firstOrCreate(
+                ['party_code' => 'CUST-000001'],
+                [
                     'uuid' => \Illuminate\Support\Str::uuid(),
-                    'party_code' => 'CUST-000001',
                     'name' => 'John Doe',
                     'first_name' => 'John',
                     'last_name' => 'Doe',
                     'type' => 'customer',
                     'mobile' => '9876543210',
+                    'email' => 'john@example.com',
                     'gstin' => '07AAAAA0000A1Z5'
-                ]);
-            }
+                ]
+            );
 
-            $vend1 = Party::where('email', 'sales@techsupplies.com')->first();
-            if (!$vend1) {
-                $vend1 = Party::create([
+            $vend1 = Party::firstOrCreate(
+                ['party_code' => 'VEND-000001'],
+                [
                     'uuid' => \Illuminate\Support\Str::uuid(),
-                    'party_code' => 'VEND-000001',
                     'name' => 'Tech Supplies Inc',
                     'type' => 'vendor',
                     'mobile' => '1122334455',
+                    'email' => 'sales@techsupplies.com',
                     'gstin' => '08BBBBB1111B2Z6'
-                ]);
-            }
+                ]
+            );
 
             // 7. Products
             $macbook = Product::firstOrCreate(['sku' => 'MBP14-001'], [
@@ -272,6 +272,172 @@ class ERPDummyDataSeeder extends Seeder
             
             Stock::where(['product_id' => $macbook->id, 'warehouse_id' => $mainWh->id])->first()->increment('quantity', 1);
             StockMovement::create(['product_id' => $macbook->id, 'warehouse_id' => $mainWh->id, 'type' => 'in', 'quantity' => 1, 'reference_type' => 'Return', 'reference_id' => $ret->id]);
-        });
+
+            // ==========================================
+            // WMS & FULL ENTERPRISE DUMMY DATA
+            // ==========================================
+
+            // System Settings
+            \App\Models\SystemSetting::firstOrCreate(['key' => 'tally_sync_mode'], ['value' => 'manual', 'group' => 'tally']);
+            \App\Models\SystemSetting::firstOrCreate(['key' => 'tally_url'], ['value' => 'http://localhost:9000', 'group' => 'tally']);
+
+            // WMS Setup: Batch
+            $batch1 = \App\Models\StockBatch::firstOrCreate(
+                ['batch_no' => 'BATCH-001', 'product_id' => $galaxy->id, 'warehouse_id' => $mainWh->id], 
+                ['expiry_date' => now()->addYears(2), 'qty' => 50]
+            );
+
+            // Add Stock for Galaxy
+            Stock::updateOrCreate(['product_id' => $galaxy->id, 'warehouse_id' => $mainWh->id], ['quantity' => 50]);
+
+            // Create WMS specific Sales Order
+            $wmsOrder = Order::create([
+                'order_number' => 'WMS-' . time(),
+                'party_id' => $cust1->id,
+                'warehouse_id' => $mainWh->id,
+                'type' => 'sale',
+                'order_date' => now()->subDay(),
+                'sub_total' => 75000 * 5,
+                'tax_amount' => (75000 * 5) * 0.12,
+                'total_amount' => (75000 * 5) * 1.12,
+                'status' => 'allocated', // Setting to allocated to test picking/packing
+                'confirmed_at' => now()->subHours(5),
+                'allocated_at' => now()->subHours(4),
+            ]);
+            $wmsOrderItem = $wmsOrder->items()->create(['product_id' => $galaxy->id, 'quantity' => 5, 'unit_price' => 75000, 'tax_amount' => (75000 * 5) * 0.12, 'total_price' => (75000 * 5) * 1.12]);
+
+            // 1. Allocation
+            \App\Models\OrderAllocation::create([
+                'order_id' => $wmsOrder->id,
+                'order_item_id' => $wmsOrderItem->id,
+                'product_id' => $galaxy->id,
+                'warehouse_id' => $mainWh->id,
+                'batch_id' => $batch1->id,
+                'allocated_qty' => 5,
+                'status' => 'allocated'
+            ]);
+
+            // 2. Pick List
+            $pickList = \App\Models\PickList::create([
+                'pick_list_number' => 'PL-' . time(),
+                'order_id' => $wmsOrder->id,
+                'warehouse_id' => $mainWh->id,
+                'status' => 'pending',
+                'assigned_to' => 1 // Assuming User ID 1 exists
+            ]);
+            $pickList->items()->create([
+                'product_id' => $galaxy->id,
+                'order_item_id' => $wmsOrderItem->id,
+                'batch_id' => $batch1->id,
+                'requested_qty' => 5,
+                'picked_qty' => 0
+            ]);
+
+            // 3. Shipment (For another order to show in transit)
+            $shippedOrder = Order::create([
+                'order_number' => 'SHP-' . time(),
+                'party_id' => $cust1->id,
+                'warehouse_id' => $mainWh->id,
+                'type' => 'sale',
+                'order_date' => now()->subDays(3),
+                'sub_total' => 75000,
+                'tax_amount' => 75000 * 0.12,
+                'total_amount' => 75000 * 1.12,
+                'status' => 'shipped',
+                'confirmed_at' => now()->subDays(3),
+                'allocated_at' => now()->subDays(3),
+                'picking_at' => now()->subDays(2),
+                'picked_at' => now()->subDays(2),
+                'packing_at' => now()->subDays(2),
+                'packed_at' => now()->subDays(2),
+                'shipped_at' => now()->subDays(1),
+            ]);
+            $shippedOrderItem = $shippedOrder->items()->create(['product_id' => $galaxy->id, 'quantity' => 1, 'unit_price' => 75000, 'tax_amount' => 75000 * 0.12, 'total_price' => 75000 * 1.12]);
+
+            $shipment = \App\Models\Shipment::create([
+                'order_id' => $shippedOrder->id,
+                'shipment_number' => 'SHP-NO-' . time(),
+                'tracking_number' => 'TRK' . time(),
+                'carrier' => 'BlueDart',
+                'status' => 'in_transit',
+                'shipped_at' => now()->subDays(1),
+            ]);
+            $package = \App\Models\Package::create([
+                'order_id' => $shippedOrder->id,
+                'package_number' => 'PKG-' . time(),
+                'weight' => 1.5,
+                'dimensions' => '10x10x5'
+            ]);
+            $package->items()->create([
+                'order_item_id' => $shippedOrderItem->id,
+                'product_id' => $galaxy->id,
+                'quantity' => 1
+            ]);
+            $shipment->trackingEvents()->create([
+                'status' => 'in_transit',
+                'location' => 'Mumbai Hub',
+                'description' => 'Package has arrived at transit hub',
+                'event_at' => now()
+            ]);
+
+            // 4. Backorder
+            $backorderOrder = Order::create([
+                'order_number' => 'BO-' . time(),
+                'party_id' => $cust1->id,
+                'warehouse_id' => $mainWh->id,
+                'type' => 'sale',
+                'order_date' => now(),
+                'sub_total' => 180000 * 10,
+                'tax_amount' => (180000 * 10) * 0.18,
+                'total_amount' => (180000 * 10) * 1.18,
+                'status' => 'backordered',
+                'confirmed_at' => now(),
+            ]);
+            $boItem = $backorderOrder->items()->create(['product_id' => $macbook->id, 'quantity' => 10, 'unit_price' => 180000, 'tax_amount' => (180000 * 10) * 0.18, 'total_price' => (180000 * 10) * 1.18]);
+            
+            \App\Models\Backorder::create([
+                'backorder_number' => 'BO-NUM-' . time(),
+                'order_id' => $backorderOrder->id,
+                'order_item_id' => $boItem->id,
+                'product_id' => $macbook->id,
+                'warehouse_id' => $mainWh->id,
+                'pending_qty' => 10, // Assuming 0 stock
+                'fulfilled_qty' => 0,
+                'status' => 'pending'
+            ]);
+
+            // 5. Accounting Transaction (Double Entry)
+            $accTrans = \App\Models\AccountingTransaction::create([
+                'transaction_number' => 'JRN-' . time(),
+                'transaction_date' => now(),
+                'type' => 'journal',
+                'reference_type' => 'Order',
+                'reference_id' => $so->id,
+                'narration' => 'Sales Revenue Recording',
+                'total_amount' => $soTotal
+            ]);
+
+            // Create Ledgers if not exist
+            $salesLedger = \App\Models\Ledger::firstOrCreate(['name' => 'Sales Revenue'], ['type' => 'revenue', 'group' => 'Direct Incomes']);
+            $cgstLedger = \App\Models\Ledger::firstOrCreate(['name' => 'CGST Payable'], ['type' => 'liability', 'group' => 'Duties & Taxes']);
+            $sgstLedger = \App\Models\Ledger::firstOrCreate(['name' => 'SGST Payable'], ['type' => 'liability', 'group' => 'Duties & Taxes']);
+            $debtorLedger = \App\Models\Ledger::firstOrCreate(['name' => 'Sundry Debtors - ' . $cust1->name], ['type' => 'asset', 'group' => 'Sundry Debtors']);
+
+            $accTrans->entries()->create(['ledger_id' => $debtorLedger->id, 'debit' => $soTotal, 'entry_date' => now()]);
+            $accTrans->entries()->create(['ledger_id' => $salesLedger->id, 'credit' => $soSubtotal, 'entry_date' => now()]);
+            $accTrans->entries()->create(['ledger_id' => $cgstLedger->id, 'credit' => $soTax / 2, 'entry_date' => now()]);
+            $accTrans->entries()->create(['ledger_id' => $sgstLedger->id, 'credit' => $soTax / 2, 'entry_date' => now()]);
+
+            // 6. Tally Sync Log
+            \App\Models\TallySyncLog::create([
+                'reference_type' => 'AccountingTransaction',
+                'reference_id' => $accTrans->id,
+                'voucher_type' => 'sales_voucher',
+                'payload' => '<ENVELOPE><HEADER><TALLYREQUEST>Import Data</TALLYREQUEST></HEADER><BODY><IMPORTDATA><REQUESTDESC><REPORTNAME>Vouchers</REPORTNAME></REQUESTDESC><REQUESTDATA><TALLYMESSAGE xmlns:UDF="TallyUDF"><VOUCHER><DATE>20260429</DATE><NARRATION>Dummy Sales Revenue</NARRATION></VOUCHER></TALLYMESSAGE></REQUESTDATA></IMPORTDATA></BODY></ENVELOPE>',
+                'status' => 'failed',
+                'error_message' => 'Connection refused: Tally ERP is not reachable at localhost:9000',
+                'retry_count' => 3,
+                'last_attempt_at' => now()
+            ]);        });
     }
 }

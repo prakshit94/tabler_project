@@ -286,116 +286,132 @@
                           <span class="nav-link-title"> Dashboard </span>
                         </a>
                       </li>
-                      @role('Admin')
-                      <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                          <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-8 4.5" /></svg>
-                          </span>
-                          <span class="nav-link-title"> Access Control </span>
-                        </a>
-                        <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ route('admin.users.index') }}"> Users </a>
-                          <a class="dropdown-item" href="{{ route('admin.roles.index') }}"> Roles </a>
-                          <a class="dropdown-item" href="{{ route('admin.permissions.index') }}"> Permissions </a>
-                        </div>
-                      </li>
-                      @endrole
-
-                      <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                          <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
-                          </span>
-                          <span class="nav-link-title"> Inventory </span>
-                        </a>
-                        <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ route('erp.products.index') }}"> Products </a>
-                          <a class="dropdown-item" href="{{ route('erp.product-prices.index') }}"> Pricing Rules </a>
-                          <a class="dropdown-item" href="{{ route('erp.inventory.index') }}"> Stock Levels </a>
-                          <a class="dropdown-item" href="{{ route('erp.inventory.movements') }}"> Movements Log </a>
-                          <a class="dropdown-item" href="{{ route('erp.stock-transfers.index') }}"> Stock Transfers </a>
-                          <a class="dropdown-item" href="{{ route('erp.warehouses.index') }}"> Warehouses </a>
-                        </div>
-                      </li>
-
-                      <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                          <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
-                          </span>
-                          <span class="nav-link-title"> Transactions </span>
-                        </a>
-                        <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ route('erp.orders.index', ['type' => 'sale']) }}"> Sales Orders </a>
-                          <a class="dropdown-item" href="{{ route('erp.orders.index', ['type' => 'purchase']) }}"> Purchase Orders </a>
-                          <div class="dropdown-divider"></div>
-                          <a class="dropdown-item" href="{{ route('erp.invoices.index') }}"> Invoices </a>
-                          <a class="dropdown-item" href="{{ route('erp.payments.index') }}"> Payments </a>
-                          <a class="dropdown-item" href="{{ route('erp.returns.index') }}"> Returns </a>
-                        </div>
-                      </li>
-
-                      <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                          <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
-                          </span>
-                          <span class="nav-link-title"> CRM & Partners </span>
-                        </a>
-                        <div class="dropdown-menu">
-                          @foreach($global_account_types as $type)
-                          <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('erp.parties.index', ['type' => $type->slug]) }}">
-                             {{ $type->name }}
-                             <span class="badge badge-sm bg-primary-lt ms-2">{{ \App\Models\Party::where('type', $type->slug)->count() }}</span>
-                          </a>
-                          @endforeach
-                          <div class="dropdown-divider"></div>
-                          <a class="dropdown-item" href="{{ route('erp.parties.index') }}">
-                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4h16v16h-16z" /><path d="M9 12l2 2l4 -4" /></svg>
-                             Unified Directory
-                          </a>
-                        </div>
-                      </li>
-
+                      <!-- CRM & Sales -->
                       <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                           <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4h16v16h-16z" /><path d="M9 12l2 2l4 -4" /></svg>
                           </span>
-                          <span class="nav-link-title"> Master Data </span>
+                          <span class="nav-link-title"> Sales & CRM </span>
                         </a>
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ route('erp.brands.index') }}"> Brands </a>
-                          <a class="dropdown-item" href="{{ route('erp.categories.index') }}"> Categories </a>
-                          <a class="dropdown-item" href="{{ route('erp.sub-categories.index') }}"> Sub-Categories </a>
-                          <div class="dropdown-divider"></div>
-                          <a class="dropdown-item" href="{{ route('erp.tax-rates.index') }}"> Tax Rates </a>
-                          <a class="dropdown-item" href="{{ route('erp.hsn-codes.index') }}"> HSN Codes </a>
-                          <div class="dropdown-divider"></div>
-                          <a class="dropdown-item" href="{{ route('erp.crops.index') }}"> Crops </a>
-                          <a class="dropdown-item" href="{{ route('erp.irrigation-types.index') }}"> Irrigation Types </a>
-                          <a class="dropdown-item" href="{{ route('erp.land-units.index') }}"> Land Units </a>
-                          <a class="dropdown-item" href="{{ route('erp.account-types.index') }}"> Account Types </a>
+                          <div class="dropdown-menu-columns">
+                            <div class="dropdown-menu-column">
+                              <h6 class="dropdown-header">Transactions</h6>
+                              <a class="dropdown-item" href="{{ route('erp.orders.index', ['type' => 'sale']) }}"> Sales Orders </a>
+                              <a class="dropdown-item" href="{{ route('erp.orders.index', ['type' => 'purchase']) }}"> Purchase Orders </a>
+                              <a class="dropdown-item" href="{{ route('erp.invoices.index') }}"> Invoices </a>
+                              <a class="dropdown-item" href="{{ route('erp.payments.index') }}"> Payments </a>
+                              <a class="dropdown-item" href="{{ route('erp.returns.index') }}"> Returns </a>
+                            </div>
+                            <div class="dropdown-menu-column">
+                              <h6 class="dropdown-header">Directory</h6>
+                              <a class="dropdown-item" href="{{ route('erp.parties.index') }}"> Farmer & Vendor Directory </a>
+                              <div class="dropdown-divider"></div>
+                              @foreach($global_account_types as $type)
+                              <a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ route('erp.parties.index', ['type' => $type->slug]) }}">
+                                  {{ $type->name }}
+                                  <span class="badge badge-sm bg-primary-lt ms-2">{{ \App\Models\Party::where('type', $type->slug)->count() }}</span>
+                              </a>
+                              @endforeach
+                            </div>
+                          </div>
                         </div>
                       </li>
 
-                      <li class="nav-item">
-                        <a class="nav-link" href="{{ route('erp.ledgers.index') }}">
+                      <!-- Inventory & WMS -->
+                      <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                          <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-8 4.5" /></svg>
+                          </span>
+                          <span class="nav-link-title"> Inventory & Logistics </span>
+                        </a>
+                        <div class="dropdown-menu">
+                          <div class="dropdown-menu-columns">
+                            <div class="dropdown-menu-column">
+                              <h6 class="dropdown-header">Inventory Control</h6>
+                              <a class="dropdown-item" href="{{ route('erp.products.index') }}"> Products </a>
+                              <a class="dropdown-item" href="{{ route('erp.product-prices.index') }}"> Pricing Rules </a>
+                              <a class="dropdown-item" href="{{ route('erp.inventory.index') }}"> Stock Levels </a>
+                              <a class="dropdown-item" href="{{ route('erp.inventory.movements') }}"> Movements Log </a>
+                              <a class="dropdown-item" href="{{ route('erp.stock-transfers.index') }}"> Stock Transfers </a>
+                              <a class="dropdown-item" href="{{ route('erp.warehouses.index') }}"> Warehouses </a>
+                            </div>
+                            <div class="dropdown-menu-column">
+                              <h6 class="dropdown-header">Warehouse Operations</h6>
+                              <a class="dropdown-item" href="{{ route('erp.wms.dashboard') }}"> Logistics Hub </a>
+                              <a class="dropdown-item" href="{{ route('erp.wms.pick-lists') }}"> Picking Tasks </a>
+                              <a class="dropdown-item" href="{{ route('erp.wms.packing.index') }}"> Packing Queue </a>
+                              <a class="dropdown-item" href="{{ route('erp.shipments.index') }}"> Shipments Tracking </a>
+                              <a class="dropdown-item" href="{{ route('erp.backorders.index') }}"> Backorders </a>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+
+                      <!-- Finance & Accounting -->
+                      <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                           <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h5.697" /><path d="M18 14v4h4" /><path d="M18 11v-4a2 2 0 0 0 -2 -2h-2" /><path d="M8 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" /><path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M8 11h4" /><path d="M8 15h3" /></svg>
                           </span>
-                          <span class="nav-link-title"> Accounting </span>
+                          <span class="nav-link-title"> Finance & Accounting </span>
                         </a>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{{ route('erp.accounting.index') }}"> Journal Entries </a>
+                          <a class="dropdown-item" href="{{ route('erp.accounting.trial-balance') }}"> Trial Balance </a>
+                          <a class="dropdown-item" href="{{ route('erp.accounting.ledgers') }}"> Chart of Accounts </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{{ route('erp.tally.index') }}"> Tally Sync Management </a>
+                        </div>
                       </li>
 
-                      <li class="nav-item">
-                        <a class="nav-link" href="{{ route('erp.sync-logs.index') }}">
+                      <!-- System Setup & Settings -->
+                      <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                           <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12h4l3 8l4 -16l3 8h4" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" /><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /></svg>
                           </span>
-                          <span class="nav-link-title"> System Logs </span>
+                          <span class="nav-link-title"> System Setup </span>
                         </a>
+                        <div class="dropdown-menu">
+                          <div class="dropend">
+                            <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false" >
+                              Agriculture & Master Data
+                            </a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="{{ route('erp.brands.index') }}"> Brands </a>
+                              <a class="dropdown-item" href="{{ route('erp.categories.index') }}"> Categories </a>
+                              <a class="dropdown-item" href="{{ route('erp.sub-categories.index') }}"> Sub-Categories </a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="{{ route('erp.tax-rates.index') }}"> Tax Rates </a>
+                              <a class="dropdown-item" href="{{ route('erp.hsn-codes.index') }}"> HSN Codes </a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item" href="{{ route('erp.crops.index') }}"> Crops </a>
+                              <a class="dropdown-item" href="{{ route('erp.irrigation-types.index') }}"> Irrigation Types </a>
+                              <a class="dropdown-item" href="{{ route('erp.land-units.index') }}"> Land Units </a>
+                              <a class="dropdown-item" href="{{ route('erp.account-types.index') }}"> Account Types </a>
+                              <a class="dropdown-item" href="{{ route('erp.villages.index') }}"> Villages </a>
+                            </div>
+                          </div>
+                          
+                          @role('Admin')
+                          <div class="dropend">
+                            <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false" >
+                              Access Control
+                            </a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="{{ route('admin.users.index') }}"> Users </a>
+                              <a class="dropdown-item" href="{{ route('admin.roles.index') }}"> Roles </a>
+                              <a class="dropdown-item" href="{{ route('admin.permissions.index') }}"> Permissions </a>
+                            </div>
+                          </div>
+                          @endrole
+
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{{ route('erp.sync-logs.index') }}"> System Logs </a>
+                        </div>
                       </li>
                     </ul>
                     <!-- END NAVBAR MENU -->

@@ -37,7 +37,7 @@
       </tr>
       @empty
       <tr>
-        <td colspan="5" class="text-center text-secondary">No brands found</td>
+        <td colspan="5" class="text-center text-secondary">No irrigation types found</td>
       </tr>
       @endforelse
     </tbody>

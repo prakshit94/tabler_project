@@ -22,5 +22,8 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\View::composer('layouts.tabler', function ($view) {
             $view->with('global_account_types', \App\Models\AccountType::where('is_active', true)->orderBy('name')->get());
         });
+
+        // Register Tally Event Subscriber
+        \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\TallySyncSubscriber::class);
     }
 }

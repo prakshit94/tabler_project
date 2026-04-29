@@ -269,7 +269,7 @@ class CustomerProfileController extends Controller
 
             return redirect()->route('erp.parties.profile', $party->id)
                 ->with('success', 'Order #' . $order->order_number . ' placed successfully!')
-                ->with('active_tab', 'v-pills-orders-tab');
+                ->with('active_tab', 'v-pills-profile-tab');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Failed to place order: ' . $e->getMessage());
@@ -314,7 +314,8 @@ class CustomerProfileController extends Controller
 
         $party->addresses()->create($validated);
 
-        return redirect()->back()->with('success', 'Address added successfully.');
+        return redirect()->back()->with('success', 'Address added successfully.')
+            ->with('active_tab', $request->input('active_tab'));
     }
 
     public function updateAddress(Request $request, Party $party, PartyAddress $address)
@@ -356,7 +357,8 @@ class CustomerProfileController extends Controller
 
         $address->update($validated);
 
-        return redirect()->back()->with('success', 'Address updated successfully.');
+        return redirect()->back()->with('success', 'Address updated successfully.')
+            ->with('active_tab', $request->input('active_tab'));
     }
 
     public function destroyAddress(Party $party, PartyAddress $address)

@@ -116,7 +116,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('parties/{party}/addresses/{address}', [\App\Http\Controllers\ERP\CustomerProfileController::class, 'destroyAddress'])->name('parties.addresses.destroy');
 
         // Villages
+        Route::patch('villages/{village}/restore', [\App\Http\Controllers\ERP\VillageController::class, 'restore'])->name('villages.restore');
+        Route::delete('villages/{village}/force-delete', [\App\Http\Controllers\ERP\VillageController::class, 'forceDelete'])->name('villages.force-delete');
+        Route::post('villages/bulk-action', [\App\Http\Controllers\ERP\VillageController::class, 'bulkAction'])->name('villages.bulk-action');
         Route::get('villages/search', [\App\Http\Controllers\ERP\VillageController::class, 'search'])->name('villages.search');
+        Route::resource('villages', \App\Http\Controllers\ERP\VillageController::class);
 
         // Products
         Route::get('products/get-subcategories', [\App\Http\Controllers\ERP\ProductController::class, 'getSubCategories'])->name('products.get-subcategories');
@@ -160,6 +164,86 @@ Route::middleware('auth')->group(function () {
         // Product Prices
         Route::get('product-prices', [\App\Http\Controllers\ERP\ProductPriceController::class, 'index'])->name('product-prices.index');
         Route::post('product-prices', [\App\Http\Controllers\ERP\ProductPriceController::class, 'store'])->name('product-prices.store');
+
+        // =============================================
+        // WMS — Warehouse Management System
+        // =============================================
+        Route::prefix('wms')->name('wms.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ERP\WmsController::class, 'dashboard'])->name('dashboard');
+
+            // Pick Lists
+            Route::get('pick-lists', [\App\Http\Controllers\ERP\WmsController::class, 'pickLists'])->name('pick-lists');
+            Route::post('orders/{order}/generate-pick-list', [\App\Http\Controllers\ERP\WmsController::class, 'generatePickList'])->name('pick-list.generate');
+            Route::get('pick-lists/{pickList}', [\App\Http\Controllers\ERP\WmsController::class, 'showPickList'])->name('pick-list.show');
+            Route::post('pick-lists/{pickList}/start', [\App\Http\Controllers\ERP\WmsController::class, 'startPickList'])->name('pick-list.start');
+            Route::patch('pick-list-items/{item}/pick', [\App\Http\Controllers\ERP\WmsController::class, 'recordPick'])->name('pick-list.record-pick');
+
+            // Packing
+            Route::get('packing', [\App\Http\Controllers\ERP\WmsController::class, 'packingQueue'])->name('packing.index');
+            Route::get('packing/{order}', [\App\Http\Controllers\ERP\WmsController::class, 'showPacking'])->name('packing.show');
+            Route::post('packing/{order}/start', [\App\Http\Controllers\ERP\WmsController::class, 'startPacking'])->name('packing.start');
+            Route::post('packing/{order}/package', [\App\Http\Controllers\ERP\WmsController::class, 'createPackage'])->name('package.create');
+            Route::patch('packages/{package}/seal', [\App\Http\Controllers\ERP\WmsController::class, 'sealPackage'])->name('package.seal');
+        });
+
+        // =============================================
+        // Shipments
+        // =============================================
+        Route::prefix('shipments')->name('shipments.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ERP\ShipmentController::class, 'index'])->name('index');
+            Route::get('/{shipment}', [\App\Http\Controllers\ERP\ShipmentController::class, 'show'])->name('show');
+            Route::get('/create/{order}', [\App\Http\Controllers\ERP\ShipmentController::class, 'create'])->name('create');
+            Route::post('/store/{order}', [\App\Http\Controllers\ERP\ShipmentController::class, 'store'])->name('store');
+            Route::post('/{shipment}/tracking-event', [\App\Http\Controllers\ERP\ShipmentController::class, 'addEvent'])->name('add-event');
+            Route::patch('/{shipment}/deliver', [\App\Http\Controllers\ERP\ShipmentController::class, 'markDelivered'])->name('deliver');
+        });
+
+        // =============================================
+        // Backorders
+        // =============================================
+        Route::prefix('backorders')->name('backorders.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ERP\BackorderController::class, 'index'])->name('index');
+            Route::get('/{backorder}', [\App\Http\Controllers\ERP\BackorderController::class, 'show'])->name('show');
+            Route::patch('/{backorder}/fulfill', [\App\Http\Controllers\ERP\BackorderController::class, 'fulfill'])->name('fulfill');
+            Route::patch('/{backorder}/cancel', [\App\Http\Controllers\ERP\BackorderController::class, 'cancel'])->name('cancel');
+        });
+
+        // =============================================
+        // Accounting (Double-Entry)
+        // =============================================
+        Route::prefix('accounting')->name('accounting.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ERP\AccountingController::class, 'index'])->name('index');
+            Route::get('/trial-balance', [\App\Http\Controllers\ERP\AccountingController::class, 'trialBalance'])->name('trial-balance');
+            Route::get('/ledgers', [\App\Http\Controllers\ERP\AccountingController::class, 'ledgers'])->name('ledgers');
+            Route::get('/ledgers/{ledger}/statement', [\App\Http\Controllers\ERP\AccountingController::class, 'ledgerStatement'])->name('ledger-statement');
+            Route::get('/{transaction}', [\App\Http\Controllers\ERP\AccountingController::class, 'show'])->name('show');
+        });
+
+        // =============================================
+        // Tally Integration
+        // =============================================
+        Route::prefix('tally')->name('tally.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\ERP\TallyController::class, 'index'])->name('index');
+            Route::get('/{log}', [\App\Http\Controllers\ERP\TallyController::class, 'show'])->name('show');
+            Route::patch('/{log}/sync', [\App\Http\Controllers\ERP\TallyController::class, 'sync'])->name('sync');
+            Route::post('/sync-all', [\App\Http\Controllers\ERP\TallyController::class, 'syncAll'])->name('sync-all');
+            Route::post('/retry-failed', [\App\Http\Controllers\ERP\TallyController::class, 'retryFailed'])->name('retry-failed');
+            Route::put('/settings', [\App\Http\Controllers\ERP\TallyController::class, 'updateSettings'])->name('settings');
+            Route::get('/{log}/xml', [\App\Http\Controllers\ERP\TallyController::class, 'previewXml'])->name('xml');
+        });
+
+        // =============================================
+        // Order Lifecycle (WMS State Machine Transitions)
+        // =============================================
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::post('/{order}/confirm', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'confirm'])->name('confirm');
+            Route::post('/{order}/allocate', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'allocate'])->name('allocate');
+            Route::post('/{order}/ship', [\App\Http\Controllers\ERP\ShipmentController::class, 'create'])->name('ship');
+            Route::post('/{order}/deliver', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'deliver'])->name('deliver');
+            Route::post('/{order}/close', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'close'])->name('close');
+            Route::post('/{order}/cancel', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'cancel'])->name('cancel');
+            Route::post('/{order}/hold', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'hold'])->name('hold');
+        });
     });
 
     // Tabler Template Pages Routes

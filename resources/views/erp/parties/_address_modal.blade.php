@@ -46,6 +46,7 @@
         <div class="modal-content shadow-lg border-0">
             <form action="{{ route('erp.parties.addresses.store', $party->id) }}" method="POST">
                 @csrf
+                <input type="hidden" name="active_tab" class="modal-active-tab-input" value="v-pills-profile-tab">
                 <div class="modal-header">
                     <h5 class="modal-title">Add New Address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

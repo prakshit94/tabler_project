@@ -117,7 +117,11 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['party', 'warehouse', 'items.product']);
+        $order->load([
+            'party', 'warehouse', 'items.product',
+            'allocations.batch', 'allocations.bin', 
+            'pickLists', 'shipments', 'backorders'
+        ]);
         
         if (request()->ajax()) {
             return view('erp.orders._show_modal_content', compact('order'))->render();

@@ -27,11 +27,12 @@
         <div class="avatar avatar-xl bg-primary-lt text-primary mb-3">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
         </div>
-        <h3>Find Customer</h3>
-        <div class="text-secondary mb-4">Enter mobile number to start the order.</div>
+        <h3>Find {{ $type === 'sale' ? 'Customer' : 'Vendor' }}</h3>
+        <div class="text-secondary mb-4">Enter mobile number to start the {{ $type }} order.</div>
         <form action="{{ route('erp.parties.search-by-mobile') }}" method="GET">
+          <input type="hidden" name="type" value="{{ $type }}">
           <div class="mb-3">
-            <input type="text" name="mobile" class="form-control form-control-lg text-center font-weight-bold" placeholder="10-digit mobile" maxlength="10" required autofocus>
+            <input type="text" name="mobile" class="form-control form-control-lg text-center font-weight-bold" placeholder="10-digit mobile" maxlength="10" required autofocus autocomplete="off">
           </div>
           <div class="row g-2">
             <div class="col">
@@ -102,9 +103,9 @@
           <div class="d-flex align-items-center flex-wrap g-2">
             <select id="status-filter" class="form-select form-select-sm w-auto me-2">
                 <option value="">All Statuses</option>
-                <option value="pending" @selected($status === 'pending')>Pending</option>
-                <option value="completed" @selected($status === 'completed')>Completed</option>
-                <option value="cancelled" @selected($status === 'cancelled')>Cancelled</option>
+                @foreach(\App\Models\Order::STATUSES as $st)
+                  <option value="{{ $st }}" @selected($status === $st)>{{ ucfirst(str_replace('_', ' ', $st)) }}</option>
+                @endforeach
             </select>
             <select id="warehouse-filter" class="form-select form-select-sm w-auto">
               <option value="">All Warehouses</option>
@@ -183,8 +184,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Order Details Modal Loading
-    const orderDetailsModal = document.getElementById('modal-order-details');
+    const orderDetailsModalEl = document.getElementById('modal-order-details');
     const orderDetailsContent = document.getElementById('order-details-content');
+    let orderModalInstance = null;
+
+    if (orderDetailsModalEl) {
+        orderModalInstance = new bootstrap.Modal(orderDetailsModalEl);
+    }
 
     tableContainer.addEventListener('click', function(e) {
         const viewBtn = e.target.closest('.view-order-btn');
@@ -201,22 +207,44 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             `;
 
-            const modal = new bootstrap.Modal(orderDetailsModal);
-            modal.show();
+            if (orderModalInstance) {
+                orderModalInstance.show();
+            }
 
-            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(res => res.text())
-                .then(html => {
-                    orderDetailsContent.innerHTML = html;
-                })
-                .catch(err => {
-                    orderDetailsContent.innerHTML = `
-                        <div class="modal-body text-center py-5 text-danger">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
-                            <div>Failed to load order details. Please try again.</div>
+            fetch(url, { 
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'text/html'
+                } 
+            })
+            .then(async res => {
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    // Try to find an error message in the response, otherwise use statusText
+                    throw new Error(`Server Error ${res.status}: ${res.statusText}`);
+                }
+                return res.text();
+            })
+            .then(html => {
+                orderDetailsContent.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Error fetching order details:', err);
+                orderDetailsContent.innerHTML = `
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">Fetch Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center py-5 text-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+                        <div class="fw-bold mb-1">Failed to load order details</div>
+                        <div class="text-secondary small">${err.message}</div>
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">Reload Page</button>
                         </div>
-                    `;
-                });
+                    </div>
+                `;
+            });
         }
     });
 

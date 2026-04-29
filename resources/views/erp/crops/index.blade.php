@@ -83,7 +83,7 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Crop Name</label>
-            <input type="text" name="name" class="form-control" placeholder="Enter brand name" required>
+            <input type="text" name="name" class="form-control" placeholder="Enter crop name" required>
           </div>
         </div>
         <div class="modal-footer">
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('ajax-search');
     let searchTimeout = null;
 
-    function fetchBrands(url = null) {
+    function fetchCrops(url = null) {
         if (!url) {
             url = new URL(window.location.href);
             url.searchParams.set('search', searchInput.value);
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
         searchInput.addEventListener('input', function () {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                fetchBrands();
+                fetchCrops();
             }, 500);
         });
     }
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const link = e.target.closest('#pagination-links a');
         if (link) {
             e.preventDefault();
-            fetchBrands(link.href);
+            fetchCrops(link.href);
         }
     });
 
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const selectedIds = Array.from(tableContainer.querySelectorAll('.crop-checkbox:checked')).map(cb => cb.value);
             if (selectedIds.length === 0) {
                 e.preventDefault();
-                alert('Please select at least one brand.');
+                alert('Please select at least one crop.');
                 return;
             }
             if (!confirm('Are you sure?')) {

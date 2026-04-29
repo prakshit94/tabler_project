@@ -512,9 +512,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
     
-    // Priority: Session active_tab > URL Hash > Default (Profile)
+    // Priority: Session active_tab > LocalStorage > URL Hash > Default (Profile)
     let activeTabId = @if(session('active_tab')) "{{ session('active_tab') }}" @else null @endif;
     
+    if (!activeTabId) {
+        activeTabId = localStorage.getItem('activeProfileTab_' + window.location.pathname);
+        if (activeTabId) {
+            localStorage.removeItem('activeProfileTab_' + window.location.pathname);
+            // Also clear the hash so it doesn't revert back on subsequent natural navigations
+            history.replaceState(null, null, ' ');
+        }
+    }
+
     if (!activeTabId && window.location.hash) {
         const hash = window.location.hash; // includes #
         const tabByHash = document.querySelector(`button[data-bs-target="${hash}"]`);
@@ -532,6 +541,18 @@ document.addEventListener('DOMContentLoaded', function () {
             tab.show();
         }
     }
+
+    // Update all modal hidden inputs with the current active tab ID
+    document.addEventListener('show.bs.modal', function (event) {
+        const modal = event.target;
+        const activeTab = document.querySelector('#v-pills-tab .nav-link.active');
+        if (activeTab && modal) {
+            const inputs = modal.querySelectorAll('.modal-active-tab-input');
+            inputs.forEach(input => {
+                input.value = activeTab.id;
+            });
+        }
+    });
     
     // Quantity Plus/Minus Buttons (for Catalog and Cart)
     document.body.addEventListener('click', function (e) {
@@ -767,11 +788,15 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // Close Offcanvas
             const offcanvasEl = document.getElementById('offcanvasCart');
-            const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
-            if (offcanvas) offcanvas.hide();
+            if (offcanvasEl) {
+                const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
+                offcanvas.hide();
+            }
 
             // Refresh the page to ensure fresh cart data in the checkout tab
-            window.location.reload();
+            setTimeout(() => {
+                window.location.reload();
+            }, 150);
         }
     };
 

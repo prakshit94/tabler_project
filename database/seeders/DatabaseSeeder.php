@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesAndPermissionsSeeder::class,
             ERPDummyDataSeeder::class,
+            AgricultureMasterDataSeeder::class,
         ]);
         $this->call([
             VillageSeeder::class,

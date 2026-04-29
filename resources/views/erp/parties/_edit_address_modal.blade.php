@@ -4,6 +4,7 @@
             <form id="edit-address-form" method="POST">
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="active_tab" class="modal-active-tab-input" value="v-pills-profile-tab">
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

@@ -9,6 +9,6 @@ class Ledger extends Model {
     protected $guarded = [];
 
     public function entries() {
-        return $this->hasMany(LedgerEntry::class);
+        return $this->hasMany(AccountingEntry::class);
     }
 }

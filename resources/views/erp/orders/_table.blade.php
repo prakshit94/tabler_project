@@ -39,64 +39,56 @@
                     <span class="font-weight-bold">₹ {{ number_format($order->total_amount, 2) }}</span>
                 </td>
                 <td>
-                    @php
-                        $badgeClass = match($order->status) {
-                            'pending' => 'bg-yellow-lt',
-                            'completed' => 'bg-green-lt',
-                            'cancelled' => 'bg-red-lt',
-                            'processing' => 'bg-blue-lt',
-                            default => 'bg-secondary-lt'
-                        };
-                    @endphp
-                    <span class="badge {{ $badgeClass }}">{{ ucfirst($order->status) }}</span>
+                    <span class="badge {{ $order->status_badge_class }}">{{ ucfirst(str_replace('_', ' ', $order->status)) }}</span>
                 </td>
                 <td class="text-end">
-                    <div class="btn-list flex-nowrap justify-content-end">
-                        <a href="#" class="btn btn-sm btn-ghost-primary border-0 view-order-btn" data-order-id="{{ $order->id }}">
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary view-order-btn" data-order-id="{{ $order->id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
                             View
-                        </a>
+                        </button>
                         <div class="dropdown">
-                            <button class="btn btn-sm btn-ghost-secondary border-0 dropdown-toggle" data-bs-toggle="dropdown">
-                                Actions
+                            <button class="btn btn-sm btn-icon btn-ghost-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm">
                                 @if($view === 'trash')
-                                <form action="{{ route('erp.orders.restore', $order->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item text-success">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1" /></svg>
-                                        Restore Order
-                                    </button>
-                                </form>
-                                <form action="{{ route('erp.orders.force-delete', $order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete this order?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                        Delete Permanently
-                                    </button>
-                                </form>
+                                    <form action="{{ route('erp.orders.restore', $order->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item text-success">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1" /></svg>
+                                            Restore Order
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('erp.orders.force-delete', $order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete this order?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                            Delete Permanently
+                                        </button>
+                                    </form>
                                 @else
-                                <a class="dropdown-item view-order-btn" href="#" data-order-id="{{ $order->id }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
-                                    View Details
-                                </a>
-                                @if($order->status === 'pending')
-                                <form action="{{ route('erp.orders.update-status', $order->id) }}" method="POST" class="d-inline">
-                                    @csrf @method('PATCH')
-                                    <input type="hidden" name="status" value="completed">
-                                    <button type="submit" class="dropdown-item text-success">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
-                                        Mark Completed
-                                    </button>
-                                </form>
-                                @endif
-                                <form action="{{ route('erp.orders.destroy', $order->id) }}" method="POST" class="d-inline">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                        Move to Trash
-                                    </button>
-                                </form>
+                                    <a class="dropdown-item view-order-btn" href="#" data-order-id="{{ $order->id }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                        View Details
+                                    </a>
+                                    @if($order->status === 'pending')
+                                        <form action="{{ route('erp.orders.update-status', $order->id) }}" method="POST" class="d-inline">
+                                            @csrf @method('PATCH')
+                                            <input type="hidden" name="status" value="completed">
+                                            <button type="submit" class="dropdown-item text-success">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
+                                                Mark Completed
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <form action="{{ route('erp.orders.destroy', $order->id) }}" method="POST" class="d-inline">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                            Move to Trash
+                                        </button>
+                                    </form>
                                 @endif
                             </div>
                         </div>
