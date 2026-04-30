@@ -66,6 +66,16 @@ class ShippingService
     }
 
     /**
+     * Mark shipment as returned.
+     */
+    public function markReturned(Shipment $shipment, ?string $reason = null): Shipment
+    {
+        $shipment->update(['status' => 'returned']);
+        $this->addTrackingEvent($shipment, 'returned', null, $reason ?? 'Shipment returned to origin');
+        return $shipment->fresh();
+    }
+
+    /**
      * Get all active shipments with tracking.
      */
     public function getActiveShipments()

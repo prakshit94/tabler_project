@@ -18,7 +18,12 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $view = $request->input('view', 'active');
-        $query = Product::query()->with(['brand', 'category', 'subCategory', 'taxRate', 'images']);
+        $query = Product::query()
+            ->with(['brand', 'category', 'subCategory', 'taxRate', 'images'])
+            ->withSum('stocks as stock_count', 'quantity')
+            ->withSum('stocks as reserved_count', 'reserved_qty')
+            ->withSum('stocks as committed_count', 'committed_qty')
+            ->withSum('stocks as in_transit_count', 'in_transit_qty');
 
         if ($view === 'trash') {
             $query->onlyTrashed();

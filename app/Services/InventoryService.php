@@ -108,6 +108,26 @@ class InventoryService
     }
 
     /**
+     * Handle return of a shipped order.
+     * in_transit_qty -= qty, quantity += qty
+     */
+    public function handleReturn(Order $order): void
+    {
+        foreach ($order->items as $item) {
+            $stock = Stock::where('product_id', $item->product_id)
+                ->where('warehouse_id', $order->warehouse_id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($stock) {
+                $stock->decrement('in_transit_qty', $item->quantity);
+                $stock->increment('quantity', $item->quantity);
+                $this->createLedgerEntry($item->product_id, $order->warehouse_id, null, 'return', $item->quantity, $stock->fresh()->quantity, 'Order', $order->id, 'Shipment Returned');
+            }
+        }
+    }
+
+    /**
      * Restock inventory from a return.
      * quantity += qty
      */

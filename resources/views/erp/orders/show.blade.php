@@ -38,10 +38,13 @@
           <a href="{{ route('erp.shipments.create', $order->id) }}" class="btn btn-purple">Create Shipment</a>
           @endif
 
-          @if($order->status == 'shipped' || $order->status == 'in_transit')
-          <form action="{{ route('erp.orders.deliver', $order->id) }}" method="POST" class="d-inline">
+          @if($order->status == 'shipped' || $order->status == 'in_transit' || ($order->type == 'purchase' && $order->status == 'confirmed'))
+          <form action="{{ $order->type == 'purchase' ? route('erp.orders.receive', $order->id) : route('erp.orders.deliver', $order->id) }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-success">Mark Delivered</button>
+            <button type="submit" class="btn btn-success">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5l10 -10" /></svg>
+              {{ $order->type == 'purchase' ? 'Receive Items' : 'Mark Delivered' }}
+            </button>
           </form>
           @endif
 
@@ -100,9 +103,22 @@
             <p class="h3">{{ $order->type == 'sale' ? 'To' : 'From Vendor' }}</p>
             <address>
               <strong>{{ $order->party->name }}</strong><br>
-              GSTIN: {{ $order->party->gstin }}<br>
-              {{ $order->party->phone }}<br>
-              {{ $order->party->email }}
+              @php $addr = $order->party->addresses->where('type', 'shipping')->first() ?? $order->party->addresses->first(); @endphp
+              @if($addr)
+                {{ $addr->address_line1 }}<br>
+                @if($addr->address_line2) {{ $addr->address_line2 }}<br> @endif
+                <div class="small text-secondary mt-1">
+                  @if($addr->village) <div><strong>Village:</strong> {{ $addr->village }}</div> @endif
+                  @if($addr->taluka) <div><strong>Taluka:</strong> {{ $addr->taluka }}</div> @endif
+                  @if($addr->post_office) <div><strong>Post Office:</strong> {{ $addr->post_office }}</div> @endif
+                  @if($addr->district) <div><strong>District:</strong> {{ $addr->district }}</div> @endif
+                </div>
+                <div class="mt-1">
+                  {{ $addr->district ?? '-' }}, {{ $addr->state }} - {{ $addr->pincode }}
+                </div>
+              @endif
+              <div class="mt-1">Phone: {{ $order->party->mobile }}</div>
+              GSTIN: {{ $order->party->gstin }}
             </address>
           </div>
           <div class="col-12 my-5">
@@ -159,8 +175,8 @@
                 <tr>
                   <td>{{ $alloc->product->name }}</td>
                   <td>{{ $alloc->batch->batch_number ?? '-' }}</td>
-                  <td>{{ $alloc->bin->name ?? '-' }}</td>
-                  <td>{{ $alloc->quantity }}</td>
+                  <td>{{ $alloc->bin_location ?? '-' }}</td>
+                  <td>{{ $alloc->allocated_qty }}</td>
                   <td><span class="badge bg-{{ $alloc->status == 'allocated' ? 'blue' : 'green' }}">{{ $alloc->status }}</span></td>
                 </tr>
                 @endforeach

@@ -18,14 +18,31 @@ class ShipmentController extends Controller
 
     public function index(Request $request)
     {
-        $status   = $request->input('status');
-        $search   = $request->input('search');
-        $query    = Shipment::with(['order.party', 'latestEvent'])->latest();
+        $status = $request->input('status');
+        $search = $request->input('search');
+        $query  = Shipment::with(['order.party', 'latestEvent'])->latest();
 
         if ($status) $query->where('status', $status);
-        if ($search)  $query->where('tracking_number', 'like', "%{$search}%");
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('tracking_number', 'like', "%{$search}%")
+                  ->orWhere('shipment_number', 'like', "%{$search}%")
+                  ->orWhereHas('order', function($qo) use ($search) {
+                      $qo->where('order_number', 'like', "%{$search}%")
+                        ->orWhereHas('party', function($qp) use ($search) {
+                            $qp->where('name', 'like', "%{$search}%");
+                        });
+                  });
+            });
+        }
 
         $shipments = $query->paginate(15)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('erp.shipments._table', compact('shipments'))->render();
+        }
+
         return view('erp.shipments.index', compact('shipments', 'status'));
     }
 
@@ -82,5 +99,18 @@ class ShipmentController extends Controller
             $this->orderService->deliver($shipment->order);
         } catch (\Exception $e) {}
         return redirect()->route('erp.shipments.show', $shipment)->with('success', 'Shipment marked as delivered.');
+    }
+
+    /** Mark as returned */
+    public function markReturned(Request $request, Shipment $shipment)
+    {
+        $reason = $request->input('reason');
+        $this->shippingService->markReturned($shipment, $reason);
+        try {
+            $this->orderService->markReturned($shipment->order);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+        return redirect()->route('erp.shipments.show', $shipment)->with('success', 'Shipment marked as returned and inventory restocked.');
     }
 }

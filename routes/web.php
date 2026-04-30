@@ -137,10 +137,19 @@ Route::middleware('auth')->group(function () {
         Route::post('inventory/adjust', [\App\Http\Controllers\ERP\InventoryController::class, 'adjustStock'])->name('inventory.adjust');
 
         // Orders
+        // Orders
         Route::post('orders/{id}/restore', [\App\Http\Controllers\ERP\OrderController::class, 'restore'])->name('orders.restore');
         Route::delete('orders/{id}/force-delete', [\App\Http\Controllers\ERP\OrderController::class, 'forceDelete'])->name('orders.force-delete');
         Route::patch('orders/{order}/status', [\App\Http\Controllers\ERP\OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::post('orders/bulk-action', [\App\Http\Controllers\ERP\OrderController::class, 'bulkAction'])->name('orders.bulk-action');
+        
+        Route::post('orders/{order}/confirm', [\App\Http\Controllers\ERP\OrderController::class, 'confirm'])->name('orders.confirm');
+        Route::post('orders/{order}/receive', [\App\Http\Controllers\ERP\OrderController::class, 'receive'])->name('orders.receive');
+        Route::post('orders/{order}/deliver', [\App\Http\Controllers\ERP\OrderController::class, 'deliver'])->name('orders.deliver');
+        Route::post('orders/{order}/close', [\App\Http\Controllers\ERP\OrderController::class, 'close'])->name('orders.close');
+        Route::post('orders/{order}/cancel', [\App\Http\Controllers\ERP\OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::post('orders/{order}/allocate', [\App\Http\Controllers\ERP\OrderController::class, 'allocate'])->name('orders.allocate');
+        
         Route::resource('orders', \App\Http\Controllers\ERP\OrderController::class);
 
         // Invoices
@@ -183,6 +192,7 @@ Route::middleware('auth')->group(function () {
             Route::get('packing/{order}', [\App\Http\Controllers\ERP\WmsController::class, 'showPacking'])->name('packing.show');
             Route::post('packing/{order}/start', [\App\Http\Controllers\ERP\WmsController::class, 'startPacking'])->name('packing.start');
             Route::post('packing/{order}/package', [\App\Http\Controllers\ERP\WmsController::class, 'createPackage'])->name('package.create');
+            Route::post('packages/{package}/add-item', [\App\Http\Controllers\ERP\WmsController::class, 'addItemToPackage'])->name('package.add-item');
             Route::patch('packages/{package}/seal', [\App\Http\Controllers\ERP\WmsController::class, 'sealPackage'])->name('package.seal');
         });
 
@@ -196,6 +206,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/store/{order}', [\App\Http\Controllers\ERP\ShipmentController::class, 'store'])->name('store');
             Route::post('/{shipment}/tracking-event', [\App\Http\Controllers\ERP\ShipmentController::class, 'addEvent'])->name('add-event');
             Route::patch('/{shipment}/deliver', [\App\Http\Controllers\ERP\ShipmentController::class, 'markDelivered'])->name('deliver');
+            Route::patch('/{shipment}/return', [\App\Http\Controllers\ERP\ShipmentController::class, 'markReturned'])->name('return');
         });
 
         // =============================================

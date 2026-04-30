@@ -21,8 +21,8 @@ class OrderService
         'picked'           => ['packing'],
         'packing'          => ['packed'],
         'packed'           => ['shipped'],
-        'shipped'          => ['in_transit', 'delivered'],
-        'in_transit'       => ['delivered'],
+        'shipped'          => ['in_transit', 'delivered', 'returned'],
+        'in_transit'       => ['delivered', 'returned'],
         'delivered'        => ['closed', 'return_initiated'],
         'closed'           => [],
         'on_hold'          => ['confirmed', 'allocated', 'picking', 'cancelled'],
@@ -30,6 +30,7 @@ class OrderService
         'cancelled'        => [],
         'return_initiated' => ['return_completed'],
         'return_completed' => [],
+        'returned'         => [],
         'partial'          => ['allocated', 'picking'],
     ];
 
@@ -182,6 +183,44 @@ class OrderService
             $this->inventory->deliver($order);
             $order->update(['status' => 'delivered', 'delivered_at' => now()]);
             event(new \App\Events\OrderDelivered($order));
+        });
+
+        return $order->fresh();
+    }
+
+    /**
+     * Mark order as returned.
+     */
+    public function markReturned(Order $order): Order
+    {
+        $this->assertTransition($order, 'returned');
+
+        DB::transaction(function () use ($order) {
+            $this->inventory->handleReturn($order);
+            $order->update(['status' => 'returned', 'returned_at' => now()]);
+        });
+
+        return $order->fresh();
+    }
+
+    /**
+     * Receive items for a Purchase Order.
+     */
+    public function receive(Order $order): Order
+    {
+        // For purchase orders, we skip WMS and go straight to delivered (Received)
+        if ($order->type !== 'purchase') {
+            throw new \RuntimeException("Only purchase orders can be received directly.");
+        }
+
+        DB::transaction(function () use ($order) {
+            foreach ($order->items as $item) {
+                $this->inventory->purchaseReceive($item->product_id, $order->warehouse_id, $item->quantity, $order->id);
+            }
+            $order->update([
+                'status' => 'delivered', // Delivered means Received for Purchase
+                'delivered_at' => now()
+            ]);
         });
 
         return $order->fresh();

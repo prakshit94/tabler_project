@@ -14,11 +14,33 @@ class BackorderController extends Controller
     public function index(Request $request)
     {
         $status = $request->input('status', 'pending');
-        $backorders = Backorder::with(['order.party', 'product', 'warehouse'])
-            ->where('status', $status)
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+        $search = $request->input('search');
+        
+        $query = Backorder::with(['order.party', 'product', 'warehouse'])
+            ->when($status, fn($q) => $q->where('status', $status))
+            ->latest();
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('backorder_number', 'like', "%{$search}%")
+                  ->orWhereHas('order', function($qo) use ($search) {
+                      $qo->where('order_number', 'like', "%{$search}%")
+                        ->orWhereHas('party', function($qp) use ($search) {
+                            $qp->where('name', 'like', "%{$search}%");
+                        });
+                  })
+                  ->orWhereHas('product', function($qp) use ($search) {
+                      $qp->where('name', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $backorders = $query->paginate(15)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('erp.backorders._table', compact('backorders'))->render();
+        }
 
         return view('erp.backorders.index', compact('backorders', 'status'));
     }

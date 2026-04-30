@@ -28,7 +28,7 @@ class OrderLifecycleController extends Controller
     {
         try {
             $this->orderService->allocate($order);
-            return redirect()->route('erp.orders.show', $order)->with('success', "Order #{$order->order_number} allocated to batches/bins.");
+            return redirect()->route('erp.wms.dashboard')->with('success', "Order #{$order->order_number} allocated to batches/bins.");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

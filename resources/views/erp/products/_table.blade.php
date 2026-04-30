@@ -43,10 +43,26 @@
           <div class="text-secondary small">{{ number_format($product->purchase_price, 2) }}</div>
         </td>
         <td>
-          @php $stock = $product->stock_count ?? 0; @endphp
-          <span class="badge {{ $stock <= ($product->min_stock_level ?? 0) ? 'bg-red-lt' : 'bg-green-lt' }}">
-            {{ $stock }} {{ $product->unit }}
-          </span>
+          @php 
+            $onHand = $product->stock_count ?? 0;
+            $reserved = $product->reserved_count ?? 0;
+            $committed = $product->committed_count ?? 0;
+            $inTransit = $product->in_transit_count ?? 0;
+            $available = $onHand - $reserved - $committed;
+          @endphp
+          <div class="mb-1">
+            <span class="badge bg-blue-lt" title="Total Physical Stock">On Hand: {{ number_format($onHand, 0) }}</span>
+          </div>
+          <div class="mb-1">
+            <span class="badge {{ $available <= ($product->min_stock_level ?? 0) ? 'bg-red-lt' : 'bg-green-lt' }}" title="Quantity - Reserved - Committed">
+              Available: {{ number_format($available, 0) }}
+            </span>
+          </div>
+          <div class="small text-secondary" style="font-size: 0.7rem;">
+            Alloc: {{ number_format($reserved, 0) }} | 
+            Pack: {{ number_format($committed, 0) }} |
+            Ship: {{ number_format($inTransit, 0) }}
+          </div>
         </td>
         <td class="text-end">
           @if($view === 'active')

@@ -29,82 +29,78 @@
         {{-- Stats Row --}}
         <div class="row row-cards mb-4">
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm border-start border-warning border-3">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <span class="bg-yellow text-white avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="1"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
-                                </span>
-                            </div>
-                            <div class="col">
-                                <div class="font-weight-medium">Pending Pick Lists</div>
-                                <div class="text-secondary">{{ $stats['pending_pick'] }} pending · {{ $stats['in_progress_pick'] }} in progress</div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="h1 mb-0 text-warning fw-bold">{{ $stats['pending_pick'] + $stats['in_progress_pick'] }}</div>
+                <div class="card card-sm border-0 shadow-sm overflow-hidden">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <span class="bg-yellow-lt text-yellow avatar avatar-md shadow-sm border border-yellow-subtle">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+                            </span>
+                            <div class="ms-3">
+                                <div class="subheader mb-1">Pick Lists</div>
+                                <div class="h2 mb-0 fw-bold">{{ $stats['pending_pick'] + $stats['in_progress_pick'] }}</div>
+                                <div class="text-muted small">{{ $stats['pending_pick'] }} pending</div>
                             </div>
                         </div>
+                    </div>
+                    <div class="progress progress-xs">
+                        <div class="progress-bar bg-yellow" style="width: 100%"></div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm border-start border-info border-3">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <span class="bg-cyan text-white avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><line x1="12" y1="12" x2="20" y2="7.5"/><line x1="12" y1="12" x2="12" y2="21"/><line x1="12" y1="12" x2="4" y2="7.5"/></svg>
-                                </span>
-                            </div>
-                            <div class="col">
-                                <div class="font-weight-medium">Packing Queue</div>
-                                <div class="text-secondary">Orders awaiting packing</div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="h1 mb-0 text-cyan fw-bold">{{ $stats['pending_pack'] }}</div>
+                <div class="card card-sm border-0 shadow-sm overflow-hidden">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <span class="bg-cyan-lt text-cyan avatar avatar-md shadow-sm border border-cyan-subtle">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><line x1="12" y1="12" x2="20" y2="7.5"/><line x1="12" y1="12" x2="12" y2="21"/><line x1="12" y1="12" x2="4" y2="7.5"/></svg>
+                            </span>
+                            <div class="ms-3">
+                                <div class="subheader mb-1">Packing Queue</div>
+                                <div class="h2 mb-0 fw-bold text-cyan">{{ $stats['pending_pack'] }}</div>
+                                <div class="text-muted small">Ready to pack</div>
                             </div>
                         </div>
+                    </div>
+                    <div class="progress progress-xs">
+                        <div class="progress-bar bg-cyan" style="width: 100%"></div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm border-start border-primary border-3">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <span class="bg-blue text-white avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                </span>
-                            </div>
-                            <div class="col">
-                                <div class="font-weight-medium">In Transit</div>
-                                <div class="text-secondary">Active shipments</div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="h1 mb-0 text-blue fw-bold">{{ $stats['in_transit'] }}</div>
+                <div class="card card-sm border-0 shadow-sm overflow-hidden">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <span class="bg-blue-lt text-blue avatar avatar-md shadow-sm border border-blue-subtle">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </span>
+                            <div class="ms-3">
+                                <div class="subheader mb-1">In Transit</div>
+                                <div class="h2 mb-0 fw-bold text-blue">{{ $stats['in_transit'] }}</div>
+                                <div class="text-muted small">Active shipments</div>
                             </div>
                         </div>
+                    </div>
+                    <div class="progress progress-xs">
+                        <div class="progress-bar bg-blue" style="width: 100%"></div>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm border-start border-danger border-3">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <span class="bg-red text-white avatar">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M3.93 4.93L3 12l9 9 9-9-.93-7.07A2 2 0 0 0 18.07 3H5.93A2 2 0 0 0 3.93 4.93z"/></svg>
-                                </span>
-                            </div>
-                            <div class="col">
-                                <div class="font-weight-medium">Alerts</div>
-                                <div class="text-secondary">{{ $stats['backorders'] }} backorders · {{ $stats['low_stock'] }} low stock</div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="h1 mb-0 text-red fw-bold">{{ $stats['backorders'] + $stats['low_stock'] }}</div>
+                <div class="card card-sm border-0 shadow-sm overflow-hidden">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <span class="bg-red-lt text-red avatar avatar-md shadow-sm border border-red-subtle">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M3.93 4.93L3 12l9 9 9-9-.93-7.07A2 2 0 0 0 18.07 3H5.93A2 2 0 0 0 3.93 4.93z"/></svg>
+                            </span>
+                            <div class="ms-3">
+                                <div class="subheader mb-1">Inventory Alerts</div>
+                                <div class="h2 mb-0 fw-bold text-red">{{ $stats['backorders'] + $stats['low_stock'] }}</div>
+                                <div class="text-muted small">{{ $stats['low_stock'] }} items low stock</div>
                             </div>
                         </div>
+                    </div>
+                    <div class="progress progress-xs">
+                        <div class="progress-bar bg-red" style="width: 100%"></div>
                     </div>
                 </div>
             </div>

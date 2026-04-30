@@ -57,6 +57,7 @@
                             <option value="to_pack" @selected($status === 'to_pack')>Ready to Pack</option>
                             <option value="packed" @selected($status === 'packed')>Packed / Ready for Ship</option>
                             <option value="shipped" @selected($status === 'shipped')>Recently Shipped</option>
+                            <option value="all" @selected($status === 'all')>View All Orders</option>
                         </select>
 
                         <select id="warehouse-filter" class="form-select form-select-sm w-auto">

@@ -85,14 +85,14 @@ class WmsController extends Controller
     public function generatePickList(Order $order)
     {
         try {
-            DB::transaction(function () use ($order) {
+            $pickList = DB::transaction(function () use ($order) {
                 if (!in_array($order->status, ['allocated'])) {
                     throw new \RuntimeException("Order must be in 'allocated' status to generate a pick list.");
                 }
                 $this->orderService->startPicking($order);
-                $this->pickingService->generatePickList($order);
+                return $this->pickingService->generatePickList($order);
             });
-            return redirect()->route('erp.wms.pick-lists')->with('success', "Pick list generated for Order #{$order->order_number}");
+            return redirect()->route('erp.wms.pick-list.show', $pickList)->with('success', "Pick list generated for Order #{$order->order_number}");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -120,6 +120,7 @@ class WmsController extends Controller
         if ($pickList->status === 'completed') {
             try {
                 $this->orderService->markPicked($pickList->order);
+                return redirect()->route('erp.wms.packing.show', $pickList->order)->with('success', 'Picking completed. Starting packing...');
             } catch (\Exception $e) {}
         }
 
@@ -137,6 +138,8 @@ class WmsController extends Controller
 
         if ($status === 'to_pack') {
             $query->whereIn('status', ['picked', 'packing']);
+        } elseif ($status === 'all') {
+            // No status filter, show everything
         } elseif ($status) {
             $query->where('status', $status);
         }
@@ -190,6 +193,20 @@ class WmsController extends Controller
         return redirect()->route('erp.wms.packing.show', $order)->with('success', 'Package created.');
     }
 
+    public function addItemToPackage(Request $request, Package $package)
+    {
+        $validated = $request->validate([
+            'order_item_id' => 'required|exists:order_items,id',
+            'quantity'      => 'required|numeric|min:0.01',
+        ]);
+
+        $orderItem = \App\Models\OrderItem::findOrFail($validated['order_item_id']);
+        
+        $this->packingService->addItem($package, $orderItem->id, $orderItem->product_id, $validated['quantity']);
+
+        return redirect()->route('erp.wms.packing.show', $package->order_id)->with('success', 'Item added to package.');
+    }
+
     public function sealPackage(Package $package)
     {
         $this->packingService->sealPackage($package);
@@ -198,7 +215,10 @@ class WmsController extends Controller
         // If all packages packed → mark order packed
         $allPacked = $order->packages()->where('status', '!=', 'packed')->doesntExist();
         if ($allPacked && $order->packages()->count() > 0 && $order->status === 'packing') {
-            try { $this->orderService->markPacked($order); } catch (\Exception $e) {}
+            try { 
+                $this->orderService->markPacked($order); 
+                return redirect()->route('erp.shipments.create', $order->id)->with('success', 'All packages sealed. Proceeding to shipment...');
+            } catch (\Exception $e) {}
         }
 
         return redirect()->route('erp.wms.packing.show', $package->order_id)->with('success', 'Package sealed.');

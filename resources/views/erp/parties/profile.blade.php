@@ -370,7 +370,7 @@
                                                 @if($address->taluka)<strong>Taluka:</strong> {{ $address->taluka }}<br>@endif
                                                 @if($address->district)<strong>District:</strong> {{ $address->district }}<br>@endif
                                                 @if($address->state)<strong>State:</strong> {{ $address->state }}<br>@endif
-                                                @if($address->post_office)<strong>PO:</strong> {{ $address->post_office }}<br>@endif
+                                                @if($address->post_office)<strong>Post Office:</strong> {{ $address->post_office }}<br>@endif
                                                 @if($address->pincode)<strong>Pincode:</strong> {{ $address->pincode }}<br>@endif
                                             </address>
 

@@ -31,12 +31,18 @@
                     <div class="card-header"><h3 class="card-title">Order Items</h3></div>
                     <div class="table-responsive">
                         <table class="table table-vcenter card-table table-sm">
-                            <thead><tr><th>Product</th><th>Qty</th></tr></thead>
+                            <thead><tr><th>Product</th><th class="text-center">Order</th><th class="text-center">Packed</th><th class="text-center">Rem</th></tr></thead>
                             <tbody>
                                 @foreach($order->items as $item)
+                                @php
+                                    $packed = $summary['packages']->flatMap->items->where('order_item_id', $item->id)->sum('quantity');
+                                    $rem = $item->quantity - $packed;
+                                @endphp
                                 <tr>
                                     <td>{{ $item->product->name }}</td>
-                                    <td>{{ $item->quantity }}</td>
+                                    <td class="text-center">{{ (int)$item->quantity }}</td>
+                                    <td class="text-center text-success">{{ (int)$packed }}</td>
+                                    <td class="text-center {{ $rem > 0 ? 'text-primary font-weight-bold' : 'text-muted' }}">{{ (int)$rem }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -79,9 +85,36 @@
                         <p class="text-muted small mb-2">No items added yet</p>
                         @endif
                         @if($pkg->status === 'packing')
+                        <div class="bg-light p-2 rounded mb-2">
+                            <form method="POST" action="{{ route('erp.wms.package.add-item', $pkg) }}" class="row g-2 align-items-end">
+                                @csrf
+                                <div class="col">
+                                    <label class="form-label small mb-1">Add Product</label>
+                                    <select name="order_item_id" class="form-select form-select-sm" required>
+                                        <option value="">Select Item...</option>
+                                        @foreach($order->items as $item)
+                                            @php
+                                                $packed = $summary['packages']->flatMap->items->where('order_item_id', $item->id)->sum('quantity');
+                                                $rem = $item->quantity - $packed;
+                                            @endphp
+                                            @if($rem > 0)
+                                                <option value="{{ $item->id }}">{{ $item->product->name }} (Rem: {{ (int)$rem }})</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-auto" style="width: 80px;">
+                                    <label class="form-label small mb-1">Qty</label>
+                                    <input type="number" name="quantity" class="form-control form-control-sm" min="0.01" step="0.01" required>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-sm btn-primary">Add</button>
+                                </div>
+                            </form>
+                        </div>
                         <form method="POST" action="{{ route('erp.wms.package.seal', $pkg) }}">
                             @csrf @method('PATCH')
-                            <button class="btn btn-sm btn-success">Seal Package</button>
+                            <button class="btn btn-sm btn-success w-100">Seal & Finish Package</button>
                         </form>
                         @endif
                     </div>
