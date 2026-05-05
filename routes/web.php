@@ -143,6 +143,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('orders/{order}/status', [\App\Http\Controllers\ERP\OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::post('orders/bulk-action', [\App\Http\Controllers\ERP\OrderController::class, 'bulkAction'])->name('orders.bulk-action');
         Route::get('orders/export', [\App\Http\Controllers\ERP\OrderController::class, 'export'])->name('orders.export');
+        Route::get('orders/{order}/print-cod', [\App\Http\Controllers\ERP\OrderController::class, 'printCOD'])->name('orders.print-cod');
+        Route::get('orders/bulk-print-cod', [\App\Http\Controllers\ERP\OrderController::class, 'bulkPrintCOD'])->name('orders.bulk-print-cod');
         
         // Lifecycle Actions
         Route::post('orders/{order}/confirm', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'confirm'])->name('orders.confirm');
@@ -152,20 +154,32 @@ Route::middleware('auth')->group(function () {
         Route::post('orders/{order}/close', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'close'])->name('orders.close');
         Route::post('orders/{order}/cancel', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'cancel'])->name('orders.cancel');
         Route::post('orders/{order}/hold', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'hold'])->name('orders.hold');
+        Route::get('orders/filter-locations', [\App\Http\Controllers\ERP\OrderController::class, 'getFilterLocations'])->name('orders.filter-locations');
         Route::post('orders/{order}/receive', [\App\Http\Controllers\ERP\OrderController::class, 'receive'])->name('orders.receive');
         
         Route::resource('orders', \App\Http\Controllers\ERP\OrderController::class);
 
         // Invoices
+        Route::post('invoices/bulk-action', [\App\Http\Controllers\ERP\InvoiceController::class, 'bulkAction'])->name('invoices.bulk-action');
+        Route::get('invoices/export', [\App\Http\Controllers\ERP\InvoiceController::class, 'export'])->name('invoices.export');
+        Route::post('invoices/import-payments-preview', [\App\Http\Controllers\ERP\InvoiceController::class, 'importPaymentsPreview'])->name('invoices.import-payments-preview');
+        Route::post('invoices/import-payments-process', [\App\Http\Controllers\ERP\InvoiceController::class, 'importPaymentsProcess'])->name('invoices.import-payments-process');
+        Route::get('invoices/import-payments-template', [\App\Http\Controllers\ERP\InvoiceController::class, 'downloadPaymentsTemplate'])->name('invoices.import-payments-template');
+        Route::get('invoices/{invoice}/print', [\App\Http\Controllers\ERP\InvoiceController::class, 'print'])->name('invoices.print');
+        Route::get('invoices/bulk-print', [\App\Http\Controllers\ERP\InvoiceController::class, 'bulkPrint'])->name('invoices.bulk-print');
         Route::resource('invoices', \App\Http\Controllers\ERP\InvoiceController::class);
 
         // Payments
+        Route::post('payments/bulk-action', [\App\Http\Controllers\ERP\PaymentController::class, 'bulkAction'])->name('payments.bulk-action');
+        Route::get('payments/export', [\App\Http\Controllers\ERP\PaymentController::class, 'export'])->name('payments.export');
         Route::resource('payments', \App\Http\Controllers\ERP\PaymentController::class);
 
         // Stock Transfers
         Route::resource('stock-transfers', \App\Http\Controllers\ERP\StockTransferController::class);
 
         // Returns
+        Route::post('returns/bulk-action', [\App\Http\Controllers\ERP\ReturnController::class, 'bulkAction'])->name('returns.bulk-action');
+        Route::get('returns/export', [\App\Http\Controllers\ERP\ReturnController::class, 'export'])->name('returns.export');
         Route::resource('returns', \App\Http\Controllers\ERP\ReturnController::class);
 
         // Ledgers

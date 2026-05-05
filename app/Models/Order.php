@@ -13,7 +13,7 @@ class Order extends Model {
     // Valid statuses for display
     const STATUSES = [
         'draft', 'confirmed', 'allocated', 'picking', 'picked',
-        'packing', 'packed', 'shipped', 'in_transit', 'delivered', 'closed',
+        'packing', 'packed', 'shipped', 'in_transit', 'delivered', 'completed', 'closed',
         'on_hold', 'cancelled', 'backordered', 'partial', 'return_initiated', 'return_completed',
     ];
 
@@ -81,11 +81,12 @@ class Order extends Model {
             'packed'           => 'bg-teal-lt text-teal',
             'shipped'          => 'bg-purple-lt text-purple',
             'in_transit'       => 'bg-indigo-lt text-indigo',
-            'delivered'        => 'bg-green-lt text-green',
+            'delivered', 'completed' => 'bg-green-lt text-green',
             'closed'           => 'bg-dark-lt text-dark',
             'cancelled'        => 'bg-red-lt text-red',
             'on_hold'          => 'bg-muted-lt text-muted',
             'backordered'      => 'bg-warning-lt text-warning',
+            'partial'          => 'bg-azure-lt text-azure',
             'return_initiated' => 'bg-pink-lt text-pink',
             'return_completed' => 'bg-success-lt text-success',
             default            => 'bg-secondary-lt text-secondary',

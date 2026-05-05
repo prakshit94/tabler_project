@@ -65,8 +65,12 @@
           @endif
           
           @if(in_array($order->status, ['completed', 'delivered', 'closed']))
-          <a href="{{ route('erp.invoices.create', ['order_id' => $order->id]) }}" class="btn btn-azure">Generate Invoice</a>
-          <a href="{{ route('erp.returns.create', ['order_id' => $order->id]) }}" class="btn btn-warning">Process Return</a>
+            @if(!$order->invoice)
+              <a href="{{ route('erp.invoices.create', ['order_id' => $order->id]) }}" class="btn btn-azure">Generate Invoice</a>
+            @else
+              <a href="{{ route('erp.invoices.show', $order->invoice->id) }}" class="btn btn-outline-azure">View Invoice</a>
+            @endif
+            <a href="{{ route('erp.returns.create', ['order_id' => $order->id]) }}" class="btn btn-warning">Process Return</a>
           @endif
 
           @if(in_array($order->status, ['pending', 'draft', 'confirmed', 'on_hold']))

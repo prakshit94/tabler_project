@@ -1,5 +1,27 @@
 @extends('layouts.tabler')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+<style>
+    .ts-control { border: 1px solid #dce1e7 !important; padding: 0.35rem 0.5rem !important; border-radius: 4px !important; min-height: 36px !important; }
+    .ts-wrapper.multi.has-items .ts-control { padding-left: 8px !important; }
+    .ts-dropdown { z-index: 1050 !important; }
+    .ts-wrapper .ts-control .item { display: none !important; } /* Hide selected chips */
+    .ts-wrapper.multi .ts-control > input { display: inline-block !important; opacity: 1 !important; position: relative !important; }
+    
+    /* CSS Checkbox Ticking */
+    .ts-dropdown .option .form-check-input { pointer-events: none; }
+    .ts-dropdown .option.selected .form-check-input {
+        background-color: #066fd1 !important;
+        border-color: #066fd1 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 100% 100% !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="page-header d-print-none">
   <div class="container-xl">
@@ -133,6 +155,7 @@
       </div>
     </div>
   <div class="container-xl">
+
     <div class="card">
       <div class="card-header border-bottom-0 pb-0">
         <div class="d-flex justify-content-between align-items-center w-100">
@@ -166,8 +189,10 @@
               <select name="action" class="form-select form-select-sm w-auto me-2" id="bulk-action-select" required>
                 <option value="">Bulk Actions</option>
                 @if($view === 'active')
-                  <option value="change-status">Update Status</option>
-                  <option value="delete">Move to Trash</option>
+                   <option value="change-status">Update Status</option>
+                   <option value="delete">Move to Trash</option>
+                   <option value="bulk-print-invoice">Bulk Print Invoices</option>
+                   <option value="bulk-print-cod">Bulk Print COD</option>
                 @else
                   <option value="restore">Restore Selected</option>
                   <option value="force-delete">Permanently Delete</option>
@@ -205,12 +230,63 @@
                   <option value="{{ $st }}" @selected($status === $st)>{{ ucfirst(str_replace('_', ' ', $st)) }}</option>
                 @endforeach
             </select>
-            <select id="warehouse-filter" class="form-select form-select-sm w-auto">
+            <select id="warehouse-filter" class="form-select form-select-sm w-auto me-2">
               <option value="">All Warehouses</option>
               @foreach($warehouses as $wh)
               <option value="{{ $wh->id }}">{{ $wh->name }}</option>
               @endforeach
             </select>
+          </div>
+          
+          <div class="row g-2 mt-2 w-100 align-items-end">
+            <div class="col-md-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label mb-0 small text-secondary">States</label>
+                <div class="d-flex gap-2">
+                    <a href="javascript:void(0)" class="small text-primary" onclick="toggleAll('state', true)">Select All</a>
+                    <a href="javascript:void(0)" class="small text-danger" onclick="toggleAll('state', false)">None</a>
+                </div>
+              </div>
+              <select id="state-filter" class="form-select form-select-sm" multiple placeholder="States">
+                @foreach($availableStates as $state)
+                  <option value="{{ $state }}" @selected(in_array($state, $selectedStates))>{{ $state }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-md-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label mb-0 small text-secondary">Districts</label>
+                <div class="d-flex gap-2">
+                    <a href="javascript:void(0)" class="small text-primary" onclick="toggleAll('district', true)">Select All</a>
+                    <a href="javascript:void(0)" class="small text-danger" onclick="toggleAll('district', false)">None</a>
+                </div>
+              </div>
+              <select id="district-filter" class="form-select form-select-sm" multiple placeholder="Districts">
+                @foreach($availableDistricts as $dist)
+                  <option value="{{ $dist }}" @selected(in_array($dist, $selectedDistricts))>{{ $dist }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-md-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label mb-0 small text-secondary">Talukas</label>
+                <div class="d-flex gap-2">
+                    <a href="javascript:void(0)" class="small text-primary" onclick="toggleAll('taluka', true)">Select All</a>
+                    <a href="javascript:void(0)" class="small text-danger" onclick="toggleAll('taluka', false)">None</a>
+                </div>
+              </div>
+              <select id="taluka-filter" class="form-select form-select-sm" multiple placeholder="Talukas">
+                @foreach($availableTalukas as $taluka)
+                  <option value="{{ $taluka }}" @selected(in_array($taluka, $selectedTalukas))>{{ $taluka }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-md-3">
+                <button type="button" class="btn btn-sm btn-ghost-danger w-100" id="clear-location-filters">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M10 10l4 4m0 -4l-4 4" /></svg>
+                    Reset All
+                </button>
+            </div>
           </div>
         </div>
       </div>
@@ -235,6 +311,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const tableContainer = document.getElementById('table-container');
@@ -246,17 +323,30 @@ document.addEventListener('DOMContentLoaded', function () {
     let searchTimeout = null;
 
     // AJAX Fetching
-    function fetchOrders(url = null) {
-        if (!url) {
-            url = new URL(window.location.href);
-            url.searchParams.set('search', searchInput.value);
-            url.searchParams.set('status', statusFilter.value);
-            url.searchParams.set('warehouse_id', warehouseFilter.value);
-            url.searchParams.set('date_range', dateRangeFilter.value);
-            url.searchParams.set('type', '{{ $type }}');
-            url.searchParams.set('view', '{{ $view }}');
-            url.searchParams.delete('page');
-        }
+    function fetchOrders(url) {
+        const currentUrl = new URL(url || window.location.href);
+        const params = new URLSearchParams(currentUrl.search);
+        
+        params.set('search', searchInput.value);
+        params.set('status', statusFilter.value);
+        params.set('warehouse_id', warehouseFilter.value);
+        params.set('date_range', dateRangeFilter.value);
+        params.set('type', '{{ $type }}');
+        params.set('view', '{{ $view }}');
+        
+        // Add location filters
+        params.delete('states[]');
+        params.delete('districts[]');
+        params.delete('talukas[]');
+        
+        tomSelectStates.getValue().forEach(s => params.append('states[]', s));
+        tomSelectDistricts.getValue().forEach(d => params.append('districts[]', d));
+        tomSelectTalukas.getValue().forEach(t => params.append('talukas[]', t));
+
+        const fetchUrl = `${currentUrl.origin}${currentUrl.pathname}?${params.toString()}`;
+        
+        // Update browser URL without refreshing
+        window.history.pushState({}, '', fetchUrl);
 
         // Update Export Link
         const exportBtn = document.getElementById('btn-export');
@@ -271,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
             exportBtn.href = exportUrl.toString();
         }
 
-        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } })
+        fetch(fetchUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } })
             .then(res => res.text())
             .then(html => {
                 tableContainer.innerHTML = html;
@@ -411,6 +501,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            if (actionSelect.value === 'bulk-print-invoice') {
+                e.preventDefault();
+                window.open('{{ route("erp.invoices.bulk-print") }}?ids=' + selectedIds.join(','), '_blank');
+                return;
+            }
+            if (actionSelect.value === 'bulk-print-cod') {
+                e.preventDefault();
+                window.open('{{ route("erp.orders.bulk-print-cod") }}?ids=' + selectedIds.join(','), '_blank');
+                return;
+            }
+
             bulkForm.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
             selectedIds.forEach(id => {
                 const input = document.createElement('input');
@@ -454,6 +555,116 @@ document.addEventListener('DOMContentLoaded', function () {
             toggleBulkForm();
         }
     });
+
+    // Tom Select - Robust Toggling
+    const getTsConfig = (placeholder) => ({
+        plugins: ['remove_button'],
+        maxOptions: 500,
+        placeholder: placeholder,
+        closeAfterSelect: false,
+        hideSelected: false,
+        onItemAdd: function() {
+            this.setTextboxValue('');
+            this.refreshOptions(false);
+        },
+        onOptionSelect: function(value, data) {
+            if (this.items.includes(value)) {
+                this.removeItem(value);
+                this.refreshOptions(false);
+                return false;
+            }
+        },
+        render: {
+            option: function(data, escape) {
+                return `<div class="d-flex align-items-center py-1">
+                    <input type="checkbox" class="form-check-input me-2 shadow-none" style="pointer-events: none;">
+                    <span class="text-dark">${escape(data.text)}</span>
+                </div>`;
+            }
+        },
+        onInitialize: function() {
+            const self = this;
+            const countEl = document.createElement('div');
+            countEl.className = 'ts-count small text-primary fw-bold';
+            countEl.style.cssText = 'position:absolute; right:30px; top:50%; transform:translateY(-50%); pointer-events:none; z-index:5;';
+            this.control.appendChild(countEl);
+
+            const updateUI = () => {
+                const count = self.getValue().length;
+                countEl.innerText = count > 0 ? `${count} selected` : '';
+                this.control_input.placeholder = count > 0 ? '' : placeholder;
+            };
+
+            this.on('change', updateUI);
+            updateUI();
+        }
+    });
+
+    const tomSelectStates = new TomSelect('#state-filter', getTsConfig('States'));
+    const tomSelectDistricts = new TomSelect('#district-filter', getTsConfig('Districts'));
+    const tomSelectTalukas = new TomSelect('#taluka-filter', getTsConfig('Talukas'));
+
+    window.toggleAll = function(field, isSelectAll) {
+        let ts = null;
+        if (field === 'state') ts = tomSelectStates;
+        if (field === 'district') ts = tomSelectDistricts;
+        if (field === 'taluka') ts = tomSelectTalukas;
+        
+        if (ts) {
+            if (isSelectAll) {
+                ts.setValue(Object.keys(ts.options));
+            } else {
+                ts.clear();
+            }
+            // Trigger filter once
+            fetchOrders();
+        }
+    };
+
+    document.getElementById('clear-location-filters').addEventListener('click', function() {
+        tomSelectStates.clear(true);
+        tomSelectDistricts.clear(true);
+        tomSelectTalukas.clear(true);
+        fetchOrders();
+    });
+
+    async function updateLocationFilters(triggeringField) {
+        const states = tomSelectStates.getValue();
+        const districts = tomSelectDistricts.getValue();
+        const talukas = tomSelectTalukas.getValue();
+
+        const queryParams = new URLSearchParams();
+        states.forEach(s => queryParams.append('states[]', s));
+        districts.forEach(d => queryParams.append('districts[]', d));
+
+        try {
+            const response = await fetch(`{{ route('erp.orders.filter-locations') }}?${queryParams.toString()}`);
+            const data = await response.json();
+
+            if (triggeringField === 'state') {
+                tomSelectDistricts.clearOptions();
+                data.districts.forEach(d => tomSelectDistricts.addOption({value: d, text: d}));
+                // Keep values that are still available
+                const validDistricts = districts.filter(d => data.districts.includes(d));
+                tomSelectDistricts.setValue(validDistricts, true);
+            }
+
+            if (triggeringField === 'state' || triggeringField === 'district') {
+                tomSelectTalukas.clearOptions();
+                data.talukas.forEach(t => tomSelectTalukas.addOption({value: t, text: t}));
+                const validTalukas = talukas.filter(t => data.talukas.includes(t));
+                tomSelectTalukas.setValue(validTalukas, true);
+            }
+        } catch (err) {
+            console.error('Error updating locations:', err);
+        }
+        
+        fetchOrders();
+    }
+
+    tomSelectStates.on('change', () => updateLocationFilters('state'));
+    tomSelectDistricts.on('change', () => updateLocationFilters('district'));
+    tomSelectTalukas.on('change', () => fetchOrders());
 
     // Also run after AJAX fetch to reset if needed
     const observer = new MutationObserver(toggleBulkForm);

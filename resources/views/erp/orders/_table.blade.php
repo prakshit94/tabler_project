@@ -9,6 +9,7 @@
                 <th>Warehouse</th>
                 <th>Total Amount</th>
                 <th>Status</th>
+                <th>Invoice</th>
                 <th class="text-end">Actions</th>
             </tr>
         </thead>
@@ -40,6 +41,15 @@
                 </td>
                 <td>
                     <span class="badge {{ $order->status_badge_class }}">{{ ucfirst(str_replace('_', ' ', $order->status)) }}</span>
+                </td>
+                <td>
+                    @if($order->invoice)
+                        <a href="{{ route('erp.invoices.show', $order->invoice->id) }}" class="badge bg-green-lt">
+                            {{ $order->invoice->invoice_number }}
+                        </a>
+                    @else
+                        <span class="badge bg-secondary-lt">Pending</span>
+                    @endif
                 </td>
                 <td class="text-end">
                     <div class="d-flex justify-content-end gap-2">
@@ -95,6 +105,17 @@
                                             Move to Trash
                                         </button>
                                     </form>
+                                    <div class="dropdown-divider"></div>
+                                    @if($order->invoice)
+                                        <a class="dropdown-item" href="{{ route('erp.invoices.print', $order->invoice->id) }}" target="_blank">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                                            Print Invoice
+                                        </a>
+                                    @endif
+                                    <a class="dropdown-item" href="{{ route('erp.orders.print-cod', $order->id) }}" target="_blank">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 5a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2H8a2 2 0 0 1 -2 -2v-14z" /><path d="M11 7l2 0" /><path d="M10 11l4 0" /><path d="M10 15l4 0" /><path d="M12 19l0 .01" /></svg>
+                                        Print COD Label
+                                    </a>
                                 @endif
                             </div>
                         </div>
