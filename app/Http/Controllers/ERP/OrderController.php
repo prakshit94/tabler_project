@@ -30,44 +30,31 @@ class OrderController extends Controller
         $search = $request->input('search');
         $warehouseId = $request->input('warehouse_id');
         $view = $request->input('view', 'active');
+        $dateRange = $request->input('date_range');
         
-        $query = Order::query()
-            ->where('type', $type)
-            ->with(['party', 'warehouse']);
-
-        if ($view === 'trash') {
-            $query->onlyTrashed();
-        }
-
-        if ($status) {
-            $query->where('status', $status);
-        }
-
-        if ($warehouseId) {
-            $query->where('warehouse_id', $warehouseId);
-        }
-
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('order_number', 'like', '%' . $search . '%')
-                  ->orWhereHas('party', function($pq) use ($search) {
-                      $pq->where('name', 'like', '%' . $search . '%');
-                  })
-                  ->orWhereHas('warehouse', function($wq) use ($search) {
-                      $wq->where('name', 'like', '%' . $search . '%');
-                  });
-            });
-        }
+        $query = Order::query()->with(['party', 'warehouse']);
+        $this->applyFilters($request, $query, $type, $view);
 
         $orders = $query->latest()->paginate(10)->withQueryString();
         $warehouses = Warehouse::all();
+
+        $statsQuery = Order::query();
+        $this->applyFilters($request, $statsQuery, $type, $view);
+        
+        $stats = [
+            'total' => (clone $statsQuery)->count(),
+            'revenue' => (clone $statsQuery)->sum('total_amount'),
+            'pending' => (clone $statsQuery)->where('status', 'pending')->count(),
+            'shipped' => (clone $statsQuery)->whereIn('status', ['shipped', 'delivered', 'completed'])->count(),
+        ];
         
         if ($request->ajax()) {
             return view('erp.orders._table', compact('orders', 'type', 'view'))->render();
         }
 
-        return view('erp.orders.index', compact('orders', 'type', 'status', 'view', 'warehouses'));
+        return view('erp.orders.index', compact('orders', 'type', 'status', 'view', 'warehouses', 'stats', 'dateRange'));
     }
+
 
     public function create(Request $request)
     {
@@ -208,56 +195,6 @@ class OrderController extends Controller
         return view('erp.orders.show', compact('order'));
     }
     
-    public function confirm(Order $order)
-    {
-        try {
-            $this->orderService->confirm($order);
-            return redirect()->back()->with('success', 'Order confirmed and stock reserved.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-    }
-
-    public function allocate(Order $order)
-    {
-        try {
-            $this->orderService->allocate($order);
-            return redirect()->back()->with('success', 'Stock allocated to batches.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-    }
-
-    public function deliver(Order $order)
-    {
-        try {
-            $this->orderService->deliver($order);
-            return redirect()->back()->with('success', 'Order marked as delivered.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-    }
-
-    public function close(Order $order)
-    {
-        try {
-            $this->orderService->close($order);
-            return redirect()->back()->with('success', 'Order closed successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-    }
-
-    public function cancel(Request $request, Order $order)
-    {
-        try {
-            $this->orderService->cancel($order, $request->input('reason', 'User request'));
-            return redirect()->back()->with('success', 'Order cancelled.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-    }
-
     public function receive(Order $order)
     {
         try {
@@ -321,10 +258,140 @@ class OrderController extends Controller
                 Order::onlyTrashed()->whereIn('id', $ids)->get()->each->forceDelete();
                 $msg = 'Selected orders permanently deleted';
                 break;
+            case 'change-status':
+                $newStatus = $request->input('status');
+                if (!$newStatus) return redirect()->back()->with('error', 'Please select a status');
+                
+                $orders = Order::whereIn('id', $ids)->get();
+                $successCount = 0;
+                $errors = [];
+
+                foreach ($orders as $order) {
+                    try {
+                        switch ($newStatus) {
+                            case 'confirmed':
+                                $this->orderService->confirm($order);
+                                break;
+                            case 'allocated':
+                                $this->orderService->allocate($order);
+                                break;
+                            case 'delivered':
+                                $this->orderService->deliver($order);
+                                break;
+                            case 'closed':
+                                $this->orderService->close($order);
+                                break;
+                            case 'cancelled':
+                                $this->orderService->cancel($order);
+                                break;
+                            case 'on_hold':
+                                $this->orderService->hold($order);
+                                break;
+                            default:
+                                // Fallback for statuses without specific service methods
+                                $order->update(['status' => $newStatus]);
+                                break;
+                        }
+                        $successCount++;
+                    } catch (\Exception $e) {
+                        $errors[] = "Order #{$order->order_number}: " . $e->getMessage();
+                    }
+                }
+
+                if (!empty($errors)) {
+                    $errorMsg = "Updated {$successCount} orders. Errors: " . implode(', ', $errors);
+                    return redirect()->back()->with('warning', $errorMsg);
+                }
+                
+                $msg = "Successfully updated status for {$successCount} orders";
+                break;
             default:
                 return redirect()->back()->with('error', 'Invalid action');
         }
 
         return redirect()->back()->with('success', $msg);
+    }
+
+    public function export(Request $request)
+    {
+        $type = $request->input('type', 'sale');
+        $view = $request->input('view', 'active');
+        
+        $query = Order::query()->with(['party', 'warehouse']);
+        $this->applyFilters($request, $query, $type, $view);
+        
+        $orders = $query->latest()->get();
+        
+        $filename = "orders_" . date('Ymd_His') . ".csv";
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['Order Number', 'Date', 'Type', 'Party', 'Warehouse', 'Subtotal', 'Tax', 'Discount', 'Total', 'Status', 'Payment Method'];
+
+        $callback = function() use($orders, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($orders as $order) {
+                fputcsv($file, [
+                    $order->order_number,
+                    $order->order_date->format('Y-m-d'),
+                    ucfirst($order->type),
+                    $order->party->name,
+                    $order->warehouse->name,
+                    $order->sub_total,
+                    $order->tax_amount,
+                    $order->discount,
+                    $order->total_amount,
+                    $order->status,
+                    $order->payment_method
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    private function applyFilters(Request $request, $query, $type, $view)
+    {
+        $query->where('type', $type);
+        if ($view === 'trash') $query->onlyTrashed();
+
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($warehouseId = $request->input('warehouse_id')) {
+            $query->where('warehouse_id', $warehouseId);
+        }
+
+        if ($search = $request->input('search')) {
+            $query->where(function($q) use ($search) {
+                $q->where('order_number', 'like', '%' . $search . '%')
+                  ->orWhereHas('party', function($pq) use ($search) {
+                      $pq->where('name', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('warehouse', function($wq) use ($search) {
+                      $wq->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        if ($dateRange = $request->input('date_range')) {
+            switch ($dateRange) {
+                case 'today': $query->whereDate('order_date', now()->today()); break;
+                case 'yesterday': $query->whereDate('order_date', now()->yesterday()); break;
+                case 'this_week': $query->whereBetween('order_date', [now()->startOfWeek(), now()->endOfWeek()]); break;
+                case 'this_month': $query->whereMonth('order_date', now()->month)->whereYear('order_date', now()->year); break;
+                case 'this_year': $query->whereYear('order_date', now()->year); break;
+            }
+        }
     }
 }

@@ -51,6 +51,12 @@ class Party extends Model
 
     protected static function booted()
     {
+        static::saving(function ($party) {
+            if ($party->first_name || $party->middle_name || $party->last_name) {
+                $party->name = trim(preg_replace('/\s+/', ' ', $party->first_name . ' ' . $party->middle_name . ' ' . $party->last_name));
+            }
+        });
+
         static::creating(function ($party) {
             if (empty($party->uuid)) {
                 $party->uuid = (string) Str::uuid();
@@ -59,9 +65,6 @@ class Party extends Model
                 $prefix = strtoupper(substr($party->type, 0, 1)) === 'V' ? 'VEND-' : 'CUST-';
                 $lastId = static::withTrashed()->max('id') ?? 0;
                 $party->party_code = $prefix . str_pad($lastId + 1, 6, '0', STR_PAD_LEFT);
-            }
-            if (empty($party->name) && ($party->first_name || $party->middle_name || $party->last_name)) {
-                $party->name = trim(preg_replace('/\s+/', ' ', $party->first_name . ' ' . $party->middle_name . ' ' . $party->last_name));
             }
         });
     }

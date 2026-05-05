@@ -52,24 +52,26 @@ class PickingService
 
             // ✅ Prevent invalid values
             $pickedQty = max(0, $pickedQty);
+            
+            $newTotalQty = $item->picked_qty + $pickedQty;
 
             // ✅ Prevent over-picking
-            if ($pickedQty > $item->requested_qty) {
-                $pickedQty = $item->requested_qty;
+            if ($newTotalQty > $item->requested_qty) {
+                $newTotalQty = $item->requested_qty;
             }
 
             // ✅ Determine status safely
             $status = 'pending';
-            if ($pickedQty == 0) {
+            if ($newTotalQty == 0) {
                 $status = 'pending';
-            } elseif ($pickedQty < $item->requested_qty) {
+            } elseif ($newTotalQty < $item->requested_qty) {
                 $status = 'partial';
             } else {
                 $status = 'picked';
             }
 
             $item->update([
-                'picked_qty' => $pickedQty,
+                'picked_qty' => $newTotalQty,
                 'status'     => $status,
                 'picked_at'  => now(),
             ]);

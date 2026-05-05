@@ -31,7 +31,7 @@ class OrderLifecycleController extends Controller
             $order->refresh();
 
             return redirect()
-                ->route('erp.wms.dashboard')
+                ->route('erp.orders.show', $order)
                 ->with('success', "Order #{$order->order_number} allocated to batches/bins.");
         } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());

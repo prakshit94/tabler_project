@@ -138,17 +138,21 @@ Route::middleware('auth')->group(function () {
 
         // Orders
         // Orders
-        Route::post('orders/{id}/restore', [\App\Http\Controllers\ERP\OrderController::class, 'restore'])->name('orders.restore');
-        Route::delete('orders/{id}/force-delete', [\App\Http\Controllers\ERP\OrderController::class, 'forceDelete'])->name('orders.force-delete');
+        Route::post('orders/{order}/restore', [\App\Http\Controllers\ERP\OrderController::class, 'restore'])->name('orders.restore');
+        Route::delete('orders/{order}/force-delete', [\App\Http\Controllers\ERP\OrderController::class, 'forceDelete'])->name('orders.force-delete');
         Route::patch('orders/{order}/status', [\App\Http\Controllers\ERP\OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::post('orders/bulk-action', [\App\Http\Controllers\ERP\OrderController::class, 'bulkAction'])->name('orders.bulk-action');
+        Route::get('orders/export', [\App\Http\Controllers\ERP\OrderController::class, 'export'])->name('orders.export');
         
-        Route::post('orders/{order}/confirm', [\App\Http\Controllers\ERP\OrderController::class, 'confirm'])->name('orders.confirm');
+        // Lifecycle Actions
+        Route::post('orders/{order}/confirm', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'confirm'])->name('orders.confirm');
+        Route::post('orders/{order}/allocate', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'allocate'])->name('orders.allocate');
+        Route::get('orders/{order}/ship', [\App\Http\Controllers\ERP\ShipmentController::class, 'create'])->name('orders.ship');
+        Route::post('orders/{order}/deliver', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'deliver'])->name('orders.deliver');
+        Route::post('orders/{order}/close', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'close'])->name('orders.close');
+        Route::post('orders/{order}/cancel', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'cancel'])->name('orders.cancel');
+        Route::post('orders/{order}/hold', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'hold'])->name('orders.hold');
         Route::post('orders/{order}/receive', [\App\Http\Controllers\ERP\OrderController::class, 'receive'])->name('orders.receive');
-        Route::post('orders/{order}/deliver', [\App\Http\Controllers\ERP\OrderController::class, 'deliver'])->name('orders.deliver');
-        Route::post('orders/{order}/close', [\App\Http\Controllers\ERP\OrderController::class, 'close'])->name('orders.close');
-        Route::post('orders/{order}/cancel', [\App\Http\Controllers\ERP\OrderController::class, 'cancel'])->name('orders.cancel');
-        Route::post('orders/{order}/allocate', [\App\Http\Controllers\ERP\OrderController::class, 'allocate'])->name('orders.allocate');
         
         Route::resource('orders', \App\Http\Controllers\ERP\OrderController::class);
 
@@ -243,18 +247,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/{log}/xml', [\App\Http\Controllers\ERP\TallyController::class, 'previewXml'])->name('xml');
         });
 
-        // =============================================
-        // Order Lifecycle (WMS State Machine Transitions)
-        // =============================================
-        Route::prefix('orders')->name('orders.')->group(function () {
-            Route::post('/{order}/confirm', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'confirm'])->name('confirm');
-            Route::post('/{order}/allocate', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'allocate'])->name('allocate');
-            Route::post('/{order}/ship', [\App\Http\Controllers\ERP\ShipmentController::class, 'create'])->name('ship');
-            Route::post('/{order}/deliver', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'deliver'])->name('deliver');
-            Route::post('/{order}/close', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'close'])->name('close');
-            Route::post('/{order}/cancel', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'cancel'])->name('cancel');
-            Route::post('/{order}/hold', [\App\Http\Controllers\ERP\OrderLifecycleController::class, 'hold'])->name('hold');
-        });
     });
 
     // Tabler Template Pages Routes

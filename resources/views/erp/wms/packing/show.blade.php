@@ -147,7 +147,7 @@
                             @csrf
                             <div class="col">
                                 <label class="form-label small mb-1">Add Product</label>
-                                <select name="order_item_id" class="form-select form-select-sm" required>
+                                <select name="order_item_id" class="form-select form-select-sm product-select" required>
                                     <option value="">Select Item...</option>
                                     @foreach($order->items as $item)
                                         @php
@@ -159,7 +159,7 @@
                                         @endphp
 
                                         @if($rem > 0)
-                                            <option value="{{ $item->id }}">
+                                            <option value="{{ $item->id }}" data-rem="{{ (int)$rem }}">
                                                 {{ optional($item->product)->name ?? '-' }} (Rem: {{ (int)$rem }})
                                             </option>
                                         @endif
@@ -169,7 +169,7 @@
 
                             <div class="col-auto" style="width: 80px;">
                                 <label class="form-label small mb-1">Qty</label>
-                                <input type="number" name="quantity" class="form-control form-control-sm"
+                                <input type="number" name="quantity" class="form-control form-control-sm qty-input"
                                        min="0.01" step="0.01" required>
                             </div>
 
@@ -240,4 +240,26 @@
 </div>
 
 </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.product-select').forEach(function(select) {
+        select.addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            var rem = selectedOption.getAttribute('data-rem');
+            var form = this.closest('form');
+            var qtyInput = form.querySelector('.qty-input');
+            
+            if (rem && qtyInput) {
+                qtyInput.value = rem;
+            } else if (qtyInput) {
+                qtyInput.value = '';
+            }
+        });
+    });
+});
+</script>
+@endpush
 @endsection

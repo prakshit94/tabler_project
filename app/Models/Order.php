@@ -41,6 +41,8 @@ class Order extends Model {
 
     // --- Existing relationships ---
     public function party() { return $this->belongsTo(Party::class); }
+    public function shippingAddress() { return $this->belongsTo(PartyAddress::class, 'shipping_address_id'); }
+    public function billingAddress() { return $this->belongsTo(PartyAddress::class, 'billing_address_id'); }
     public function warehouse() { return $this->belongsTo(Warehouse::class); }
     public function items() { return $this->hasMany(OrderItem::class); }
     public function invoice() { return $this->hasOne(Invoice::class); }

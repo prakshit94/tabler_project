@@ -20,6 +20,10 @@
               New {{ ucfirst($type) }} Order
             </button>
           @endif
+          <a href="{{ route('erp.orders.export', request()->all()) }}" id="btn-export" class="btn btn-outline-secondary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
+            Export CSV
+          </a>
         </div>
       </div>
     </div>
@@ -57,6 +61,78 @@
 
 <div class="page-body">
   <div class="container-xl">
+    <!-- Dashboard Stats -->
+    <div class="row row-cards mb-4">
+      <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm shadow-sm border-0">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-primary text-white avatar shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17h-11v-14h-2" /><path d="M6 5l14 1l-1 7h-13" /></svg>
+                </span>
+              </div>
+              <div class="col">
+                <div class="font-weight-medium h3 mb-0">{{ $stats['total'] }}</div>
+                <div class="text-secondary small">Total {{ ucfirst($type) }} Orders</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm shadow-sm border-0">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-green text-white avatar shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
+                </span>
+              </div>
+              <div class="col">
+                <div class="font-weight-medium h3 mb-0">₹ {{ number_format($stats['revenue'], 2) }}</div>
+                <div class="text-secondary small">Total Revenue</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm shadow-sm border-0">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-orange text-white avatar shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 7l0 5l3 3" /></svg>
+                </span>
+              </div>
+              <div class="col">
+                <div class="font-weight-medium h3 mb-0">{{ $stats['pending'] }}</div>
+                <div class="text-secondary small">Pending Actions</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm shadow-sm border-0">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-azure text-white avatar shadow-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M5 17h-2v-11a1 1 0 0 1 1 -1h9v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" /></svg>
+                </span>
+              </div>
+              <div class="col">
+                <div class="font-weight-medium h3 mb-0">{{ $stats['shipped'] }}</div>
+                <div class="text-secondary small">Fulfilled Orders</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div class="container-xl">
     <div class="card">
       <div class="card-header border-bottom-0 pb-0">
         <div class="d-flex justify-content-between align-items-center w-100">
@@ -85,16 +161,23 @@
       <div class="card-body border-bottom py-3">
         <div class="d-flex align-items-center justify-content-between flex-wrap g-3">
           <div class="d-flex align-items-center flex-wrap g-2">
-            <form id="bulk-action-form" action="{{ route('erp.orders.bulk-action') }}" method="POST" class="d-flex align-items-center me-3">
+            <form id="bulk-action-form" action="{{ route('erp.orders.bulk-action') }}" method="POST" class="d-flex align-items-center me-3" style="display: none !important;">
               @csrf
               <select name="action" class="form-select form-select-sm w-auto me-2" id="bulk-action-select" required>
                 <option value="">Bulk Actions</option>
                 @if($view === 'active')
+                  <option value="change-status">Update Status</option>
                   <option value="delete">Move to Trash</option>
                 @else
                   <option value="restore">Restore Selected</option>
                   <option value="force-delete">Permanently Delete</option>
                 @endif
+              </select>
+              <select name="status" class="form-select form-select-sm w-auto me-2 d-none" id="bulk-status-select">
+                <option value="">Select Status</option>
+                @foreach(\App\Models\Order::STATUSES as $st)
+                  <option value="{{ $st }}">{{ ucfirst(str_replace('_', ' ', $st)) }}</option>
+                @endforeach
               </select>
               <button type="submit" class="btn btn-sm btn-white">Apply</button>
             </form>
@@ -108,6 +191,14 @@
           </div>
           
           <div class="d-flex align-items-center flex-wrap g-2">
+            <select id="date-range-filter" class="form-select form-select-sm w-auto me-2">
+                <option value="">All Time</option>
+                <option value="today" @selected($dateRange === 'today')>Today</option>
+                <option value="yesterday" @selected($dateRange === 'yesterday')>Yesterday</option>
+                <option value="this_week" @selected($dateRange === 'this_week')>This Week</option>
+                <option value="this_month" @selected($dateRange === 'this_month')>This Month</option>
+                <option value="this_year" @selected($dateRange === 'this_year')>This Year</option>
+            </select>
             <select id="status-filter" class="form-select form-select-sm w-auto me-2">
                 <option value="">All Statuses</option>
                 @foreach(\App\Models\Order::STATUSES as $st)
@@ -151,6 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('ajax-search');
     const statusFilter = document.getElementById('status-filter');
     const warehouseFilter = document.getElementById('warehouse-filter');
+    const dateRangeFilter = document.getElementById('date-range-filter');
     let searchTimeout = null;
 
     // AJAX Fetching
@@ -160,9 +252,23 @@ document.addEventListener('DOMContentLoaded', function () {
             url.searchParams.set('search', searchInput.value);
             url.searchParams.set('status', statusFilter.value);
             url.searchParams.set('warehouse_id', warehouseFilter.value);
+            url.searchParams.set('date_range', dateRangeFilter.value);
             url.searchParams.set('type', '{{ $type }}');
             url.searchParams.set('view', '{{ $view }}');
             url.searchParams.delete('page');
+        }
+
+        // Update Export Link
+        const exportBtn = document.getElementById('btn-export');
+        if (exportBtn) {
+            const exportUrl = new URL('{{ route("erp.orders.export") }}', window.location.origin);
+            exportUrl.searchParams.set('search', searchInput.value);
+            exportUrl.searchParams.set('status', statusFilter.value);
+            exportUrl.searchParams.set('warehouse_id', warehouseFilter.value);
+            exportUrl.searchParams.set('date_range', dateRangeFilter.value);
+            exportUrl.searchParams.set('type', '{{ $type }}');
+            exportUrl.searchParams.set('view', '{{ $view }}');
+            exportBtn.href = exportUrl.toString();
         }
 
         fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } })
@@ -188,6 +294,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (statusFilter) {
         statusFilter.addEventListener('change', () => fetchOrders());
+    }
+    if (dateRangeFilter) {
+        dateRangeFilter.addEventListener('change', () => fetchOrders());
     }
 
     // Order Details Modal Loading
@@ -271,6 +380,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tableContainer.querySelectorAll('.order-checkbox').forEach(cb => {
                 cb.checked = isChecked;
             });
+            toggleBulkForm();
         }
     });
 
@@ -284,6 +394,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.preventDefault();
                 alert('Please select at least one order.');
                 return;
+            }
+
+            const actionSelect = document.getElementById('bulk-action-select');
+            if (actionSelect.value === 'change-status') {
+                const statusSelect = document.getElementById('bulk-status-select');
+                if (!statusSelect.value) {
+                    e.preventDefault();
+                    alert('Please select a status to apply.');
+                    return;
+                }
             }
 
             if (!confirm('Are you sure you want to perform this bulk action?')) {
@@ -301,6 +421,43 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
+    // Toggle bulk status select visibility
+    const bulkActionSelect = document.getElementById('bulk-action-select');
+    const bulkStatusSelect = document.getElementById('bulk-status-select');
+    if (bulkActionSelect && bulkStatusSelect) {
+        bulkActionSelect.addEventListener('change', function() {
+            if (this.value === 'change-status') {
+                bulkStatusSelect.classList.remove('d-none');
+                bulkStatusSelect.required = true;
+            } else {
+                bulkStatusSelect.classList.add('d-none');
+                bulkStatusSelect.required = false;
+            }
+        });
+    }
+
+    // Toggle bulk action form visibility based on selection
+    function toggleBulkForm() {
+        const selectedCheckboxes = tableContainer.querySelectorAll('.order-checkbox:checked');
+        if (bulkForm) {
+            if (selectedCheckboxes.length > 0) {
+                bulkForm.style.setProperty('display', 'flex', 'important');
+            } else {
+                bulkForm.style.setProperty('display', 'none', 'important');
+            }
+        }
+    }
+
+    tableContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('order-checkbox') || e.target.id === 'select-all') {
+            toggleBulkForm();
+        }
+    });
+
+    // Also run after AJAX fetch to reset if needed
+    const observer = new MutationObserver(toggleBulkForm);
+    observer.observe(tableContainer, { childList: true, subtree: true });
 });
 </script>
 @endpush

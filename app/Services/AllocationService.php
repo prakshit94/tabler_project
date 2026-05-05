@@ -18,7 +18,12 @@ class AllocationService
         $fullyAllocated = true;
 
         foreach ($order->items as $item) {
-            $remaining = $item->quantity;
+            $existingAllocated = OrderAllocation::where('order_item_id', $item->id)
+                ->where('status', 'allocated')
+                ->sum('allocated_qty');
+            
+            $remaining = max(0, $item->quantity - $existingAllocated);
+            if ($remaining <= 0) continue;
             $batches = $this->getAvailableBatches($item->product_id, $order->warehouse_id, $method);
 
             foreach ($batches as $batch) {

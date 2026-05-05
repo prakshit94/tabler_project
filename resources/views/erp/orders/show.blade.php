@@ -95,30 +95,32 @@
             <p class="h3">From</p>
             <address>
               <strong>My Company</strong><br>
-              Warehouse: {{ $order->warehouse->name }}<br>
-              {{ $order->warehouse->state }}
+              Warehouse: {{ optional($order->warehouse)->name ?? 'Unknown Warehouse' }}<br>
+              {{ optional($order->warehouse)->state }}
             </address>
           </div>
           <div class="col-6 text-end">
             <p class="h3">{{ $order->type == 'sale' ? 'To' : 'From Vendor' }}</p>
             <address>
-              <strong>{{ $order->party->name }}</strong><br>
-              @php $addr = $order->party->addresses->where('type', 'shipping')->first() ?? $order->party->addresses->first(); @endphp
-              @if($addr)
-                {{ $addr->address_line1 }}<br>
-                @if($addr->address_line2) {{ $addr->address_line2 }}<br> @endif
-                <div class="small text-secondary mt-1">
-                  @if($addr->village) <div><strong>Village:</strong> {{ $addr->village }}</div> @endif
-                  @if($addr->taluka) <div><strong>Taluka:</strong> {{ $addr->taluka }}</div> @endif
-                  @if($addr->post_office) <div><strong>Post Office:</strong> {{ $addr->post_office }}</div> @endif
-                  @if($addr->district) <div><strong>District:</strong> {{ $addr->district }}</div> @endif
-                </div>
-                <div class="mt-1">
-                  {{ $addr->district ?? '-' }}, {{ $addr->state }} - {{ $addr->pincode }}
-                </div>
+              <strong>{{ $order->party->name ?? 'Unknown Party' }}</strong><br>
+              @if($order->party)
+                @php $addr = $order->party->addresses->where('type', 'shipping')->first() ?? $order->party->addresses->first(); @endphp
+                @if($addr)
+                  {{ $addr->address_line1 }}<br>
+                  @if($addr->address_line2) {{ $addr->address_line2 }}<br> @endif
+                  <div class="small text-secondary mt-1">
+                    @if($addr->village) <div><strong>Village:</strong> {{ $addr->village }}</div> @endif
+                    @if($addr->taluka) <div><strong>Taluka:</strong> {{ $addr->taluka }}</div> @endif
+                    @if($addr->post_office) <div><strong>Post Office:</strong> {{ $addr->post_office }}</div> @endif
+                    @if($addr->district) <div><strong>District:</strong> {{ $addr->district }}</div> @endif
+                  </div>
+                  <div class="mt-1">
+                    {{ $addr->district ?? '-' }}, {{ $addr->state }} - {{ $addr->pincode }}
+                  </div>
+                @endif
+                <div class="mt-1">Phone: {{ $order->party->mobile }}</div>
+                GSTIN: {{ $order->party->gstin ?? 'N/A' }}
               @endif
-              <div class="mt-1">Phone: {{ $order->party->mobile }}</div>
-              GSTIN: {{ $order->party->gstin }}
             </address>
           </div>
           <div class="col-12 my-5">
@@ -126,37 +128,41 @@
             <p>Date: {{ \Carbon\Carbon::parse($order->order_date)->format('d M Y') }}</p>
           </div>
         </div>
-        <table class="table table-transparent table-responsive">
-          <thead>
+        <div class="table-responsive">
+          <table class="table table-transparent">
+            <thead>
+              <tr>
+                <th class="text-center" style="width: 1%"></th>
+                <th>Product</th>
+                <th class="text-center" style="width: 1%">Quantity</th>
+                <th class="text-end" style="width: 1%">Unit Price</th>
+                <th class="text-end" style="width: 1%">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+            @foreach($order->items as $idx => $item)
             <tr>
-              <th class="text-center" style="width: 1%"></th>
-              <th>Product</th>
-              <th class="text-center" style="width: 1%">Quantity</th>
-              <th class="text-end" style="width: 1%">Unit Price</th>
-              <th class="text-end" style="width: 1%">Amount</th>
+              <td class="text-center">{{ $idx + 1 }}</td>
+              <td>
+                <p class="fw-bold mb-1">{{ $item->product->name }}</p>
+                <div class="text-secondary">{{ $item->product->sku }}</div>
+              </td>
+              <td class="text-center">{{ $item->quantity }}</td>
+              <td class="text-end">₹ {{ number_format($item->unit_price, 2) }}</td>
+              <td class="text-end">₹ {{ number_format($item->total_price, 2) }}</td>
             </tr>
-          </thead>
-          @foreach($order->items as $idx => $item)
-          <tr>
-            <td class="text-center">{{ $idx + 1 }}</td>
-            <td>
-              <p class="strong mb-1">{{ $item->product->name }}</p>
-              <div class="text-secondary">{{ $item->product->sku }}</div>
-            </td>
-            <td class="text-center">{{ $item->quantity }}</td>
-            <td class="text-end">₹ {{ number_format($item->unit_price, 2) }}</td>
-            <td class="text-end">₹ {{ number_format($item->total_price, 2) }}</td>
-          </tr>
-          @endforeach
-          <tr>
-            <td colspan="4" class="strong text-end">Subtotal</td>
-            <td class="text-end">₹ {{ number_format($order->sub_total, 2) }}</td>
-          </tr>
-          <tr>
-            <td colspan="4" class="font-weight-bold text-uppercase text-end">Total Due</td>
-            <td class="font-weight-bold text-end">₹ {{ number_format($order->total_amount, 2) }}</td>
-          </tr>
-        </table>
+            @endforeach
+            <tr>
+              <td colspan="4" class="fw-bold text-end">Subtotal</td>
+              <td class="text-end">₹ {{ number_format($order->sub_total, 2) }}</td>
+            </tr>
+            <tr>
+              <td colspan="4" class="fw-bold text-uppercase text-end">Total Due</td>
+              <td class="fw-bold text-end">₹ {{ number_format($order->total_amount, 2) }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
         <p class="text-secondary text-center mt-5">Thank you for your business!</p>
       </div>
     </div>
@@ -174,7 +180,7 @@
                 @foreach($order->allocations as $alloc)
                 <tr>
                   <td>{{ $alloc->product->name }}</td>
-                  <td>{{ $alloc->batch->batch_number ?? '-' }}</td>
+                  <td>{{ optional($alloc->batch)->batch_number ?? '-' }}</td>
                   <td>{{ $alloc->bin_location ?? '-' }}</td>
                   <td>{{ $alloc->allocated_qty }}</td>
                   <td><span class="badge bg-{{ $alloc->status == 'allocated' ? 'blue' : 'green' }}">{{ $alloc->status }}</span></td>

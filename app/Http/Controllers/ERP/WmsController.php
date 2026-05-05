@@ -233,12 +233,14 @@ class WmsController extends Controller
         $order = $package->order()->first()?->fresh();
 
         if ($order) {
-            $allPacked = $order->packages()
-                ->where('status', '!=', 'packed')
-                ->doesntExist();
+            $summary = $this->packingService->getSummary($order);
+            $allSealed = $order->packages()->where('status', '!=', 'packed')->doesntExist();
 
-            if ($allPacked && $order->packages()->count() > 0 && $order->status === 'packing') {
+            if ($summary['is_complete'] && $allSealed && $order->packages()->count() > 0 && in_array($order->status, ['packing', 'picked'])) {
                 try {
+                    if ($order->status === 'picked') {
+                        $this->orderService->startPacking($order);
+                    }
                     $this->orderService->markPacked($order);
                     return redirect()
                         ->route('erp.shipments.create', $order->id)

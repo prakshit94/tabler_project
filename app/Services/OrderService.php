@@ -59,7 +59,7 @@ class OrderService
                     $stock = Stock::where('product_id', $item->product_id)
                         ->where('warehouse_id', $order->warehouse_id)->first();
                     if ($stock) {
-                        $this->inventory->reserve($order);
+                        $this->inventory->reserve($item->product_id, $order->warehouse_id, $toReserve, $order->id);
                     }
                 }
 
@@ -119,15 +119,21 @@ class OrderService
         return $order->fresh();
     }
 
-    /**
-     * Mark order as picked — reserved → committed.
-     */
     public function markPicked(Order $order): Order
     {
         $this->assertTransition($order, 'picked');
 
         DB::transaction(function () use ($order) {
-            $this->inventory->commit($order);
+            foreach ($order->items as $item) {
+                $pendingBackorder = \App\Models\Backorder::where('order_id', $order->id)
+                    ->where('order_item_id', $item->id)
+                    ->where('status', 'pending')
+                    ->sum('pending_qty');
+                $reservedQty = max(0, $item->quantity - $pendingBackorder);
+                if ($reservedQty > 0) {
+                    $this->inventory->commit($item->product_id, $order->warehouse_id, $reservedQty, $order->id);
+                }
+            }
             $order->update(['status' => 'picked', 'picked_at' => now()]);
             event(new \App\Events\OrderPicked($order));
         });
@@ -156,15 +162,21 @@ class OrderService
         return $order->fresh();
     }
 
-    /**
-     * Ship the order — committed → deducted → in_transit.
-     */
     public function ship(Order $order): Order
     {
         $this->assertTransition($order, 'shipped');
 
         DB::transaction(function () use ($order) {
-            $this->inventory->ship($order);
+            foreach ($order->items as $item) {
+                $pendingBackorder = \App\Models\Backorder::where('order_id', $order->id)
+                    ->where('order_item_id', $item->id)
+                    ->where('status', 'pending')
+                    ->sum('pending_qty');
+                $shippedQty = max(0, $item->quantity - $pendingBackorder);
+                if ($shippedQty > 0) {
+                    $this->inventory->ship($item->product_id, $order->warehouse_id, $shippedQty, $order->id);
+                }
+            }
             $order->update(['status' => 'shipped', 'shipped_at' => now()]);
             event(new \App\Events\OrderShipped($order));
         });
@@ -172,15 +184,21 @@ class OrderService
         return $order->fresh();
     }
 
-    /**
-     * Mark order as delivered.
-     */
     public function deliver(Order $order): Order
     {
         $this->assertTransition($order, 'delivered');
 
         DB::transaction(function () use ($order) {
-            $this->inventory->deliver($order);
+            foreach ($order->items as $item) {
+                $pendingBackorder = \App\Models\Backorder::where('order_id', $order->id)
+                    ->where('order_item_id', $item->id)
+                    ->where('status', 'pending')
+                    ->sum('pending_qty');
+                $deliveredQty = max(0, $item->quantity - $pendingBackorder);
+                if ($deliveredQty > 0) {
+                    $this->inventory->deliver($item->product_id, $order->warehouse_id, $deliveredQty, $order->id);
+                }
+            }
             $order->update(['status' => 'delivered', 'delivered_at' => now()]);
             event(new \App\Events\OrderDelivered($order));
         });
@@ -188,15 +206,21 @@ class OrderService
         return $order->fresh();
     }
 
-    /**
-     * Mark order as returned.
-     */
     public function markReturned(Order $order): Order
     {
         $this->assertTransition($order, 'returned');
 
         DB::transaction(function () use ($order) {
-            $this->inventory->handleReturn($order);
+            foreach ($order->items as $item) {
+                $pendingBackorder = \App\Models\Backorder::where('order_id', $order->id)
+                    ->where('order_item_id', $item->id)
+                    ->where('status', 'pending')
+                    ->sum('pending_qty');
+                $returnedQty = max(0, $item->quantity - $pendingBackorder);
+                if ($returnedQty > 0) {
+                    $this->inventory->handleReturn($item->product_id, $order->warehouse_id, $returnedQty, $order->id);
+                }
+            }
             $order->update(['status' => 'returned', 'returned_at' => now()]);
         });
 
@@ -236,16 +260,22 @@ class OrderService
         return $order->fresh();
     }
 
-    /**
-     * Cancel an order — release reserved stock.
-     */
     public function cancel(Order $order, string $reason = ''): Order
     {
         $this->assertTransition($order, 'cancelled');
 
         DB::transaction(function () use ($order, $reason) {
             if (in_array($order->status, ['confirmed', 'allocated', 'backordered', 'on_hold'])) {
-                $this->inventory->release($order);
+                foreach ($order->items as $item) {
+                    $pendingBackorder = \App\Models\Backorder::where('order_id', $order->id)
+                        ->where('order_item_id', $item->id)
+                        ->where('status', 'pending')
+                        ->sum('pending_qty');
+                    $reservedQty = max(0, $item->quantity - $pendingBackorder);
+                    if ($reservedQty > 0) {
+                        $this->inventory->release($item->product_id, $order->warehouse_id, $reservedQty, $order->id);
+                    }
+                }
             }
             $order->update([
                 'status'       => 'cancelled',

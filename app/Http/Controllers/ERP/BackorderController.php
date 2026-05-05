@@ -60,6 +60,9 @@ class BackorderController extends Controller
         $qty = min($validated['fulfilled_qty'], $backorder->pending_qty - $backorder->fulfilled_qty);
 
         $backorder->increment('fulfilled_qty', $qty);
+        
+        // ✅ Reserve fulfilled stock globally so math works during shipment
+        $this->inventory->reserve($backorder->product_id, $backorder->warehouse_id, $qty, $backorder->order_id);
         $newStatus = $backorder->fulfilled_qty >= $backorder->pending_qty ? 'fulfilled' : 'waiting_stock';
         $backorder->update([
             'status'       => $newStatus,

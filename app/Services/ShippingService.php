@@ -55,7 +55,7 @@ class ShippingService
         return DB::transaction(function () use ($shipment, $status, $location, $description) {
 
             // ✅ Prevent invalid transitions
-            if (in_array($shipment->status, ['delivered', 'returned'])) {
+            if (in_array($shipment->status, ['delivered', 'returned']) && $shipment->status !== $status) {
                 throw new \Exception('Cannot update a completed shipment');
             }
 
@@ -90,7 +90,6 @@ class ShippingService
             }
 
             $shipment->update([
-                'status'       => 'delivered',
                 'delivered_at' => now(),
             ]);
 
@@ -121,7 +120,7 @@ class ShippingService
             }
 
             $shipment->update([
-                'status' => 'returned',
+                'returned_at' => now(),
             ]);
 
             $this->addTrackingEvent(

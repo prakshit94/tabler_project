@@ -13,18 +13,16 @@ class InventoryService
      * Reserve inventory when order is confirmed.
      * reserved_qty += qty
      */
-    public function reserve(Order $order): void
+    public function reserve(int $productId, int $warehouseId, float $qty, int $orderId): void
     {
-        foreach ($order->items as $item) {
-            $stock = Stock::where('product_id', $item->product_id)
-                ->where('warehouse_id', $order->warehouse_id)
-                ->lockForUpdate()
-                ->first();
+        $stock = Stock::where('product_id', $productId)
+            ->where('warehouse_id', $warehouseId)
+            ->lockForUpdate()
+            ->first();
 
-            if ($stock) {
-                $stock->increment('reserved_qty', $item->quantity);
-                $this->createLedgerEntry($item->product_id, $order->warehouse_id, null, 'reserve', $item->quantity, $stock->fresh()->quantity, 'Order', $order->id);
-            }
+        if ($stock) {
+            $stock->increment('reserved_qty', $qty);
+            $this->createLedgerEntry($productId, $warehouseId, null, 'reserve', $qty, $stock->fresh()->quantity, 'Order', $orderId);
         }
     }
 
@@ -32,18 +30,16 @@ class InventoryService
      * Release reserved inventory (e.g. order cancelled).
      * reserved_qty -= qty
      */
-    public function release(Order $order): void
+    public function release(int $productId, int $warehouseId, float $qty, int $orderId): void
     {
-        foreach ($order->items as $item) {
-            $stock = Stock::where('product_id', $item->product_id)
-                ->where('warehouse_id', $order->warehouse_id)
-                ->lockForUpdate()
-                ->first();
+        $stock = Stock::where('product_id', $productId)
+            ->where('warehouse_id', $warehouseId)
+            ->lockForUpdate()
+            ->first();
 
-            if ($stock) {
-                $stock->decrement('reserved_qty', $item->quantity);
-                $this->createLedgerEntry($item->product_id, $order->warehouse_id, null, 'release', -$item->quantity, $stock->fresh()->quantity, 'Order', $order->id);
-            }
+        if ($stock) {
+            $stock->decrement('reserved_qty', $qty);
+            $this->createLedgerEntry($productId, $warehouseId, null, 'release', -$qty, $stock->fresh()->quantity, 'Order', $orderId);
         }
     }
 
@@ -51,19 +47,17 @@ class InventoryService
      * Commit inventory when items are picked.
      * reserved_qty -= qty, committed_qty += qty
      */
-    public function commit(Order $order): void
+    public function commit(int $productId, int $warehouseId, float $qty, int $orderId): void
     {
-        foreach ($order->items as $item) {
-            $stock = Stock::where('product_id', $item->product_id)
-                ->where('warehouse_id', $order->warehouse_id)
-                ->lockForUpdate()
-                ->first();
+        $stock = Stock::where('product_id', $productId)
+            ->where('warehouse_id', $warehouseId)
+            ->lockForUpdate()
+            ->first();
 
-            if ($stock) {
-                $stock->decrement('reserved_qty', $item->quantity);
-                $stock->increment('committed_qty', $item->quantity);
-                $this->createLedgerEntry($item->product_id, $order->warehouse_id, null, 'commit', $item->quantity, $stock->fresh()->quantity, 'Order', $order->id);
-            }
+        if ($stock) {
+            $stock->decrement('reserved_qty', $qty);
+            $stock->increment('committed_qty', $qty);
+            $this->createLedgerEntry($productId, $warehouseId, null, 'commit', $qty, $stock->fresh()->quantity, 'Order', $orderId);
         }
     }
 
@@ -71,20 +65,18 @@ class InventoryService
      * Ship inventory.
      * committed_qty -= qty, quantity -= qty, in_transit_qty += qty
      */
-    public function ship(Order $order): void
+    public function ship(int $productId, int $warehouseId, float $qty, int $orderId): void
     {
-        foreach ($order->items as $item) {
-            $stock = Stock::where('product_id', $item->product_id)
-                ->where('warehouse_id', $order->warehouse_id)
-                ->lockForUpdate()
-                ->first();
+        $stock = Stock::where('product_id', $productId)
+            ->where('warehouse_id', $warehouseId)
+            ->lockForUpdate()
+            ->first();
 
-            if ($stock) {
-                $stock->decrement('committed_qty', $item->quantity);
-                $stock->decrement('quantity', $item->quantity);
-                $stock->increment('in_transit_qty', $item->quantity);
-                $this->createLedgerEntry($item->product_id, $order->warehouse_id, null, 'ship', -$item->quantity, $stock->fresh()->quantity, 'Order', $order->id);
-            }
+        if ($stock) {
+            $stock->decrement('committed_qty', $qty);
+            $stock->decrement('quantity', $qty);
+            $stock->increment('in_transit_qty', $qty);
+            $this->createLedgerEntry($productId, $warehouseId, null, 'ship', -$qty, $stock->fresh()->quantity, 'Order', $orderId);
         }
     }
 
@@ -92,18 +84,16 @@ class InventoryService
      * Deliver inventory.
      * in_transit_qty -= qty
      */
-    public function deliver(Order $order): void
+    public function deliver(int $productId, int $warehouseId, float $qty, int $orderId): void
     {
-        foreach ($order->items as $item) {
-            $stock = Stock::where('product_id', $item->product_id)
-                ->where('warehouse_id', $order->warehouse_id)
-                ->lockForUpdate()
-                ->first();
+        $stock = Stock::where('product_id', $productId)
+            ->where('warehouse_id', $warehouseId)
+            ->lockForUpdate()
+            ->first();
 
-            if ($stock) {
-                $stock->decrement('in_transit_qty', $item->quantity);
-                $this->createLedgerEntry($item->product_id, $order->warehouse_id, null, 'deliver', 0, $stock->fresh()->quantity, 'Order', $order->id);
-            }
+        if ($stock) {
+            $stock->decrement('in_transit_qty', $qty);
+            $this->createLedgerEntry($productId, $warehouseId, null, 'deliver', 0, $stock->fresh()->quantity, 'Order', $orderId);
         }
     }
 
@@ -111,19 +101,17 @@ class InventoryService
      * Handle return of a shipped order.
      * in_transit_qty -= qty, quantity += qty
      */
-    public function handleReturn(Order $order): void
+    public function handleReturn(int $productId, int $warehouseId, float $qty, int $orderId): void
     {
-        foreach ($order->items as $item) {
-            $stock = Stock::where('product_id', $item->product_id)
-                ->where('warehouse_id', $order->warehouse_id)
-                ->lockForUpdate()
-                ->first();
+        $stock = Stock::where('product_id', $productId)
+            ->where('warehouse_id', $warehouseId)
+            ->lockForUpdate()
+            ->first();
 
-            if ($stock) {
-                $stock->decrement('in_transit_qty', $item->quantity);
-                $stock->increment('quantity', $item->quantity);
-                $this->createLedgerEntry($item->product_id, $order->warehouse_id, null, 'return', $item->quantity, $stock->fresh()->quantity, 'Order', $order->id, 'Shipment Returned');
-            }
+        if ($stock) {
+            $stock->decrement('in_transit_qty', $qty);
+            $stock->increment('quantity', $qty);
+            $this->createLedgerEntry($productId, $warehouseId, null, 'return', $qty, $stock->fresh()->quantity, 'Order', $orderId, 'Shipment Returned');
         }
     }
 

@@ -96,6 +96,8 @@
                                 <input type="radio" name="shipping_address_id" value="{{ $address->id }}" 
                                     class="form-selectgroup-input shipping-radio" 
                                     {{ $address->is_default ? 'checked' : '' }} 
+                                    required
+                                    form="place-order-form"
                                     onchange="syncBilling(this.value)">
                                 <div class="form-selectgroup-label p-3 h-100 text-start border-2">
                                     <div class="d-flex justify-content-between mb-2">
@@ -146,7 +148,9 @@
                                 <label class="form-selectgroup-item w-100">
                                     <input type="radio" name="billing_address_id" value="{{ $address->id }}" 
                                         class="form-selectgroup-input billing-radio" 
-                                        {{ $address->is_default ? 'checked' : '' }}>
+                                        {{ $address->is_default ? 'checked' : '' }}
+                                        required
+                                        form="place-order-form">
                                     <div class="form-selectgroup-label p-3 h-100 text-start border-2">
                                         <div class="d-flex justify-content-between mb-2">
                                             <span class="badge bg-green-lt">{{ ucfirst($address->type) }}</span>
@@ -230,8 +234,9 @@
     </div>
 
     <div class="col-lg-4">
-        <form action="{{ route('erp.parties.place-order', $party->id) }}" method="POST">
+        <form action="{{ route('erp.parties.place-order', $party->id) }}" method="POST" id="place-order-form">
             @csrf
+            <input type="hidden" name="active_tab" value="v-pills-checkout-tab">
             <!-- Step 4: Finalize -->
             <div class="card mb-3 shadow-sm border-0 overflow-hidden">
                 <div class="card-header bg-dark text-white py-3">

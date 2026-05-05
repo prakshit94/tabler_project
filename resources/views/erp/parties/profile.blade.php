@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     // Priority: Session active_tab > LocalStorage > URL Hash > Default (Profile)
-    let activeTabId = @if(session('active_tab')) "{{ session('active_tab') }}" @else null @endif;
+    let activeTabId = @if(session('active_tab')) "{{ session('active_tab') }}" @elseif(old('active_tab')) "{{ old('active_tab') }}" @else null @endif;
     
     if (!activeTabId) {
         activeTabId = localStorage.getItem('activeProfileTab_' + window.location.pathname);

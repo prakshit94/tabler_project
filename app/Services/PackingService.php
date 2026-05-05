@@ -14,6 +14,12 @@ class PackingService
     public function createPackage(Order $order, array $data): Package
     {
         return DB::transaction(function () use ($order, $data) {
+            
+            // ✅ Auto-transition to packing if currently picked
+            if ($order->status === 'picked') {
+                app(\App\Services\OrderService::class)->startPacking($order);
+            }
+
             return Package::create([
                 'package_number' => 'PKG-' . strtoupper(uniqid()),
                 'order_id'       => $order->id,
@@ -41,6 +47,16 @@ class PackingService
             // ✅ Prevent adding items to already packed package
             if ($package->status === 'packed') {
                 throw new \Exception('Cannot add items to a sealed package');
+            }
+
+            // ✅ Prevent over-packing (validate against order item quantity)
+            $orderItem = \App\Models\OrderItem::findOrFail($orderItemId);
+            $totalPacked = PackageItem::whereHas('package', function($q) use ($package) {
+                $q->where('order_id', $package->order_id);
+            })->where('order_item_id', $orderItemId)->sum('quantity');
+
+            if (($totalPacked + $qty) > $orderItem->quantity) {
+                throw new \InvalidArgumentException('Cannot over-pack item. Total requested: ' . $orderItem->quantity);
             }
 
             // ✅ Merge if same item already exists
@@ -109,13 +125,20 @@ class PackingService
             return $pkg->items->sum('quantity');
         });
 
+        // ✅ Account for backorders (partial fulfillment)
+        $pendingBackorders = \App\Models\Backorder::where('order_id', $order->id)
+            ->where('status', 'pending')
+            ->sum('pending_qty');
+        
+        $expectedToPack = max(0, $totalItems - $pendingBackorders);
+
         return [
             'packages'     => $packages,
             'total_items'  => $totalItems,
             'packed_items' => $packedItems,
 
-            // ✅ Prevent false positives
-            'is_complete'  => $totalItems > 0 && $packedItems >= $totalItems,
+            // ✅ is_complete now handles partial shipments correctly
+            'is_complete'  => $expectedToPack > 0 && $packedItems >= $expectedToPack,
         ];
     }
 }

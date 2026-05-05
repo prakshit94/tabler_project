@@ -216,6 +216,8 @@ class CustomerProfileController extends Controller
 
         $request->validate([
             'warehouse_id' => 'required|exists:warehouses,id',
+            'shipping_address_id' => 'required|exists:party_addresses,id',
+            'billing_address_id' => 'required|exists:party_addresses,id',
             'payment_method' => 'nullable|string',
         ]);
 
@@ -235,6 +237,8 @@ class CustomerProfileController extends Controller
             $order = Order::create([
                 'order_number' => 'ORD-' . strtoupper(Str::random(8)),
                 'party_id' => $party->id,
+                'shipping_address_id' => $request->shipping_address_id,
+                'billing_address_id' => $request->billing_address_id,
                 'warehouse_id' => $request->warehouse_id,
                 'type' => 'sale',
                 'order_date' => now(),
@@ -294,8 +298,10 @@ class CustomerProfileController extends Controller
             'post_office' => 'nullable|string',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
-            'is_default' => 'boolean',
+            'is_default' => 'nullable',
         ]);
+
+        $validated['is_default'] = $request->boolean('is_default');
 
         if ($request->has('is_default') && $request->is_default) {
             $party->addresses()->update(['is_default' => false]);
