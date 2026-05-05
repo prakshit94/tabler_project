@@ -36,14 +36,19 @@ class WmsController extends Controller
             'pending_ship'   => Order::where('status', 'packed')->count(),
             'in_transit'     => Shipment::whereNotIn('status', ['delivered', 'returned'])->count(),
             'backorders'     => Backorder::where('status', 'pending')->count(),
-            'low_stock'      => Stock::whereRaw('quantity - reserved_qty - committed_qty <= ?', [
-                (int) \App\Models\SystemSetting::get('low_stock_threshold', 10)
-            ])->count(),
+            'low_stock'      => Stock::whereRaw(
+                'quantity - reserved_qty - committed_qty <= ?',
+                [(int) \App\Models\SystemSetting::get('low_stock_threshold', 10)]
+            )->count(),
         ];
 
         $recentPickLists  = PickList::with(['order.party', 'warehouse'])->latest()->take(5)->get();
         $recentShipments  = Shipment::with(['order.party', 'latestEvent'])->latest()->take(5)->get();
-        $pendingBackorders = Backorder::with(['product', 'order'])->where('status', 'pending')->latest()->take(5)->get();
+        $pendingBackorders = Backorder::with(['product', 'order'])
+            ->where('status', 'pending')
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('erp.wms.dashboard', compact('stats', 'recentPickLists', 'recentShipments', 'pendingBackorders'));
     }
@@ -56,19 +61,15 @@ class WmsController extends Controller
         $warehouse_id = $request->input('warehouse_id');
 
         $query = PickList::with(['order.party', 'warehouse', 'assignedTo'])->latest();
-        
+
         if ($status) $query->where('status', $status);
         if ($warehouse_id) $query->where('warehouse_id', $warehouse_id);
-        
+
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('pick_list_number', 'like', "%{$search}%")
-                  ->orWhereHas('order.party', function($qp) use ($search) {
-                      $qp->where('name', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('order', function($qo) use ($search) {
-                      $qo->where('order_number', 'like', "%{$search}%");
-                  });
+                  ->orWhereHas('order.party', fn ($qp) => $qp->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('order', fn ($qo) => $qo->where('order_number', 'like', "%{$search}%"));
             });
         }
 
@@ -89,11 +90,15 @@ class WmsController extends Controller
                 if (!in_array($order->status, ['allocated'])) {
                     throw new \RuntimeException("Order must be in 'allocated' status to generate a pick list.");
                 }
+
                 $this->orderService->startPicking($order);
                 return $this->pickingService->generatePickList($order);
             });
-            return redirect()->route('erp.wms.pick-list.show', $pickList)->with('success', "Pick list generated for Order #{$order->order_number}");
-        } catch (\Exception $e) {
+
+            return redirect()
+                ->route('erp.wms.pick-list.show', $pickList)
+                ->with('success', "Pick list generated for Order #{$order->order_number}");
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -112,46 +117,49 @@ class WmsController extends Controller
 
     public function recordPick(Request $request, PickListItem $item)
     {
-        $validated = $request->validate(['picked_qty' => 'required|numeric|min:0']);
+        $validated = $request->validate([
+            'picked_qty' => 'required|numeric|min:0'
+        ]);
+
         $this->pickingService->recordPick($item, $validated['picked_qty']);
 
-        // If whole pick list done → mark order picked
-        $pickList = $item->pickList->fresh();
-        if ($pickList->status === 'completed') {
+        $pickList = $item->pickList()->first()?->fresh();
+
+        if ($pickList && $pickList->status === 'completed') {
             try {
                 $this->orderService->markPicked($pickList->order);
-                return redirect()->route('erp.wms.packing.show', $pickList->order)->with('success', 'Picking completed. Starting packing...');
-            } catch (\Exception $e) {}
+                return redirect()
+                    ->route('erp.wms.packing.show', $pickList->order)
+                    ->with('success', 'Picking completed. Starting packing...');
+            } catch (\Throwable $e) {}
         }
 
-        return redirect()->route('erp.wms.pick-list.show', $item->pick_list_id)->with('success', 'Pick recorded.');
+        return redirect()
+            ->route('erp.wms.pick-list.show', $item->pick_list_id)
+            ->with('success', 'Pick recorded.');
     }
 
     /** ---- PACKING ---- */
     public function packingQueue(Request $request)
     {
         $search = $request->input('search');
-        $status = $request->input('status') ?: 'to_pack'; // Default to show what needs work
+        $status = $request->input('status') ?: 'to_pack';
         $warehouse_id = $request->input('warehouse_id');
 
         $query = Order::with(['party', 'warehouse', 'packages', 'items.product'])->latest();
 
         if ($status === 'to_pack') {
             $query->whereIn('status', ['picked', 'packing']);
-        } elseif ($status === 'all') {
-            // No status filter, show everything
-        } elseif ($status) {
+        } elseif ($status !== 'all' && $status) {
             $query->where('status', $status);
         }
 
         if ($warehouse_id) $query->where('warehouse_id', $warehouse_id);
-        
+
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhereHas('party', function($qp) use ($search) {
-                      $qp->where('name', 'like', "%{$search}%");
-                  });
+                  ->orWhereHas('party', fn ($qp) => $qp->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -177,7 +185,7 @@ class WmsController extends Controller
         try {
             $this->orderService->startPacking($order);
             return redirect()->route('erp.wms.packing.show', $order)->with('success', 'Packing started.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -189,8 +197,12 @@ class WmsController extends Controller
             'dimensions' => 'nullable|string|max:50',
             'notes'      => 'nullable|string',
         ]);
+
         $this->packingService->createPackage($order, $validated);
-        return redirect()->route('erp.wms.packing.show', $order)->with('success', 'Package created.');
+
+        return redirect()
+            ->route('erp.wms.packing.show', $order)
+            ->with('success', 'Package created.');
     }
 
     public function addItemToPackage(Request $request, Package $package)
@@ -201,26 +213,42 @@ class WmsController extends Controller
         ]);
 
         $orderItem = \App\Models\OrderItem::findOrFail($validated['order_item_id']);
-        
-        $this->packingService->addItem($package, $orderItem->id, $orderItem->product_id, $validated['quantity']);
 
-        return redirect()->route('erp.wms.packing.show', $package->order_id)->with('success', 'Item added to package.');
+        $this->packingService->addItem(
+            $package,
+            $orderItem->id,
+            $orderItem->product_id,
+            $validated['quantity']
+        );
+
+        return redirect()
+            ->route('erp.wms.packing.show', $package->order_id)
+            ->with('success', 'Item added to package.');
     }
 
     public function sealPackage(Package $package)
     {
         $this->packingService->sealPackage($package);
-        $order = $package->order->fresh();
 
-        // If all packages packed → mark order packed
-        $allPacked = $order->packages()->where('status', '!=', 'packed')->doesntExist();
-        if ($allPacked && $order->packages()->count() > 0 && $order->status === 'packing') {
-            try { 
-                $this->orderService->markPacked($order); 
-                return redirect()->route('erp.shipments.create', $order->id)->with('success', 'All packages sealed. Proceeding to shipment...');
-            } catch (\Exception $e) {}
+        $order = $package->order()->first()?->fresh();
+
+        if ($order) {
+            $allPacked = $order->packages()
+                ->where('status', '!=', 'packed')
+                ->doesntExist();
+
+            if ($allPacked && $order->packages()->count() > 0 && $order->status === 'packing') {
+                try {
+                    $this->orderService->markPacked($order);
+                    return redirect()
+                        ->route('erp.shipments.create', $order->id)
+                        ->with('success', 'All packages sealed. Proceeding to shipment...');
+                } catch (\Throwable $e) {}
+            }
         }
 
-        return redirect()->route('erp.wms.packing.show', $package->order_id)->with('success', 'Package sealed.');
+        return redirect()
+            ->route('erp.wms.packing.show', $package->order_id)
+            ->with('success', 'Package sealed.');
     }
 }

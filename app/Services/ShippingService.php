@@ -15,6 +15,7 @@ class ShippingService
     public function createShipment(Order $order, array $data): Shipment
     {
         return DB::transaction(function () use ($order, $data) {
+
             $shipment = Shipment::create([
                 'shipment_number'    => 'SHP-' . strtoupper(uniqid()),
                 'order_id'           => $order->id,
@@ -28,7 +29,15 @@ class ShippingService
                 'shipped_at'         => now(),
             ]);
 
-            $this->addTrackingEvent($shipment, 'dispatched', $data['origin'] ?? 'Warehouse', 'Shipment dispatched');
+            $this->addTrackingEvent(
+                $shipment,
+                'dispatched',
+                $data['origin'] ?? 'Warehouse',
+                'Shipment dispatched'
+            );
+
+            // ✅ Fire event (you created it but weren’t using it)
+            event(new OrderShipped($order));
 
             return $shipment;
         });
@@ -37,19 +46,32 @@ class ShippingService
     /**
      * Add a tracking event to a shipment.
      */
-    public function addTrackingEvent(Shipment $shipment, string $status, ?string $location, ?string $description = null): ShipmentTrackingEvent
-    {
-        $event = ShipmentTrackingEvent::create([
-            'shipment_id' => $shipment->id,
-            'status'      => $status,
-            'location'    => $location,
-            'description' => $description,
-            'event_at'    => now(),
-        ]);
+    public function addTrackingEvent(
+        Shipment $shipment,
+        string $status,
+        ?string $location,
+        ?string $description = null
+    ): ShipmentTrackingEvent {
+        return DB::transaction(function () use ($shipment, $status, $location, $description) {
 
-        $shipment->update(['status' => $status]);
+            // ✅ Prevent invalid transitions
+            if (in_array($shipment->status, ['delivered', 'returned'])) {
+                throw new \Exception('Cannot update a completed shipment');
+            }
 
-        return $event;
+            $event = ShipmentTrackingEvent::create([
+                'shipment_id' => $shipment->id,
+                'status'      => $status,
+                'location'    => $location,
+                'description' => $description,
+                'event_at'    => now(),
+            ]);
+
+            // ✅ Update shipment status safely
+            $shipment->update(['status' => $status]);
+
+            return $event;
+        });
     }
 
     /**
@@ -57,12 +79,30 @@ class ShippingService
      */
     public function markDelivered(Shipment $shipment): Shipment
     {
-        $shipment->update([
-            'status'       => 'delivered',
-            'delivered_at' => now(),
-        ]);
-        $this->addTrackingEvent($shipment, 'delivered', null, 'Package delivered successfully');
-        return $shipment->fresh();
+        return DB::transaction(function () use ($shipment) {
+
+            if ($shipment->status === 'delivered') {
+                return $shipment;
+            }
+
+            if ($shipment->status === 'returned') {
+                throw new \Exception('Returned shipment cannot be delivered');
+            }
+
+            $shipment->update([
+                'status'       => 'delivered',
+                'delivered_at' => now(),
+            ]);
+
+            $this->addTrackingEvent(
+                $shipment,
+                'delivered',
+                null,
+                'Package delivered successfully'
+            );
+
+            return $shipment->fresh();
+        });
     }
 
     /**
@@ -70,9 +110,29 @@ class ShippingService
      */
     public function markReturned(Shipment $shipment, ?string $reason = null): Shipment
     {
-        $shipment->update(['status' => 'returned']);
-        $this->addTrackingEvent($shipment, 'returned', null, $reason ?? 'Shipment returned to origin');
-        return $shipment->fresh();
+        return DB::transaction(function () use ($shipment, $reason) {
+
+            if ($shipment->status === 'returned') {
+                return $shipment;
+            }
+
+            if ($shipment->status === 'delivered') {
+                throw new \Exception('Delivered shipment cannot be returned');
+            }
+
+            $shipment->update([
+                'status' => 'returned',
+            ]);
+
+            $this->addTrackingEvent(
+                $shipment,
+                'returned',
+                null,
+                $reason ?? 'Shipment returned to origin'
+            );
+
+            return $shipment->fresh();
+        });
     }
 
     /**

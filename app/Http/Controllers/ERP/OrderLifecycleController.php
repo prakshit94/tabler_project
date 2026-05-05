@@ -6,10 +6,6 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 
-/**
- * Handles WMS state machine transitions for orders.
- * All logic delegated to OrderService.
- */
 class OrderLifecycleController extends Controller
 {
     public function __construct(private OrderService $orderService) {}
@@ -18,8 +14,12 @@ class OrderLifecycleController extends Controller
     {
         try {
             $this->orderService->confirm($order);
-            return redirect()->route('erp.orders.show', $order)->with('success', "Order #{$order->order_number} confirmed and stock reserved.");
-        } catch (\Exception $e) {
+            $order->refresh(); // ✅ ensure latest state
+
+            return redirect()
+                ->route('erp.orders.show', $order)
+                ->with('success', "Order #{$order->order_number} confirmed and stock reserved.");
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -28,8 +28,12 @@ class OrderLifecycleController extends Controller
     {
         try {
             $this->orderService->allocate($order);
-            return redirect()->route('erp.wms.dashboard')->with('success', "Order #{$order->order_number} allocated to batches/bins.");
-        } catch (\Exception $e) {
+            $order->refresh();
+
+            return redirect()
+                ->route('erp.wms.dashboard')
+                ->with('success', "Order #{$order->order_number} allocated to batches/bins.");
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -38,8 +42,12 @@ class OrderLifecycleController extends Controller
     {
         try {
             $this->orderService->deliver($order);
-            return redirect()->route('erp.orders.show', $order)->with('success', "Order #{$order->order_number} marked as delivered.");
-        } catch (\Exception $e) {
+            $order->refresh();
+
+            return redirect()
+                ->route('erp.orders.show', $order)
+                ->with('success', "Order #{$order->order_number} marked as delivered.");
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -48,8 +56,12 @@ class OrderLifecycleController extends Controller
     {
         try {
             $this->orderService->close($order);
-            return redirect()->route('erp.orders.show', $order)->with('success', "Order #{$order->order_number} closed.");
-        } catch (\Exception $e) {
+            $order->refresh();
+
+            return redirect()
+                ->route('erp.orders.show', $order)
+                ->with('success', "Order #{$order->order_number} closed.");
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -58,8 +70,12 @@ class OrderLifecycleController extends Controller
     {
         try {
             $this->orderService->cancel($order, $request->input('reason', ''));
-            return redirect()->route('erp.orders.show', $order)->with('success', "Order #{$order->order_number} cancelled.");
-        } catch (\Exception $e) {
+            $order->refresh();
+
+            return redirect()
+                ->route('erp.orders.show', $order)
+                ->with('success', "Order #{$order->order_number} cancelled.");
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -68,8 +84,12 @@ class OrderLifecycleController extends Controller
     {
         try {
             $this->orderService->hold($order);
-            return redirect()->route('erp.orders.show', $order)->with('success', "Order #{$order->order_number} put on hold.");
-        } catch (\Exception $e) {
+            $order->refresh();
+
+            return redirect()
+                ->route('erp.orders.show', $order)
+                ->with('success', "Order #{$order->order_number} put on hold.");
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }

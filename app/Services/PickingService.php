@@ -48,23 +48,50 @@ class PickingService
      */
     public function recordPick(PickListItem $item, float $pickedQty): PickListItem
     {
-        $item->update([
-            'picked_qty' => $pickedQty,
-            'status'     => $pickedQty >= $item->requested_qty ? 'picked' : 'partial',
-            'picked_at'  => now(),
-        ]);
+        return DB::transaction(function () use ($item, $pickedQty) {
 
-        // Check if whole pick list is done
-        $pickList = $item->pickList;
-        $allPicked = $pickList->items()->whereNotIn('status', ['picked', 'skipped'])->doesntExist();
-        if ($allPicked) {
-            $pickList->update([
-                'status'       => 'completed',
-                'completed_at' => now(),
+            // ✅ Prevent invalid values
+            $pickedQty = max(0, $pickedQty);
+
+            // ✅ Prevent over-picking
+            if ($pickedQty > $item->requested_qty) {
+                $pickedQty = $item->requested_qty;
+            }
+
+            // ✅ Determine status safely
+            $status = 'pending';
+            if ($pickedQty == 0) {
+                $status = 'pending';
+            } elseif ($pickedQty < $item->requested_qty) {
+                $status = 'partial';
+            } else {
+                $status = 'picked';
+            }
+
+            $item->update([
+                'picked_qty' => $pickedQty,
+                'status'     => $status,
+                'picked_at'  => now(),
             ]);
-        }
 
-        return $item->fresh();
+            // ✅ Reload relation safely
+            $pickList = $item->pickList()->with('items')->first();
+
+            // ✅ More robust completion check
+            $allPicked = $pickList->items
+                ->every(function ($i) {
+                    return in_array($i->status, ['picked', 'skipped']);
+                });
+
+            if ($allPicked && $pickList->status !== 'completed') {
+                $pickList->update([
+                    'status'       => 'completed',
+                    'completed_at' => now(),
+                ]);
+            }
+
+            return $item->fresh();
+        });
     }
 
     /**
@@ -72,10 +99,16 @@ class PickingService
      */
     public function startPickList(PickList $pickList): PickList
     {
+        // ✅ Avoid overwriting if already started/completed
+        if (!in_array($pickList->status, ['pending'])) {
+            return $pickList;
+        }
+
         $pickList->update([
             'status'     => 'in_progress',
             'started_at' => now(),
         ]);
+
         return $pickList->fresh();
     }
 }
