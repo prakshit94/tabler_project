@@ -322,8 +322,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const dateRangeFilter = document.getElementById('date-range-filter');
     let searchTimeout = null;
 
-    // AJAX Fetching
+    // AJAX Fetching with Race Condition Prevention
+    let abortController = null;
     function fetchOrders(url) {
+        if (abortController) {
+            abortController.abort();
+        }
+        abortController = new AbortController();
+        const signal = abortController.signal;
+
         const currentUrl = new URL(url || window.location.href);
         const params = new URLSearchParams(currentUrl.search);
         
@@ -361,10 +368,19 @@ document.addEventListener('DOMContentLoaded', function () {
             exportBtn.href = exportUrl.toString();
         }
 
-        fetch(fetchUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } })
+        fetch(fetchUrl, { 
+            signal: signal,
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } 
+        })
             .then(res => res.text())
             .then(html => {
                 tableContainer.innerHTML = html;
+                abortController = null;
+            })
+            .catch(err => {
+                if (err.name === 'AbortError') return;
+                console.error('Fetch error:', err);
+                abortController = null;
             });
     }
 
@@ -558,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Tom Select - Robust Toggling
     const getTsConfig = (placeholder) => ({
-        plugins: ['remove_button'],
+        plugins: [],
         maxOptions: 500,
         placeholder: placeholder,
         closeAfterSelect: false,
@@ -566,13 +582,6 @@ document.addEventListener('DOMContentLoaded', function () {
         onItemAdd: function() {
             this.setTextboxValue('');
             this.refreshOptions(false);
-        },
-        onOptionSelect: function(value, data) {
-            if (this.items.includes(value)) {
-                this.removeItem(value);
-                this.refreshOptions(false);
-                return false;
-            }
         },
         render: {
             option: function(data, escape) {
@@ -584,6 +593,21 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         onInitialize: function() {
             const self = this;
+            
+            // Custom click handler for unchecking
+            self.dropdown.addEventListener('click', function(e) {
+                const option = e.target.closest('.option');
+                if (option) {
+                    const value = option.dataset.value;
+                    if (self.items.includes(value)) {
+                        self.removeItem(value);
+                        self.refreshOptions(false);
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }
+            }, true); // Capture phase
+
             const countEl = document.createElement('div');
             countEl.className = 'ts-count small text-primary fw-bold';
             countEl.style.cssText = 'position:absolute; right:30px; top:50%; transform:translateY(-50%); pointer-events:none; z-index:5;';
@@ -612,12 +636,13 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (ts) {
             if (isSelectAll) {
-                ts.setValue(Object.keys(ts.options));
+                const allValues = Object.keys(ts.options);
+                ts.setValue(allValues);
             } else {
                 ts.clear();
             }
-            // Trigger filter once
-            fetchOrders();
+            // Note: ts.clear() and ts.setValue() trigger the 'change' event 
+            // which handles calling updateLocationFilters or fetchOrders automatically.
         }
     };
 
@@ -646,14 +671,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 data.districts.forEach(d => tomSelectDistricts.addOption({value: d, text: d}));
                 // Keep values that are still available
                 const validDistricts = districts.filter(d => data.districts.includes(d));
-                tomSelectDistricts.setValue(validDistricts, true);
+                tomSelectDistricts.setValue(validDistricts); // Removed silent flag to trigger taluka update
             }
 
             if (triggeringField === 'state' || triggeringField === 'district') {
                 tomSelectTalukas.clearOptions();
                 data.talukas.forEach(t => tomSelectTalukas.addOption({value: t, text: t}));
                 const validTalukas = talukas.filter(t => data.talukas.includes(t));
-                tomSelectTalukas.setValue(validTalukas, true);
+                tomSelectTalukas.setValue(validTalukas); // Removed silent flag
             }
         } catch (err) {
             console.error('Error updating locations:', err);
