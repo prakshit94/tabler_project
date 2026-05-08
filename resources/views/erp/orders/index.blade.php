@@ -190,6 +190,13 @@
                 <option value="">Bulk Actions</option>
                 @if($view === 'active')
                    <option value="change-status">Update Status</option>
+                   <optgroup label="Direct Processing">
+                     <option value="bulk-confirm">Direct Confirm</option>
+                     <option value="bulk-process">Process (Ready to Ship)</option>
+                     <option value="bulk-dispatch">Dispatch (Shipped)</option>
+                     <option value="bulk-deliver">Mark Delivered</option>
+                     <option value="bulk-return">Process Return</option>
+                   </optgroup>
                    <option value="delete">Move to Trash</option>
                    <option value="bulk-print-invoice">Bulk Print Invoices</option>
                    <option value="bulk-print-cod">Bulk Print COD</option>

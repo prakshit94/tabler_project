@@ -321,6 +321,63 @@ class OrderController extends Controller
                 return redirect()->route('erp.invoices.bulk-print', ['ids' => implode(',', $ids)]);
             case 'bulk-print-cod':
                 return redirect()->route('erp.orders.bulk-print-cod', ['ids' => implode(',', $ids)]);
+            case 'bulk-confirm':
+            case 'bulk-process':
+            case 'bulk-dispatch':
+            case 'bulk-deliver':
+            case 'bulk-return':
+                $orders = Order::whereIn('id', $ids)->get();
+                $successCount = 0;
+                $errors = [];
+                
+                foreach ($orders as $order) {
+                    try {
+                        switch ($action) {
+                            case 'bulk-confirm':
+                                $this->orderService->confirm($order);
+                                break;
+                            case 'bulk-process':
+                                // Automatically jump to packed (ready to ship)
+                                if (in_array($order->status, ['pending', 'draft'])) {
+                                    $this->orderService->confirm($order);
+                                }
+                                if ($this->orderService->canTransitionTo($order, 'allocated')) {
+                                    $this->orderService->allocate($order);
+                                }
+                                if ($this->orderService->canTransitionTo($order, 'picking')) {
+                                    $this->orderService->startPicking($order);
+                                    $this->orderService->markPicked($order);
+                                }
+                                if ($this->orderService->canTransitionTo($order, 'packing')) {
+                                    $this->orderService->startPacking($order);
+                                }
+                                if ($this->orderService->canTransitionTo($order, 'packed')) {
+                                    $this->orderService->markPacked($order);
+                                }
+                                break;
+                            case 'bulk-dispatch':
+                                $this->orderService->ship($order);
+                                break;
+                            case 'bulk-deliver':
+                                $this->orderService->deliver($order);
+                                break;
+                            case 'bulk-return':
+                                $this->orderService->markReturned($order);
+                                break;
+                        }
+                        $successCount++;
+                    } catch (\Exception $e) {
+                        $errors[] = "Order #{$order->order_number}: " . $e->getMessage();
+                    }
+                }
+
+                if (!empty($errors)) {
+                    $errorMsg = "Processed {$successCount} orders. Errors: " . implode(', ', $errors);
+                    return redirect()->back()->with('warning', $errorMsg);
+                }
+                
+                return redirect()->back()->with('success', "Successfully processed {$successCount} orders");
+
             case 'change-status':
                 $newStatus = $request->input('status');
                 if (!$newStatus) return redirect()->back()->with('error', 'Please select a status');
@@ -338,8 +395,26 @@ class OrderController extends Controller
                             case 'allocated':
                                 $this->orderService->allocate($order);
                                 break;
+                            case 'picking':
+                                $this->orderService->startPicking($order);
+                                break;
+                            case 'picked':
+                                $this->orderService->markPicked($order);
+                                break;
+                            case 'packing':
+                                $this->orderService->startPacking($order);
+                                break;
+                            case 'packed':
+                                $this->orderService->markPacked($order);
+                                break;
+                            case 'shipped':
+                                $this->orderService->ship($order);
+                                break;
                             case 'delivered':
                                 $this->orderService->deliver($order);
+                                break;
+                            case 'returned':
+                                $this->orderService->markReturned($order);
                                 break;
                             case 'closed':
                                 $this->orderService->close($order);

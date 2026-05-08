@@ -64,7 +64,7 @@
           </form>
           @endif
           
-          @if(in_array($order->status, ['completed', 'delivered', 'closed']))
+          @if(in_array($order->status, ['packed', 'shipped', 'in_transit', 'delivered', 'completed', 'closed']))
             @if(!$order->invoice)
               <a href="{{ route('erp.invoices.create', ['order_id' => $order->id]) }}" class="btn btn-azure">Generate Invoice</a>
             @else
